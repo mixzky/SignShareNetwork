@@ -14,7 +14,12 @@ import * as d3 from "d3-geo";
 
 const GlobeComponent = forwardRef((props, ref) => {
   const globeEl = useRef<HTMLDivElement>(null);
-  const globeInstance = useRef(null);
+  const globeInstance = useRef<{
+    pointOfView: (
+      params: { lat: number; lng: number; altitude: number },
+      duration?: number
+    ) => void;
+  } | null>(null);
   const countryColors = useRef(new Map());
   const [isLoading, setIsLoading] = useState(true);
 
