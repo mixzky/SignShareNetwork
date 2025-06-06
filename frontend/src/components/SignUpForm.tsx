@@ -2,6 +2,7 @@
 import React, { useState } from "react"
 import AuthButton from "./AuthButton"
 import { useRouter } from "next/navigation"
+import { signUp } from "@/actions/auth";
 
 const SignUpForm = () => {
     const [error, setError] = useState<string | null>(null);
@@ -14,12 +15,12 @@ const SignUpForm = () => {
         setLoading(true);
 
         const formData = new FormData(event.currentTarget);
-        const result = await signup(formData);
+        const result = await signUp(formData);
         
         if(result.status === "success") {
             router.push("/");
         }else{
-            setError(result.error);
+            setError(result.status);
         }
 
         setLoading(false);

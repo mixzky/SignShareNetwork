@@ -5,21 +5,21 @@ import { redirect } from "next/navigation"
 import { createClient } from "../../utils/supabase/server"
 import { headers } from "next/headers"
 
-export async function signup(formData: FormData) {
+export async function signUp(formData: FormData) {
     const supabase = await createClient();
     
-    const Credential = {
+    const credentials = {
         username: formData.get("username") as string,
         email: formData.get("email") as string,
         password: formData.get("password") as string,
     };
 
     const {error, data} = await supabase.auth.signUp({
-        email: Credential.email,
-        password: Credential.password,
+        email: credentials.email,
+        password: credentials.password,
         options: {
             data: {
-                username: Credential.username,
+                username: credentials.username,
             },
         },
 
@@ -39,4 +39,40 @@ export async function signup(formData: FormData) {
 
     revalidatePath("/", "layout");
     return {status: "success", user: data.user};
+}
+
+export async function signIn(formData: FormData) {
+    const supabase = await createClient();
+    
+    const credentials = {
+        email: formData.get("email") as string,
+        password: formData.get("password") as string,
+    };
+    
+    const {error, data} = await supabase.auth.signInWithPassword(credentials);
+
+    if(error) {
+        return {
+            status: error?.message,
+            user: null,
+        }
+    }
+
+    // TODO: create a user instance in user_profile table
+    revalidatePath("/", "layout");
+    return {status: "success", user: data.user};
+
+}
+
+export async function signOut() {
+    const supabase = await createClient();
+
+    const { error } = await supabase.auth.signOut();
+
+    if(error) {
+        redirect("/error");
+    }
+
+    revalidatePath("/", "layout");
+    redirect("/login");
 }

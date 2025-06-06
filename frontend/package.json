@@ -9,11 +9,10 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@supabase/ssr": "^0.6.1",
-    "@supabase/supabase-js": "^2.49.10",
-    "next": "15.3.3",
     "@react-three/drei": "^10.1.2",
     "@react-three/fiber": "^9.0.0-alpha.8",
+    "@supabase/ssr": "^0.6.1",
+    "@supabase/supabase-js": "^2.49.10",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "globe.gl": "^2.41.6",
@@ -22,14 +21,14 @@
     "next": "15.3.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "next": "15.3.3"
+    "topojson-client": "^3.1.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4"
+    "tailwindcss": "^4",
+    "typescript": "5.8.3"
   }
 }

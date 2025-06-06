@@ -1,53 +1,26 @@
 "use client";
+import { signOut } from "@/actions/auth";
 import React, { useState } from "react";
-import AuthButton from "./AuthButton";
-// import { useRouter } from "next/navigation";
 
-const LoginForm = () => {
-  const [error, setError] = useState<string | null>(null);
-  // const router = useRouter();
-  const [loading, setLoading] = useState<boolean>(false);
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+const Logout = () => {
+  const [loading, setLoading] = useState(false);
+
+  const handleLogout = async (event: React.FormEvent) => {
     event.preventDefault();
     setLoading(true);
-    setError(null);
-
+    await signOut
     setLoading(false);
   };
+
   return (
-    <div>
-      <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-200">
-            Email
-          </label>
-          <input
-            type="email"
-            placeholder="Email"
-            id="Email"
-            name="email"
-            className="mt-1 w-full px-4 p-2  h-10 rounded-md border border-gray-200 bg-white text-sm text-gray-700"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-200">
-            Password
-          </label>
-          <input
-            type="password"
-            placeholder="Password"
-            name="password"
-            id="password"
-            className="mt-1 w-full px-4 p-2  h-10 rounded-md border border-gray-200 bg-white text-sm text-gray-700"
-          />
-        </div>
-        <div className="mt-4">
-          <AuthButton type="login" loading={loading} />
-        </div>
-        {error && <p className="text-red-500">{error}</p>}
+    <div className="bg-gray-600 text-white text-sm px-4 py-2 rounded-md cursor-pointer">
+      <form onSubmit={handleLogout}>
+        <button type="submit" disabled={loading}>
+          {loading ? "Signing out..." : "Sign out"}
+        </button>
       </form>
     </div>
   );
 };
 
-export default LoginForm;
+export default Logout;
