@@ -1,7 +1,22 @@
 "use client";
 import Link from "next/link";
+import React, { useEffect, useState } from "react";
+import { createClient } from "../../utils/supabase/client";
+import Logout from "./Logout";
 
 export default function TopMenu() {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+
+    const getUser = async () => {
+      const {data : { user }} = await supabase.auth.getUser();
+      setUser(user);
+    };
+
+    getUser();
+  }, []);
   return (
     <nav className="text-white fixed w-full z-50 top-6">
       <div className="max-w-7xl mx-auto px-20">
@@ -31,15 +46,22 @@ export default function TopMenu() {
             </Link>
           </div>
 
-          {/* Right section - Login */}
+          {/* Right section - Login/Logout */}
           <div className="flex-shrink-0">
-            <Link
-              href="/login"
-              className="text-md opacity-80 hover:opacity-100 transition-opacity"
-              style={{ textShadow: "0 2px 4px rgba(0, 0, 0, 0.5)" }}
-            >
-              Login
-            </Link>
+            {!user ? (
+              <Link
+                href="/login"
+                className="text-md opacity-80 hover:opacity-100 transition-opacity"
+                style={{ textShadow: "0 2px 4px rgba(0, 0, 0, 0.5)" }}
+              >
+                Login
+              </Link>
+            ) : (
+              <div className="flex items-center gap-x-2 text-md opacity-80 hover:opacity-100 transition-opacity" style={{ textShadow: "0 2px 4px rgba(0, 0, 0, 0.5)" }}>
+                <span>{user.email}</span>
+                <Logout />
+              </div>
+            )}
           </div>
         </div>
       </div>
