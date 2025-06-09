@@ -13,7 +13,7 @@ const Logout = () => {
   };
 
   return (
-    <div className="bg-gray-600 text-white text-sm px-4 py-2 rounded-md cursor-pointer">
+    <div className="bg-red-500 hover:bg-red-700 text-white font-semibold text-sm px-4 py-2 rounded-md cursor-pointer text-center">
       <form onSubmit={handleLogout}>
         <button type="submit" disabled={loading}>
           {loading ? "Signing out..." : "Sign out"}

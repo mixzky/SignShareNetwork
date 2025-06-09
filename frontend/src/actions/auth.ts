@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createClient } from "../../utils/supabase/server";
+import { createClient } from "../utils/supabase/server";
 import { headers } from "next/headers";
 import { userAgent } from "next/server";
 import { error } from "console";

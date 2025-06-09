@@ -1,17 +1,21 @@
 "use client";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
-import { createClient } from "../../utils/supabase/client";
+import { createClient } from "../utils/supabase/client";
 import Logout from "./Logout";
+import { User } from "@supabase/supabase-js";
+import UserProfileButton from "./UserProfileButton";
 
 export default function TopMenu() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const supabase = createClient();
 
     const getUser = async () => {
-      const {data : { user }} = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       setUser(user);
     };
 
@@ -57,12 +61,17 @@ export default function TopMenu() {
                 Login
               </Link>
             ) : (
-              <div className="flex items-center gap-x-2 text-md opacity-80 hover:opacity-100 transition-opacity" style={{ textShadow: "0 2px 4px rgba(0, 0, 0, 0.5)" }}>
+              <div
+                className="flex items-center gap-x-2 text-md opacity-80 hover:opacity-100 transition-opacity"
+                style={{ textShadow: "0 2px 4px rgba(0, 0, 0, 0.5)" }}
+              >
                 <span>{user.email}</span>
                 <Logout />
               </div>
             )}
           </div>
+          {/* User Profile Button */}
+          <UserProfileButton />
         </div>
       </div>
     </nav>
