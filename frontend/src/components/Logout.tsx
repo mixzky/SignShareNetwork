@@ -8,7 +8,7 @@ const Logout = () => {
   const handleLogout = async (event: React.FormEvent) => {
     event.preventDefault();
     setLoading(true);
-    await signOut
+    await signOut();
     setLoading(false);
   };
 
