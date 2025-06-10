@@ -13,7 +13,11 @@ import * as THREE from "three";
 import * as d3 from "d3-geo";
 import { useRouter } from "next/navigation";
 
-const GlobeComponent = forwardRef((props, ref) => {
+interface GlobeComponentProps {
+  onPolygonClick?: (polygon: any) => void;
+}
+
+const GlobeComponent = forwardRef((props: GlobeComponentProps, ref) => {
   const globeEl = useRef<HTMLDivElement>(null);
   const globeInstance = useRef<{
     pointOfView: (
@@ -112,6 +116,9 @@ const GlobeComponent = forwardRef((props, ref) => {
                 ">${name}</div>`;
             })
             .onPolygonClick((polygon: any) => {
+              if (props.onPolygonClick) {
+                props.onPolygonClick(polygon);
+              }
               const name = polygon?.properties?.name;
               if (name) {
                 const centroid = d3.geoCentroid(polygon);

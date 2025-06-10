@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import TopMenu from "@/components/TopMenu";
 
 export default async function CountryInfo({
   params,
@@ -22,13 +23,13 @@ export default async function CountryInfo({
   // Find country by id
   const country = countries.find((c: any) => String(c.id) === String(id));
 
-  console.log("Found country:", country);
   if (!country) {
     notFound();
   }
 
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
+      <TopMenu />
       <h1 className="text-2xl font-bold mb-4">Country Information</h1>
       <p className="text-lg mb-2">ID: {id}</p>
       <p className="text-lg mb-2">
