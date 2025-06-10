@@ -4,10 +4,13 @@ import TopMenu from "@/components/TopMenu";
 import { useState, useRef } from "react";
 import { BiSearch } from "react-icons/bi";
 import * as d3 from "d3-geo";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  let countryNavi: string | null = null;
   const globeRef = useRef<{
     pointOfView: (
       view: { lat: number; lng: number; altitude: number },
@@ -17,6 +20,7 @@ export default function Home() {
   const [countries, setCountries] = useState<
     GeoJSON.Feature<GeoJSON.Geometry, GeoJSON.GeoJsonProperties>[]
   >([]);
+  const Router = useRouter();
 
   // Function to load countries data if not already loaded
   const loadCountriesData = async () => {
@@ -95,6 +99,8 @@ export default function Home() {
     if (foundCountry) {
       if (foundCountry.properties) {
         console.log(`Found country: ${foundCountry.properties.name}`);
+        countryNavi = foundCountry.id ? String(foundCountry.id) : null;
+        console.log("Country properties:", foundCountry.id);
       } else {
         console.log("Found country, but properties are null.");
       }
@@ -106,13 +112,16 @@ export default function Home() {
       if (globeRef.current) {
         const globe = globeRef.current;
         globe.pointOfView(
-          { lat: centroid[1], lng: centroid[0], altitude: 2.5 },
-          1000
+          { lat: centroid[1], lng: centroid[0], altitude: 0.5 },
+          2000
         );
       }
 
       // Clear search after successful navigation
       setSearchQuery("");
+      setTimeout(() => {
+        router.push(`/country/${countryNavi}`);
+      }, 2000);
     } else {
       console.log("Country not found");
       // You could add a visual indicator here that the country wasn't found

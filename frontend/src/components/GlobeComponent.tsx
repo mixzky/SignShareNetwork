@@ -11,6 +11,7 @@ import * as topojson from "topojson-client";
 import type { FeatureCollection, Geometry } from "geojson";
 import * as THREE from "three";
 import * as d3 from "d3-geo";
+import { useRouter } from "next/navigation";
 
 const GlobeComponent = forwardRef((props, ref) => {
   const globeEl = useRef<HTMLDivElement>(null);
@@ -21,6 +22,7 @@ const GlobeComponent = forwardRef((props, ref) => {
     ) => void;
   } | null>(null);
   const countryColors = useRef(new Map());
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
 
   // Generate pastel color function
@@ -114,9 +116,12 @@ const GlobeComponent = forwardRef((props, ref) => {
               if (name) {
                 const centroid = d3.geoCentroid(polygon);
                 globe.pointOfView(
-                  { lat: centroid[1], lng: centroid[0], altitude: 2.5 },
-                  1000
+                  { lat: centroid[1], lng: centroid[0], altitude: 0.5 },
+                  2000
                 );
+                setTimeout(() => {
+                  router.push(`/country/${polygon.id}`);
+                }, 2000);
               }
             });
 

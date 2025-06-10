@@ -1,8 +1,9 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import "@testing-library/jest-dom";
 import Home from "./page";
-import userEvent from "@testing-library/user-event";
+
+// Add Jest types
+import "@testing-library/jest-dom";
 
 // frontend/src/app/page.test.tsx
 
@@ -64,10 +65,10 @@ describe("Home integration", () => {
     expect(screen.getByTestId("globe")).toBeInTheDocument();
   });
 
-  it("focuses input and shows glow effect", async () => {
+  it("focuses input and shows glow effect", () => {
     render(<Home />);
     const input = screen.getByPlaceholderText(/find countries/i);
-    await userEvent.click(input);
+    fireEvent.focus(input);
     expect(input).toHaveFocus();
   });
 
