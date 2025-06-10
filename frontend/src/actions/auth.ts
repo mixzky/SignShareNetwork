@@ -7,6 +7,7 @@ import { headers } from "next/headers";
 import { userAgent } from "next/server";
 import { error } from "console";
 import { data } from "motion/react-client";
+import { createUserProfile, getUserProfile } from "../lib/supabase";
 
 export async function getUserSession() {
   const supabase = await createClient();
@@ -48,6 +49,17 @@ export async function signUp(formData: FormData) {
     };
   }
 
+  if (data && data.user) {
+    try {
+      const userId = data.user.id;
+      const username = credentials.username;
+      await createUserProfile(userId, username);
+      console.log(`Profile created automatically for new user: ${userId}`);
+    } catch (profileError) {
+      console.error("Error creating user profile during sign-up:", profileError);
+    }
+  }
+
   revalidatePath("/", "layout");
   return { status: "success", user: data.user };
 }
@@ -70,14 +82,14 @@ export async function signIn(formData: FormData) {
   }
 
   const { data: existingUser } = await supabase
-    .from("User")
+    .from("users")
     .select("*")
     .eq("email", credentials?.email)
     .limit(1)
     .single();
 
   if (!existingUser) {
-    const { error: insertError } = await supabase.from("User").insert({
+    const { error: insertError } = await supabase.from("users").insert({
       email: data?.user.email,
       username: data?.user?.user_metadata?.username,
     });
@@ -140,6 +152,7 @@ export async function resetPassword(formData: FormData, code: string) {
 
   return { status: "success" };
 }
+
 export async function signInWithGoogle() {
   const origin = (await headers()).get("origin");
   const supabase = await createClient();
@@ -157,6 +170,25 @@ export async function signInWithGoogle() {
   if (error) {
     redirect("/error");
   } else if (data) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      try {
+        const existingProfile = await getUserProfile(user.id);
+        if (!existingProfile) {
+          const username = user.user_metadata?.email?.split('@')[0] || user.email?.split('@')[0] || user.id;
+          const displayName = user.user_metadata?.full_name || user.user_metadata?.name || username;
+
+          console.log(`*** DEBUG: Creating profile for Google user. userId: ${user.id}, username: ${username}, displayName: ${displayName}`);
+
+          await createUserProfile(user.id, username, { display_name: displayName });
+          console.log(`Profile created automatically for Google user: ${user.id}`);
+        } else {
+          console.log(`Profile already exists for Google user: ${user.id}`);
+        }
+      } catch (profileError) {
+        console.error("Error ensuring user profile for Google sign-in:", profileError);
+      }
+    }
     return redirect(data.url);
   }
 }

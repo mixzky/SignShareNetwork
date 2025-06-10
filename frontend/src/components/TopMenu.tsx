@@ -2,9 +2,9 @@
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { createClient } from "../utils/supabase/client";
-import Logout from "./Logout";
 import { User } from "@supabase/supabase-js";
-import UserProfileButton from "./UserProfileButton";
+import UserProfileDropdown from "./UserProfileDropdown";
+
 
 export default function TopMenu() {
   const [user, setUser] = useState<User | null>(null);
@@ -20,7 +20,16 @@ export default function TopMenu() {
     };
 
     getUser();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
+
   return (
     <nav className="text-white fixed w-full z-50 top-6">
       <div className="max-w-7xl mx-auto px-20">
@@ -50,8 +59,9 @@ export default function TopMenu() {
             </Link>
           </div>
 
-          {/* Right section - Login/Logout */}
-          <div className="flex-shrink-0">
+          {/* Right section - Navigation Items */}
+          <div className="flex items-center gap-6">
+            
             {!user ? (
               <Link
                 href="/login"
@@ -61,17 +71,9 @@ export default function TopMenu() {
                 Login
               </Link>
             ) : (
-              <div
-                className="flex items-center gap-x-2 text-md opacity-80 hover:opacity-100 transition-opacity"
-                style={{ textShadow: "0 2px 4px rgba(0, 0, 0, 0.5)" }}
-              >
-                <span>{user.email}</span>
-                <Logout />
-              </div>
+              <UserProfileDropdown user={user} />
             )}
           </div>
-          {/* User Profile Button */}
-          <UserProfileButton />
         </div>
       </div>
     </nav>
