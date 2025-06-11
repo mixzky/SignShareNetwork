@@ -90,8 +90,15 @@ export default async function CountryInfo({
             </button>
           </div>
         </div>
-        <div className="w-full max-w-11/12 bg-white rounded-2xl shadow-md p-0 mb-8">
-          content
+        <div className="w-full min-h-screen max-w-11/12 bg-white rounded-2xl shadow-md p-0 mb-8">
+          {/* Placeholder for content, e.g., video feed or user posts */}
+          <div className="p-6">
+            <h2 className="text-2xl font-bold mb-4">User Posts</h2>
+            <p className="text-gray-600">
+              This is where user posts will appear.
+            </p>
+            {/* Add more content here as needed */}
+          </div>
         </div>
       </div>
     </main>
