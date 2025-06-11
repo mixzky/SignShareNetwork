@@ -2,12 +2,14 @@
 import GlobeComponent from "@/components/GlobeComponent";
 import TopMenu from "@/components/TopMenu";
 import { useState, useRef } from "react";
+import CountryLoading from "@/components/CountryLoading";
 import { BiSearch } from "react-icons/bi";
 import * as d3 from "d3-geo";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   let countryNavi: string | null = null;
@@ -20,7 +22,7 @@ export default function Home() {
   const [countries, setCountries] = useState<
     GeoJSON.Feature<GeoJSON.Geometry, GeoJSON.GeoJsonProperties>[]
   >([]);
-  const Router = useRouter();
+  const [countryNow, setCountryNow] = useState<string>("");
 
   // Function to load countries data if not already loaded
   const loadCountriesData = async () => {
@@ -99,6 +101,7 @@ export default function Home() {
     if (foundCountry) {
       if (foundCountry.properties) {
         console.log(`Found country: ${foundCountry.properties.name}`);
+        setCountryNow(foundCountry.properties.name);
         countryNavi = foundCountry.id ? String(foundCountry.id) : null;
         console.log("Country properties:", foundCountry.id);
       } else {
@@ -106,6 +109,7 @@ export default function Home() {
       }
 
       // Get centroid of the country
+      setIsLoading(true);
       const centroid = d3.geoCentroid(foundCountry);
 
       // Access the globe instance through ref and fly to country
@@ -128,10 +132,18 @@ export default function Home() {
     }
   }
 
+  const handlePolygonClick = (country: any) => {
+    setCountryNow(country.properties?.name || "");
+    setIsLoading(true);
+    // Optionally, animate globe or do other logic here
+    setTimeout(() => {
+      router.push(`/country/${country.id}`);
+    }, 2000); // Wait for animation if needed
+  };
+
   return (
     <main className="bg-[#0a0e18] h-screen overflow-hidden fixed inset-0">
       <TopMenu />
-
       {/* Enhanced search form below TopMenu */}
       <div className="flex justify-center pt-24 pb-4 relative z-40">
         <form onSubmit={handleSearch} className="relative w-72">
@@ -174,10 +186,12 @@ export default function Home() {
           <div className="absolute inset-0 -z-20 rounded-full blur-lg bg-blue-500/5"></div>
         </form>
       </div>
-
       <div className="absolute inset-0 -z-10">
-        <GlobeComponent ref={globeRef} />
+        <GlobeComponent ref={globeRef} onPolygonClick={handlePolygonClick} />
       </div>
+
+      {/* Loading spinner */}
+      {isLoading && <CountryLoading countryName={countryNow || ""} />}
     </main>
   );
 }
