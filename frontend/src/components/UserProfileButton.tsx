@@ -5,10 +5,17 @@ import { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import Logout from "./Logout";
 import EditProfileModal from "./EditProfileModal";
-import Image from "next/image";
+import { getUserProfile } from "@/lib/supabase";
+
+type UserProfile = {
+  avatar_url: string | null;
+  display_name: string | null;
+  bio: string | null;
+};
 
 export default function UserProfileButton() {
   const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [showMenu, setShowMenu] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -20,25 +27,60 @@ export default function UserProfileButton() {
 
     const getUser = async () => {
       const { data, error } = await supabase.auth.getUser();
-      if (error) console.error(error);
-      else {
-        setUser(data.user);
+      if (error) {
+        console.error(error);
+        return;
+      }
+      
+      setUser(data.user);
+      
+      if (data.user) {
+        try {
+          const userProfile = await getUserProfile(data.user.id);
+          console.log('Loaded profile:', userProfile); // Debug log
+          setProfile(userProfile);
+        } catch (err) {
+          console.error('Error fetching user profile:', err);
+        }
       }
     };
 
     getUser();
+
+    // Subscribe to auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        try {
+          const userProfile = await getUserProfile(session.user.id);
+          console.log('Auth change - loaded profile:', userProfile); // Debug log
+          setProfile(userProfile);
+        } catch (err) {
+          console.error('Error fetching user profile:', err);
+        }
+      } else {
+        setProfile(null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const handleProfileUpdate = async () => {
-    const supabase = createClient();
-    const { data } = await supabase.auth.getUser();
-    setUser(data.user);
+    if (user) {
+      try {
+        const userProfile = await getUserProfile(user.id);
+        console.log('Updated profile:', userProfile); // Debug log
+        setProfile(userProfile);
+      } catch (err) {
+        console.error('Error updating profile:', err);
+      }
+    }
   };
 
-  if (!user) return null;
-
-  const avatarUrl = user.user_metadata?.avatar_url;
-  const displayName = user.user_metadata?.display_name;
+  if (!user || !profile) return null;
 
   return (
     <div className="relative inline-block">
@@ -46,17 +88,15 @@ export default function UserProfileButton() {
         onClick={() => setShowMenu(!showMenu)}
         className="w-16 h-16 rounded-full shadow-lg cursor-pointer flex items-center justify-center text-white text-xl overflow-hidden"
       >
-        {avatarUrl ? (
-          <Image
-            src={avatarUrl}
+        {profile.avatar_url ? (
+          <img
+            src={profile.avatar_url}
             alt="Profile"
-            width={64}
-            height={64}
-            className="object-cover"
+            className="w-full h-full object-cover"
           />
         ) : (
           <div className="w-full h-full bg-blue-500 flex items-center justify-center">
-            {user.email?.charAt(0).toUpperCase()}
+            {profile.display_name?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase()}
           </div>
         )}
       </div>
@@ -64,10 +104,10 @@ export default function UserProfileButton() {
       {showMenu && (
         <div className="absolute right-0 mt-2 p-4 bg-white rounded-xl shadow-xl w-64 z-10">
           <div className="mb-4">
-            <p className="font-semibold">{displayName || user.email}</p>
-            {user.user_metadata?.bio && (
+            <p className="font-semibold">{profile.display_name || user.email}</p>
+            {profile.bio && (
               <p className="text-sm text-gray-600 mt-1">
-                {user.user_metadata.bio}
+                {profile.bio}
               </p>
             )}
           </div>
