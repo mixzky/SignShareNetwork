@@ -1,0 +1,383 @@
+'use client';
+
+import { notFound } from "next/navigation";
+import { useState, useEffect } from 'react';
+import supabase from '@/lib/supabase-client';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
+
+const uploadSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  description: z.string().min(1, 'Description is required'),
+  language: z.string().min(1, 'Language is required'),
+  region: z.string().min(1, 'Region is required'),
+});
+
+type UploadFormData = z.infer<typeof uploadSchema>;
+
+type CountryContentProps = {
+  id: string;
+};
+
+export default function CountryContent({ id }: CountryContentProps) {
+  const [countryData, setCountryData] = useState<any>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [tags, setTags] = useState<string[]>([]);
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
+  const [userProfile, setUserProfile] = useState<{ avatar_url: string | null; display_name: string | null } | null>(null);
+  const [isLoadingProfile, setIsLoadingProfile] = useState(true);
+  const router = useRouter();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset
+  } = useForm<UploadFormData>({
+    resolver: zodResolver(uploadSchema),
+  });
+
+  // Fetch country data
+  useEffect(() => {
+    const fetchCountryData = async () => {
+      try {
+        const res = await fetch("https://unpkg.com/world-atlas/countries-110m.json");
+        const worldData = await res.json();
+        const topojson = await import("topojson-client");
+
+        const featureCollection = topojson.feature(
+          worldData,
+          worldData.objects.countries
+        ) as unknown as GeoJSON.FeatureCollection;
+        const countries = featureCollection.features;
+        const country = countries.find((c: any) => String(c.id) === String(id));
+
+        if (!country) {
+          notFound();
+        }
+
+        setCountryData(country);
+      } catch (error) {
+        console.error('Error fetching country data:', error);
+      }
+    };
+
+    fetchCountryData();
+  }, [id]);
+
+  // Fetch user profile
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        setIsLoadingProfile(true);
+        const { data: { user } } = await supabase.auth.getUser();
+        console.log('Current user:', user);
+        
+        if (user) {
+          const { data: profile, error } = await supabase
+            .from('users')
+            .select('avatar_url, display_name')
+            .eq('id', user.id)
+            .single();
+          
+          console.log('Profile query result:', { profile, error });
+          
+          if (error) {
+            console.error('Error fetching profile:', error);
+            return;
+          }
+          
+          if (profile) {
+            console.log('Setting user profile:', profile);
+            setUserProfile(profile);
+          } else {
+            console.log('No profile found for user:', user.id);
+          }
+        } else {
+          console.log('No user found');
+        }
+      } catch (error) {
+        console.error('Error in fetchUserProfile:', error);
+      } finally {
+        setIsLoadingProfile(false);
+      }
+    };
+
+    fetchUserProfile();
+  }, [supabase]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.type !== 'video/mp4' && file.type !== 'video/webm') {
+        toast.error('Please upload an MP4 or WebM video file');
+        return;
+      }
+      setVideoFile(file);
+    }
+  };
+
+  const generateTags = async (title: string, description: string) => {
+    try {
+      const response = await fetch('/api/generate-tags', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, description }),
+      });
+      const data = await response.json();
+      if (data.tags) {
+        setTags(data.tags);
+      }
+    } catch (error) {
+      console.error('Error generating tags:', error);
+      toast.error('Failed to generate tags');
+    }
+  };
+
+  const onSubmit = async (data: UploadFormData) => {
+    if (!videoFile) {
+      toast.error('Please select a video file');
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
+
+      // 1. Upload video to Supabase Storage
+      const fileExt = videoFile.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('videos')
+        .upload(`${user.id}/${fileName}`, videoFile);
+
+      if (uploadError) throw uploadError;
+
+      // 2. Get the public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('videos')
+        .getPublicUrl(`${user.id}/${fileName}`);
+
+      // 3. Generate tags if not already generated
+      if (tags.length === 0) {
+        await generateTags(data.title, data.description);
+      }
+
+      // 4. Save video metadata to database
+      const { error: dbError } = await supabase
+        .from('sign_videos')
+        .insert({
+          user_id: user.id,
+          title: data.title,
+          description: data.description,
+          language: data.language,
+          region: data.region,
+          video_url: publicUrl,
+          tags,
+          status: 'pending',
+        });
+
+      if (dbError) throw dbError;
+
+      toast.success('Video uploaded successfully');
+      setIsUploadDialogOpen(false);
+      reset();
+      setVideoFile(null);
+      setTags([]);
+      router.refresh();
+    } catch (error) {
+      console.error('Error uploading video:', error);
+      toast.error('Failed to upload video');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  return (
+    <div className="flex-1 w-full p-12 pt-28 flex flex-col items-center">
+      <div className="w-full max-w-xl p-4 mb-8">
+        <form className="w-full">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="search a keyword"
+              className="w-full px-5 py-3 pr-10 rounded-full border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-300 text-base transition duration-200 ease-in-out"
+            />
+            <button
+              type="button"
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 text-xl"
+              aria-label="Clear"
+              tabIndex={-1}
+            >
+              ×
+            </button>
+          </div>
+        </form>
+      </div>
+      <div className="w-full max-w-11/12 bg-white rounded-2xl shadow-md p-0 mb-8">
+        {/* Top section: Now : Thailand */}
+        <div className="flex justify-center pt-6 pb-6">
+          <div className="px-6 py-2  rounded-full border w-96 border-[#cccccc] bg-[#fafafa] text-center text-base font-semibold">
+            <span className="text-green-400">Now :</span>{" "}
+            <span className="font-bold">{countryData?.properties?.name || id}</span>{" "}
+            <span role="img" aria-label="thailand-flag"></span>
+          </div>
+        </div>
+        {/* Divider */}
+        <div className="border-t border-[#dedede] " />
+        {/* Bottom section: user info and upload button */}
+        <div className="flex flex-row items-center justify-center gap-8 px-8 py-6">
+          {/* User info */}
+          <div className="flex justify-center items-center min-w-0 basis-1/2">
+                          {isLoadingProfile ? (
+                <div className="w-14 h-14 rounded-full mr-4 bg-gray-200 animate-pulse" />
+              ) : (
+                <img
+                  src={userProfile?.avatar_url || "https://via.placeholder.com/56"}
+                  alt="avatar"
+                  className="w-14 h-14 rounded-full mr-4 object-cover"
+                />
+              )}
+              <span className="text-xl font-medium text-gray-600 truncate">
+                {isLoadingProfile ? (
+                  <div className="w-32 h-6 bg-gray-200 animate-pulse rounded" />
+                ) : (
+                  userProfile?.display_name || "No name set"
+                )}
+            </span>
+          </div>
+          {/* Vertical divider */}
+          <div className="h-20 w-px bg-[#dedede]" />
+          {/* Upload button */}
+          <button
+            type="button"
+            onClick={() => setIsUploadDialogOpen(true)}
+            className="bg-green-50 border border-green-200 text-green-900 font-semibold px-8 py-4 rounded-xl shadow-sm hover:bg-green-100 flex items-center text-lg transition basis-1/2 justify-center"
+          >
+            Upload Your Video
+            <span className="ml-2 text-2xl">⤴️</span>
+          </button>
+        </div>
+      </div>
+      <div className="w-full max-w-11/12 bg-white rounded-2xl shadow-md p-0 mb-8">
+        content
+      </div>
+
+      {/* Upload Dialog */}
+      <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+        <DialogContent>
+          <DialogTitle>Upload Sign Language Video</DialogTitle>
+          <DialogDescription>
+            Share your sign language video with the community. Please fill in all the required information below.
+          </DialogDescription>
+          
+          <div className="space-y-6 py-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="video">Video File (MP4 or WebM)</Label>
+                <Input
+                  id="video"
+                  type="file"
+                  accept="video/mp4,video/webm"
+                  onChange={handleFileChange}
+                  className="cursor-pointer"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="title">Title</Label>
+                <Input
+                  id="title"
+                  {...register('title')}
+                  placeholder="Enter video title"
+                />
+                {errors.title && (
+                  <p className="text-sm text-red-500">{errors.title.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  {...register('description')}
+                  placeholder="Enter video description"
+                />
+                {errors.description && (
+                  <p className="text-sm text-red-500">{errors.description.message}</p>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="language">Language</Label>
+                  <Input
+                    id="language"
+                    {...register('language')}
+                    placeholder="e.g., Thai Sign Language"
+                  />
+                  {errors.language && (
+                    <p className="text-sm text-red-500">{errors.language.message}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="region">Region</Label>
+                  <Input
+                    id="region"
+                    {...register('region')}
+                    placeholder="e.g., Bangkok"
+                  />
+                  {errors.region && (
+                    <p className="text-sm text-red-500">{errors.region.message}</p>
+                  )}
+                </div>
+              </div>
+
+              {tags.length > 0 && (
+                <div className="space-y-2">
+                  <Label>Generated Tags</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {tags.map((tag, index) => (
+                      <span
+                        key={index}
+                        className="bg-primary/10 text-primary px-2 py-1 rounded-full text-sm"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex justify-end gap-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsUploadDialogOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isUploading}>
+                  {isUploading ? 'Uploading...' : 'Upload Video'}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+} 
