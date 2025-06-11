@@ -5,7 +5,6 @@ import { createClient } from "../utils/supabase/client";
 import { User } from "@supabase/supabase-js";
 import UserProfileDropdown from "./UserProfileDrowdown";
 
-
 export default function TopMenu() {
   const [user, setUser] = useState<User | null>(null);
 
@@ -33,9 +32,9 @@ export default function TopMenu() {
   return (
     <nav className="text-white fixed w-full z-50 top-6">
       <div className="max-w-7xl mx-auto px-20">
-        <div className="flex justify-between items-center h-16">
+        <div className="relative flex items-center h-16 justify-center">
           {/* Left section - Home */}
-          <div className="flex-shrink-0">
+          <div className="absolute left-0 flex-shrink-0 pl-4">
             <Link
               href="/"
               className="text-md opacity-80 hover:opacity-100 transition-opacity"
@@ -46,7 +45,7 @@ export default function TopMenu() {
           </div>
 
           {/* Center section - SignShare Network (largest) */}
-          <div className="flex-grow text-center">
+          <div className="mx-auto">
             <Link
               href="/"
               className="text-3xl md:text-4xl font-bold text-white"
@@ -60,8 +59,7 @@ export default function TopMenu() {
           </div>
 
           {/* Right section - Navigation Items */}
-          <div className="flex items-center gap-6">
-
+          <div className="absolute right-0 flex items-center gap-6 ">
             {!user ? (
               <Link
                 href="/login"
