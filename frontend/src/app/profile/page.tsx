@@ -28,13 +28,15 @@ export default function ProfilePage() {
       try {
         setLoading(true);
         const user = await getCurrentUser();
+        console.log("Profile page user:", user);
         if (!user) {
           router.push('/login');
           return;
         }
 
-        const profile = await getUserProfile(user.id);
-        setProfile(profile);
+        const userProfile = await getUserProfile(user.id);
+        console.log("Loaded user profile:", userProfile); // Debug log
+        setProfile(userProfile);
         setLoading(false);
       } catch (error) {
         console.error('Error loading profile:', error);
@@ -96,7 +98,7 @@ export default function ProfilePage() {
               ) : (
                 <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
                   <span className="text-2xl text-gray-500">
-                    {profile.display_name[0]}
+                    {profile.display_name?.[0] || '?'}
                   </span>
                 </div>
               )}
@@ -127,11 +129,9 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <div className="flex justify-end">
-              <Button onClick={() => router.push('/profile/edit')}>
-                Edit Profile
-              </Button>
-            </div>
+            <Button onClick={() => router.push('/profile/edit')}>
+              Edit Profile
+            </Button>
           </div>
         </CardContent>
       </Card>

@@ -1,7 +1,7 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
-import Image from "next/image";
+import { getUserProfile, uploadAvatar } from "@/lib/supabase";
 
 interface EditProfileModalProps {
   isOpen: boolean;
@@ -16,15 +16,29 @@ export default function EditProfileModal({
   user,
   onUpdate,
 }: EditProfileModalProps) {
-  const [displayName, setDisplayName] = useState(
-    user?.user_metadata?.display_name || ""
-  );
-  const [bio, setBio] = useState(user?.user_metadata?.bio || "");
-  const [avatarUrl, setAvatarUrl] = useState(
-    user?.user_metadata?.avatar_url || ""
-  );
+  const [displayName, setDisplayName] = useState("");
+  const [bio, setBio] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      if (user) {
+        try {
+          const profile = await getUserProfile(user.id);
+          console.log('Loaded profile in modal:', profile); // Debug log
+          setDisplayName(profile.display_name || "");
+          setBio(profile.bio || "");
+          setAvatarUrl(profile.avatar_url);
+        } catch (err) {
+          console.error('Error loading profile:', err);
+        }
+      }
+    };
+
+    loadProfile();
+  }, [user]);
 
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
@@ -32,27 +46,13 @@ export default function EditProfileModal({
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file || !user) return;
 
     try {
       setIsUploading(true);
-      const supabase = createClient();
-
-      // Upload image to Supabase Storage
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${user.id}-${Math.random()}.${fileExt}`;
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from("avatars")
-        .upload(fileName, file);
-
-      if (uploadError) throw uploadError;
-
-      // Get public URL
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("avatars").getPublicUrl(fileName);
-
-      setAvatarUrl(publicUrl);
+      const newAvatarUrl = await uploadAvatar(user.id, file);
+      console.log('New avatar URL:', newAvatarUrl); // Debug log
+      setAvatarUrl(newAvatarUrl);
     } catch (error) {
       console.error("Error uploading avatar:", error);
     } finally {
@@ -65,13 +65,13 @@ export default function EditProfileModal({
     try {
       const supabase = createClient();
 
-      const { error } = await supabase.auth.updateUser({
-        data: {
+      const { error } = await supabase
+        .from('users')
+        .update({
           display_name: displayName,
           bio: bio,
-          avatar_url: avatarUrl,
-        },
-      });
+        })
+        .eq('id', user.id);
 
       if (error) throw error;
 
@@ -96,11 +96,10 @@ export default function EditProfileModal({
               className="relative w-24 h-24 rounded-full overflow-hidden cursor-pointer mb-2 hover:opacity-90"
             >
               {avatarUrl ? (
-                <Image
+                <img
                   src={avatarUrl}
                   alt="Profile"
-                  fill
-                  className="object-cover"
+                  className="w-full h-full object-cover"
                 />
               ) : (
                 <div className="w-full h-full bg-blue-500 flex items-center justify-center text-white text-2xl">

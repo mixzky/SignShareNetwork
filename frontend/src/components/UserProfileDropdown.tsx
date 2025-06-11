@@ -1,11 +1,12 @@
 "use client";
 
-import { Fragment } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Menu, Transition } from "@headlessui/react";
 import { User } from "@supabase/supabase-js";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "../utils/supabase/client";
+import { getUserProfile } from "@/lib/supabase";
 
 type UserProfileDropdownProps = {
   user: User;
@@ -15,9 +16,29 @@ type MenuItemProps = {
   active: boolean;
 };
 
+type UserProfile = {
+  avatar_url: string | null;
+  display_name: string | null;
+};
+
 export default function UserProfileDropdown({ user }: UserProfileDropdownProps) {
   const router = useRouter();
   const supabase = createClient();
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const userProfile = await getUserProfile(user.id);
+        console.log('Dropdown - loaded profile:', userProfile); // Debug log
+        setProfile(userProfile);
+      } catch (err) {
+        console.error('Error loading profile:', err);
+      }
+    };
+
+    loadProfile();
+  }, [user.id]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -28,12 +49,20 @@ export default function UserProfileDropdown({ user }: UserProfileDropdownProps) 
     <Menu as="div" className="relative inline-block text-left">
       <div>
         <Menu.Button className="flex items-center gap-2 text-md opacity-80 hover:opacity-100 transition-opacity">
-          <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-            <span className="text-sm text-gray-600">
-              {user.email?.[0].toUpperCase()}
-            </span>
+          <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+            {profile?.avatar_url ? (
+              <img
+                src={profile.avatar_url}
+                alt={profile.display_name || user.email}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="text-sm text-gray-600">
+                {profile?.display_name?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase()}
+              </span>
+            )}
           </div>
-          <span>{user.email}</span>
+          <span>{profile?.display_name || user.email}</span>
         </Menu.Button>
       </div>
 

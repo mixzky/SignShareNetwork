@@ -40,6 +40,7 @@ export default function EditProfilePage() {
     const loadProfile = async () => {
       try {
         const user = await getCurrentUser();
+        console.log("Profile page user:", user);
         if (!user) {
           router.push('/login');
           return;
@@ -47,16 +48,22 @@ export default function EditProfilePage() {
 
         setUserId(user.id);
         const profile = await getUserProfile(user.id);
+        if (!profile) {
+          toast.error('Profile not found');
+          router.push('/profile');
+          return;
+        }
+
         reset({
-          display_name: profile.display_name,
+          display_name: profile.display_name || '',
           bio: profile.bio || '',
         });
         setAvatarUrl(profile.avatar_url || undefined);
         setLoading(false);
       } catch (error) {
         console.error('Error loading profile:', error);
-        toast.error('Failed to load profile. Please try again.');
-        setLoading(false);
+        toast.error('Failed to load profile');
+        router.push('/profile');
       }
     };
 
@@ -64,7 +71,10 @@ export default function EditProfilePage() {
   }, [router, reset]);
 
   const onSubmit = async (data: ProfileFormData) => {
-    if (!userId) return;
+    if (!userId) {
+      toast.error('User not authenticated');
+      return;
+    }
 
     try {
       await updateUserProfile(userId, {

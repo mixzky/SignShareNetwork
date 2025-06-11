@@ -69,8 +69,10 @@ export async function signIn(formData: FormData) {
     };
   }
 
-  const { data: existingUser } = await supabase
-    .from("User")
+  const user = data.user;
+
+  const { data: existingUser, error: fetchError } = await supabase
+    .from("Users")
     .select("*")
     .eq("email", credentials?.email)
     .limit(1)

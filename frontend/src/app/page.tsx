@@ -120,7 +120,7 @@ export default function Home() {
   }
 
   return (
-    <main className="bg-[#0a0e18] h-screen overflow-hidden fixed inset-0">
+    <main className="bg-[#0a0e18] min-h-screen relative">
       <TopMenu />
 
       {/* Enhanced search form below TopMenu */}
@@ -166,7 +166,7 @@ export default function Home() {
         </form>
       </div>
 
-      <div className="absolute inset-0 -z-10">
+      <div className="relative h-[calc(100vh-120px)]">
         <GlobeComponent ref={globeRef} />
       </div>
     </main>
