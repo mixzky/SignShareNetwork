@@ -21,7 +21,9 @@ type UserProfile = {
   display_name: string | null;
 };
 
-export default function UserProfileDropdown({ user }: UserProfileDropdownProps) {
+export default function UserProfileDropdown({
+  user,
+}: UserProfileDropdownProps) {
   const router = useRouter();
   const supabase = createClient();
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -30,10 +32,10 @@ export default function UserProfileDropdown({ user }: UserProfileDropdownProps) 
     const loadProfile = async () => {
       try {
         const userProfile = await getUserProfile(user.id);
-        console.log('Dropdown - loaded profile:', userProfile); // Debug log
+        console.log("Dropdown - loaded profile:", userProfile); // Debug log
         setProfile(userProfile);
       } catch (err) {
-        console.error('Error loading profile:', err);
+        console.error("Error loading profile:", err);
       }
     };
 
@@ -46,7 +48,7 @@ export default function UserProfileDropdown({ user }: UserProfileDropdownProps) 
   };
 
   return (
-    <Menu as="div" className="relative inline-block text-left">
+    <Menu as="div" className="relative inline-block text-left ">
       <div>
         <Menu.Button className="flex items-center gap-2 text-md opacity-80 hover:opacity-100 transition-opacity">
           <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
@@ -58,7 +60,8 @@ export default function UserProfileDropdown({ user }: UserProfileDropdownProps) 
               />
             ) : (
               <span className="text-sm text-gray-600">
-                {profile?.display_name?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase()}
+                {profile?.display_name?.[0]?.toUpperCase() ||
+                  user.email?.[0]?.toUpperCase()}
               </span>
             )}
           </div>
@@ -75,7 +78,7 @@ export default function UserProfileDropdown({ user }: UserProfileDropdownProps) 
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
       >
-        <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+        <Menu.Items className="absolute right-[-50px]  mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
           <div className="px-1 py-1">
             <Menu.Item>
               {({ active }: MenuItemProps) => (
@@ -132,4 +135,4 @@ export default function UserProfileDropdown({ user }: UserProfileDropdownProps) 
       </Transition>
     </Menu>
   );
-} 
+}

@@ -59,7 +59,7 @@ export default function TopMenu() {
           </div>
 
           {/* Right section - Navigation Items */}
-          <div className="absolute right-0 flex items-center gap-6 pr-4">
+          <div className="absolute right-0 flex items-center gap-6 ">
             {!user ? (
               <Link
                 href="/login"
