@@ -28,57 +28,72 @@ export default async function CountryInfo({
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-[#0a0e18]">
-      <TopMenu />
-
-      {/* Background div for everything under TopMenu */}
-      <div
-        className="w-full flex-1 pt-24 flex flex-col items-center"
-        style={{ minHeight: "calc(100vh - 4rem)" }}
-      >
-        <div className="relative z-10 w-full max-w-3xl rounded-3xl shadow-2xl p-8 bg-white border-4 border-blue-300">
-          <div className="flex flex-col md:flex-row gap-8">
-            {/* Country "sprite" or flag placeholder */}
-            <div className="flex flex-col items-center justify-center">
-              <div className="w-48 h-48 bg-gray-100 rounded-xl flex items-center justify-center shadow-inner border border-gray-300 mb-4">
-                {/* You can put a flag or image here */}
-                <span className="text-6xl text-gray-400">🌍</span>
-              </div>
-              <div className="text-center text-gray-700 font-semibold">
-                {country.properties?.name}
-              </div>
+    <main className="flex flex-col min-h-screen bg-[#fafafa]">
+      {/* TopMenu fixed with dark bg */}
+      <div className="fixed top-0 left-0 w-full z-50 bg-[#0a0e18] h-24 flex items-center">
+        <TopMenu />
+      </div>
+      {/* Content area with padding top to avoid overlap */}
+      <div className="flex-1 w-full p-12 pt-28 flex flex-col items-center">
+        <div className="w-full max-w-xl p-4 mb-8">
+          <form className="w-full">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="search a keyword"
+                className="w-full px-5 py-3 pr-10 rounded-full border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-300 text-base transition duration-200 ease-in-out"
+              />
+              <button
+                type="button"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 text-xl"
+                aria-label="Clear"
+                tabIndex={-1}
+              >
+                ×
+              </button>
             </div>
-            {/* Info panel */}
-            <div className="flex-1 flex flex-col gap-4">
-              <h1 className="text-3xl font-bold text-blue-400 drop-shadow mb-2">
-                Country Information
-              </h1>
-              <div className="bg-blue-100 rounded-xl p-4 shadow border border-blue-300 flex flex-col gap-2">
-                <div className="flex flex-wrap gap-4">
-                  <span className="font-mono text-lg text-gray-700">
-                    <span className="font-bold">ID:</span> {id}
-                  </span>
-                  <span className="font-mono text-lg text-gray-700">
-                    <span className="font-bold">Name:</span>{" "}
-                    {country.properties?.name}
-                  </span>
-                </div>
-                {country.properties?.region && (
-                  <span className="font-mono text-lg text-gray-700">
-                    <span className="font-bold">Region:</span>{" "}
-                    {country.properties.region}
-                  </span>
-                )}
-              </div>
-              <div className="bg-gray-100 rounded-xl p-4 shadow-inner border border-gray-300 mt-2">
-                <pre className="text-xs text-gray-700 max-w-xl overflow-x-auto">
-                  {JSON.stringify(country.properties, null, 2)}
-                </pre>
-              </div>
+          </form>
+        </div>
+        <div className="w-full max-w-11/12 bg-white rounded-2xl shadow-md p-0 mb-8">
+          {/* Top section: Now : Thailand */}
+          <div className="flex justify-center pt-6 pb-6">
+            <div className="px-6 py-2  rounded-full border w-96 border-[#cccccc] bg-[#fafafa] text-center text-base font-semibold">
+              <span className="text-green-400">Now :</span>{" "}
+              <span className="font-bold">{country.properties?.name}</span>{" "}
+              <span role="img" aria-label="thailand-flag"></span>
             </div>
           </div>
+          {/* Divider */}
+          <div className="border-t border-[#dedede] " />
+          {/* Bottom section: user info and upload button */}
+          <div className="flex flex-row items-center justify-center gap-8 px-8 py-6">
+            {/* User info */}
+            <div className="flex justify-center items-center min-w-0 basis-1/2">
+              <img
+                src="https://randomuser.me/api/portraits/men/32.jpg"
+                alt="avatar"
+                className="w-14 h-14 rounded-full mr-4"
+              />
+              <span className="text-xl font-medium text-gray-600 truncate">
+                haha hoho
+              </span>
+            </div>
+            {/* Vertical divider */}
+            <div className="h-20 w-px bg-[#dedede]" />
+            {/* Upload button */}
+            <button
+              type="button"
+              className="bg-green-50 border border-green-200 text-green-900 font-semibold px-8 py-4 rounded-xl shadow-sm hover:bg-green-100 flex items-center text-lg transition basis-1/2 justify-center"
+            >
+              Upload Your Video
+              <span className="ml-2 text-2xl">⤴️</span>
+            </button>
+          </div>
+        </div>
+        <div className="w-full max-w-11/12 bg-white rounded-2xl shadow-md p-0 mb-8">
+          content
         </div>
       </div>
-    </div>
+    </main>
   );
 }
