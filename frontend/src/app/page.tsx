@@ -12,6 +12,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
   let countryNavi: string | null = null;
   const globeRef = useRef<{
     pointOfView: (
@@ -123,6 +124,7 @@ export default function Home() {
 
       // Clear search after successful navigation
       setSearchQuery("");
+      setSuggestions([]);
       setTimeout(() => {
         router.push(`/country/${countryNavi}`);
       }, 2000);
@@ -131,6 +133,29 @@ export default function Home() {
       // You could add a visual indicator here that the country wasn't found
     }
   }
+
+  // Suggestion logic
+  const handleInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+
+    if (value.trim().length >= 2) {
+      const countriesData = await loadCountriesData();
+      const searchLower = value.toLowerCase();
+      const matches = countriesData
+        .map((country: any) => country.properties.name)
+        .filter((name: string) => name.toLowerCase().includes(searchLower))
+        .slice(0, 5);
+      setSuggestions(matches);
+    } else {
+      setSuggestions([]);
+    }
+  };
+
+  const handleSuggestionClick = (name: string) => {
+    setSearchQuery(name);
+    setSuggestions([]);
+  };
 
   const handlePolygonClick = (country: any) => {
     setCountryNow(country.properties?.name || "");
@@ -157,16 +182,19 @@ export default function Home() {
             <input
               type="text"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={handleInputChange}
               onFocus={() => setIsSearchFocused(true)}
-              onBlur={() => setIsSearchFocused(false)}
+              onBlur={() => {
+                setIsSearchFocused(false);
+                setTimeout(() => setSuggestions([]), 150);
+              }}
               placeholder="Find countries..."
               className="bg-transparent outline-none px-4 py-2 w-full transition-all duration-300 placeholder-blue-200/50 text-blue-100 text-sm"
               style={{ textShadow: "0 1px 2px rgba(0, 0, 0, 0.7)" }}
             />
             <button
               type="submit"
-              className={`flex items-center justify-center rounded-full transition-all duration-300 ${
+              className={`flex items-center justify-center rounded-full transition-all duration-300 cursor-pointer ${
                 isSearchFocused
                   ? "text-blue-300 bg-blue-400/20 p-1.5"
                   : "text-blue-200/70 p-1"
@@ -176,7 +204,20 @@ export default function Home() {
               <BiSearch size={18} />
             </button>
           </div>
-
+          {/* Suggestions dropdown */}
+          {suggestions.length > 0 && (
+            <ul className="absolute left-0 right-0 mt-2 bg-[#181e2a]/80 border border-blue-400/30 rounded-xl shadow-lg z-50">
+              {suggestions.map((name) => (
+                <li
+                  key={name}
+                  className="px-4 py-2 cursor-pointer hover:bg-blue-400/20 text-blue-100"
+                  onMouseDown={() => handleSuggestionClick(name)}
+                >
+                  {name}
+                </li>
+              ))}
+            </ul>
+          )}
           {/* Enhanced glow effect when focused */}
           {isSearchFocused && (
             <div className="absolute inset-0 -z-10 rounded-full blur-md bg-blue-500/15"></div>

@@ -50,7 +50,7 @@ export default function UserProfileDropdown({
   return (
     <Menu as="div" className="relative inline-block text-left ">
       <div>
-        <Menu.Button className="flex items-center gap-2 text-md opacity-80 hover:opacity-100 transition-opacity">
+        <Menu.Button className="flex items-center gap-2 text-md opacity-80 hover:opacity-100 transition-opacity cursor-pointer">
           <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
             {profile?.avatar_url ? (
               <img
@@ -113,7 +113,7 @@ export default function UserProfileDropdown({
                   onClick={handleSignOut}
                   className={`${
                     active ? "bg-gray-100" : ""
-                  } group flex w-full items-center rounded-md px-2 py-2 text-sm text-red-600`}
+                  } group flex w-full items-center rounded-md px-2 py-2 text-sm text-red-600 cursor-pointer`}
                 >
                   Sign Out
                 </button>
