@@ -13,6 +13,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import { getCurrentUser, getUserProfile } from "@/lib/supabase";
 
 const uploadSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -33,8 +34,10 @@ export default function CountryContent({ id }: CountryContentProps) {
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [tags, setTags] = useState<string[]>([]);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
-  const [userProfile, setUserProfile] = useState<{ avatar_url: string | null; display_name: string | null } | null>(null);
+  const [userProfile, setUserProfile] = useState<{ avatar_url: string | null; display_name: string | null; id: string } | null>(null);
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   const {
@@ -74,46 +77,35 @@ export default function CountryContent({ id }: CountryContentProps) {
     fetchCountryData();
   }, [id]);
 
-  // Fetch user profile
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        setIsLoadingProfile(true);
-        const { data: { user } } = await supabase.auth.getUser();
-        console.log('Current user:', user);
-        
-        if (user) {
-          const { data: profile, error } = await supabase
-            .from('users')
-            .select('avatar_url, display_name')
-            .eq('id', user.id)
-            .single();
-          
-          console.log('Profile query result:', { profile, error });
-          
-          if (error) {
-            console.error('Error fetching profile:', error);
-            return;
-          }
-          
-          if (profile) {
-            console.log('Setting user profile:', profile);
-            setUserProfile(profile);
-          } else {
-            console.log('No profile found for user:', user.id);
-          }
-        } else {
-          console.log('No user found');
+        const user = await getCurrentUser();
+        console.log("Profile page user:", user);
+        if (!user) {
+          router.push('/login');
+          return;
         }
-      } catch (error) {
-        console.error('Error in fetchUserProfile:', error);
-      } finally {
+
+        setUserId(user.id);
+        const profile = await getUserProfile(user.id);
+        if (!profile) {
+          toast.error('Profile not found');
+          router.push('/profile');
+          return;
+        }
+
+        setUserProfile(profile);
         setIsLoadingProfile(false);
+      } catch (error) {
+        console.error('Error loading profile:', error);
+        toast.error('Failed to load profile');
+        router.push('/profile');
       }
     };
 
     fetchUserProfile();
-  }, [supabase]);
+  }, [router]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
