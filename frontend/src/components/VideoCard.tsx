@@ -52,6 +52,11 @@ export default function VideoCard({ video }: VideoCardProps) {
         videoRef.current.pause();
       } else {
         videoRef.current.play();
+        // Automatically unmute when playing
+        if (isMuted) {
+          videoRef.current.muted = false;
+          setIsMuted(false);
+        }
       }
       setIsPlaying(!isPlaying);
     }
