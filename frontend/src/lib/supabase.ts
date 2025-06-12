@@ -200,7 +200,7 @@ export const uploadVideo = async (userId: string, file: File) => {
     // Return both the public URL and the storage path
     return {
       publicUrl: urlData.publicUrl,
-      storagePath: filePath
+      storagePath: `video/${filePath}` // Include bucket name in the path
     };
   } catch (error) {
     console.error('Error in uploadVideo:', error);

@@ -148,7 +148,7 @@ export default function CountryContent({ id }: CountryContentProps) {
           description: data.description,
           language: data.language,
           region: data.region,
-          video_url: 'video', // Use the bucket ID as the video_url
+          video_url: uploadResult.storagePath,
           status: 'pending',
         });
 

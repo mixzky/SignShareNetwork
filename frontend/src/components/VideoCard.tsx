@@ -1,0 +1,180 @@
+"use client";
+
+import { useState, useRef, useEffect } from 'react';
+import { CheckCircle2, Flag, Volume2, VolumeX } from 'lucide-react';
+import { Button } from './ui/button';
+import { Database } from '@/types/database';
+import { useRouter } from 'next/navigation';
+import { getSupabaseClient } from '@/lib/supabase';
+
+type SignVideo = Database['public']['Tables']['sign_videos']['Row'] & {
+  user: {
+    avatar_url: string | null;
+    display_name: string;
+    role: string;
+  };
+  reviews?: {
+    user: {
+      avatar_url: string | null;
+      display_name: string;
+    };
+    rating: number;
+    comment: string;
+  }[];
+};
+
+interface VideoCardProps {
+  video: SignVideo;
+}
+
+export default function VideoCard({ video }: VideoCardProps) {
+  const [isMuted, setIsMuted] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [videoUrl, setVideoUrl] = useState<string>('');
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    // Get public URL for the video
+    const supabase = getSupabaseClient();
+    // Extract bucket and path from the full storage path
+    const [bucket, ...pathParts] = video.video_url.split('/');
+    const path = pathParts.join('/');
+    const { data } = supabase.storage
+      .from(bucket)
+      .getPublicUrl(path);
+    setVideoUrl(data.publicUrl);
+  }, [video.video_url]);
+
+  const togglePlay = () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const toggleMute = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = !isMuted;
+      setIsMuted(!isMuted);
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+      {/* User Info Section */}
+      <div className="p-4">
+        <div className="flex items-center gap-3">
+          <img
+            src={video.user.avatar_url || "/default-avatar.png"}
+            alt={`${video.user.display_name}'s avatar`}
+            className="w-10 h-10 rounded-full object-cover"
+          />
+          <div>
+            <div className="flex items-center gap-1">
+              <span className="font-medium text-gray-900">
+                {video.user.display_name}
+              </span>
+              {video.user.role === 'moderator' && (
+                <CheckCircle2 className="w-4 h-4 text-blue-500" />
+              )}
+            </div>
+            {video.tags && (
+              <div className="flex gap-1 mt-1">
+                {video.tags.map((tag, index) => (
+                  <span
+                    key={index}
+                    className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Video Section */}
+      <div className="relative pt-[56.25%] bg-gray-100">
+        {videoUrl && (
+          <video
+            ref={videoRef}
+            className="absolute top-0 left-0 w-full h-full object-cover cursor-pointer"
+            src={videoUrl}
+            muted={isMuted}
+            loop
+            playsInline
+            onClick={togglePlay}
+          />
+        )}
+        <div className="absolute bottom-4 right-4 flex gap-2">
+          <Button
+            variant="secondary"
+            size="icon"
+            className="bg-black/50 hover:bg-black/70 text-white rounded-full"
+            onClick={toggleMute}
+          >
+            {isMuted ? (
+              <VolumeX className="w-4 h-4" />
+            ) : (
+              <Volume2 className="w-4 h-4" />
+            )}
+          </Button>
+        </div>
+      </div>
+
+      {/* Reviews Section */}
+      <div className="p-4">
+        {video.reviews && video.reviews.length > 0 && (
+          <div className="border-t border-gray-100 pt-4">
+            {video.reviews.map((review, index) => (
+              <div key={index} className="flex items-start gap-3 mb-4">
+                <img
+                  src={review.user.avatar_url || "/default-avatar.png"}
+                  alt={`${review.user.display_name}'s avatar`}
+                  className="w-8 h-8 rounded-full object-cover"
+                />
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-medium text-gray-900">
+                        {review.user.display_name}
+                      </span>
+                      <div className="flex gap-1 mt-1">
+                        {[...Array(5)].map((_, i) => (
+                          <span
+                            key={i}
+                            className={`text-sm ${
+                              i < review.rating
+                                ? "text-yellow-400"
+                                : "text-gray-300"
+                            }`}
+                          >
+                            ★
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-gray-400 hover:text-gray-600"
+                    >
+                      <Flag className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <p className="mt-1 text-sm text-gray-600">{review.comment}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+} 
