@@ -1,15 +1,12 @@
 import { createClient } from '@/utils/supabase/client';
 import { Database } from '@/types/database';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
 // Create a single instance of the Supabase client
 let supabaseInstance: ReturnType<typeof createClient> | null = null;
 
 export const getSupabaseClient = () => {
   if (!supabaseInstance) {
-    supabaseInstance = createClient(supabaseUrl, supabaseAnonKey);
+    supabaseInstance = createClient();
   }
   return supabaseInstance;
 };
