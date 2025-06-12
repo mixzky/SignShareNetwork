@@ -13,7 +13,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
-import { getCurrentUser, getUserProfile } from "@/lib/supabase";
+import { getCurrentUser, getUserProfile, uploadVideo } from "@/lib/supabase";
 
 const uploadSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -32,7 +32,6 @@ export default function CountryContent({ id }: CountryContentProps) {
   const [countryData, setCountryData] = useState<any>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [videoFile, setVideoFile] = useState<File | null>(null);
-  const [tags, setTags] = useState<string[]>([]);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [userProfile, setUserProfile] = useState<{ avatar_url: string | null; display_name: string | null; id: string } | null>(null);
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
@@ -118,23 +117,6 @@ export default function CountryContent({ id }: CountryContentProps) {
     }
   };
 
-  const generateTags = async (title: string, description: string) => {
-    try {
-      const response = await fetch('/api/generate-tags', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, description }),
-      });
-      const data = await response.json();
-      if (data.tags) {
-        setTags(data.tags);
-      }
-    } catch (error) {
-      console.error('Error generating tags:', error);
-      toast.error('Failed to generate tags');
-    }
-  };
-
   const onSubmit = async (data: UploadFormData) => {
     if (!videoFile) {
       toast.error('Please select a video file');
@@ -143,31 +125,15 @@ export default function CountryContent({ id }: CountryContentProps) {
 
     setIsUploading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const user = await getCurrentUser();
       if (!user) {
         throw new Error('User not authenticated');
       }
 
-      // 1. Upload video to Supabase Storage
-      const fileExt = videoFile.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('videos')
-        .upload(`${user.id}/${fileName}`, videoFile);
+      // Upload video to Supabase Storage
+      const videoUrl = await uploadVideo(user.id, videoFile);
 
-      if (uploadError) throw uploadError;
-
-      // 2. Get the public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('videos')
-        .getPublicUrl(`${user.id}/${fileName}`);
-
-      // 3. Generate tags if not already generated
-      if (tags.length === 0) {
-        await generateTags(data.title, data.description);
-      }
-
-      // 4. Save video metadata to database
+      // Save video metadata to database
       const { error: dbError } = await supabase
         .from('sign_videos')
         .insert({
@@ -176,8 +142,7 @@ export default function CountryContent({ id }: CountryContentProps) {
           description: data.description,
           language: data.language,
           region: data.region,
-          video_url: publicUrl,
-          tags,
+          video_url: videoUrl,
           status: 'pending',
         });
 
@@ -187,7 +152,6 @@ export default function CountryContent({ id }: CountryContentProps) {
       setIsUploadDialogOpen(false);
       reset();
       setVideoFile(null);
-      setTags([]);
       router.refresh();
     } catch (error) {
       console.error('Error uploading video:', error);
@@ -337,22 +301,6 @@ export default function CountryContent({ id }: CountryContentProps) {
                   )}
                 </div>
               </div>
-
-              {tags.length > 0 && (
-                <div className="space-y-2">
-                  <Label>Generated Tags</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {tags.map((tag, index) => (
-                      <span
-                        key={index}
-                        className="bg-primary/10 text-primary px-2 py-1 rounded-full text-sm"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
 
               <div className="flex justify-end gap-4">
                 <Button

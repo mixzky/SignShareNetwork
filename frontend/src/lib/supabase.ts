@@ -158,4 +158,50 @@ export const deleteAvatar = async (userId: string, avatarUrl: string) => {
     console.error('Error in deleteAvatar:', error);
     throw error;
   }
+};
+
+export const uploadVideo = async (userId: string, file: File) => {
+  const supabase = getSupabaseClient();
+  
+  // Validate file type
+  if (!file.type.startsWith('video/')) {
+    throw new Error('Please upload a video file');
+  }
+
+  // Get file extension and create unique filename
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${Date.now()}.${fileExt}`;
+  
+  // Create path: userId/filename to match RLS policies
+  const filePath = `${userId}/${fileName}`;
+  console.log('Uploading video with path:', filePath); // Debug log
+
+  try {
+    // Upload file
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('video')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: true,
+        contentType: file.type
+      });
+
+    if (uploadError) {
+      console.error('Supabase upload error:', uploadError, JSON.stringify(uploadError));
+      throw uploadError;
+    }
+
+    console.log('Upload successful:', uploadData); // Debug log
+
+    // Get public URL
+    const { data: urlData } = supabase.storage
+      .from('video')
+      .getPublicUrl(filePath);
+
+    console.log('Generated public URL:', urlData); // Debug log
+    return urlData.publicUrl;
+  } catch (error) {
+    console.error('Error in uploadVideo:', error);
+    throw error;
+  }
 }; 
