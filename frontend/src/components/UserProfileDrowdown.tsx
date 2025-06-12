@@ -92,18 +92,7 @@ export default function UserProfileDropdown({
                 </Link>
               )}
             </Menu.Item>
-            <Menu.Item>
-              {({ active }: MenuItemProps) => (
-                <Link
-                  href="/profile/edit"
-                  className={`${
-                    active ? "bg-gray-100" : ""
-                  } group flex w-full items-center rounded-md px-2 py-2 text-sm text-gray-900`}
-                >
-                  Edit Profile
-                </Link>
-              )}
-            </Menu.Item>
+
             <Menu.Item>
               {({ active }: MenuItemProps) => (
                 <Link

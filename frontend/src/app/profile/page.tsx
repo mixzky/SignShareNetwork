@@ -1,11 +1,13 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { getCurrentUser, getUserProfile } from '@/lib/supabase';
-import { toast } from 'sonner';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getCurrentUser, getUserProfile } from "@/lib/supabase";
+import { toast } from "sonner";
+import TopMenu from "@/components/TopMenu";
+import Particles from "react-tsparticles";
 
 type UserProfile = {
   id: string;
@@ -30,7 +32,7 @@ export default function ProfilePage() {
         const user = await getCurrentUser();
         console.log("Profile page user:", user);
         if (!user) {
-          router.push('/login');
+          router.push("/login");
           return;
         }
 
@@ -39,13 +41,13 @@ export default function ProfilePage() {
         setProfile(userProfile);
         setLoading(false);
       } catch (error) {
-        console.error('Error loading profile:', error);
-        toast.error('Failed to load profile. Please try again.');
+        console.error("Error loading profile:", error);
+        toast.error("Failed to load profile. Please try again.");
         setLoading(false);
-        
+
         // Retry up to 3 times
         if (retryCount < 3) {
-          setRetryCount(prev => prev + 1);
+          setRetryCount((prev) => prev + 1);
           setTimeout(() => loadProfile(), 1000); // Retry after 1 second
         }
       }
@@ -81,60 +83,69 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="container max-w-2xl py-8">
-      <Card>
-        <CardHeader>
-          <CardTitle>Profile</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-6">
-            <div className="flex items-center gap-4">
-              {profile.avatar_url ? (
-                <img
-                  src={profile.avatar_url}
-                  alt={profile.display_name}
-                  className="w-24 h-24 rounded-full object-cover"
-                />
-              ) : (
-                <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
-                  <span className="text-2xl text-gray-500">
-                    {profile.display_name?.[0] || '?'}
-                  </span>
+    <div className="min-h-screen bg-[#fafafa] relative overflow-hidden">
+      {/* TopMenu fixed */}
+      <div className="fixed top-0 left-0 w-full z-50 bg-[#0a0e18] h-24 flex items-center">
+        <TopMenu />
+      </div>
+      {/* Center the card vertically and horizontally */}
+      <div className="flex items-center justify-center min-h-screen ">
+        <Card className="w-full max-w-2xl">
+          <CardHeader>
+            <CardTitle>Profile</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              <div className="flex items-center gap-4">
+                {profile.avatar_url ? (
+                  <img
+                    src={profile.avatar_url}
+                    alt={profile.display_name}
+                    className="w-24 h-24 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
+                    <span className="text-2xl text-gray-500">
+                      {profile.display_name?.[0] || "?"}
+                    </span>
+                  </div>
+                )}
+                <div>
+                  <h2 className="text-2xl font-bold">{profile.display_name}</h2>
+                  <p className="text-gray-600">@{profile.username}</p>
                 </div>
-              )}
+              </div>
+
               <div>
-                <h2 className="text-2xl font-bold">{profile.display_name}</h2>
-                <p className="text-gray-600">@{profile.username}</p>
+                <h3 className="text-lg font-semibold mb-2">About</h3>
+                <p className="text-gray-600 ">{profile.bio || "No bio yet."}</p>
               </div>
-            </div>
 
-            <div>
-              <h3 className="text-lg font-semibold mb-2">About</h3>
-              <p className="text-gray-600">
-                {profile.bio || 'No bio yet.'}
-              </p>
-            </div>
-
-            <div>
-              <h3 className="text-lg font-semibold mb-2">Account Details</h3>
-              <div className="space-y-2">
-                <p>
-                  <span className="font-medium">Role:</span>{' '}
-                  <span className="capitalize">{profile.role}</span>
-                </p>
-                <p>
-                  <span className="font-medium">Member since:</span>{' '}
-                  {new Date(profile.created_at).toLocaleDateString()}
-                </p>
+              <div>
+                <h3 className="text-lg font-semibold mb-2">Account Details</h3>
+                <div className="space-y-2 bg-[#dedede] rounded-2xl p-4 ">
+                  <p>
+                    <span className="font-medium">Role:</span>{" "}
+                    <span className="capitalize">{profile.role}</span>
+                  </p>
+                  <p>
+                    <span className="font-medium">Member since:</span>{" "}
+                    {new Date(profile.created_at).toLocaleDateString()}
+                  </p>
+                </div>
               </div>
-            </div>
 
-            <Button onClick={() => router.push('/profile/edit')}>
-              Edit Profile
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+              <Button onClick={() => router.push("/profile/edit")}>
+                Edit Profile
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Animated blobs */}
+      <div className="absolute top-[-60px] left-[-60px] w-72 h-72 bg-blue-200 rounded-full opacity-30 animate-pulse"></div>
+      <div className="absolute bottom-[-80px] right-[-80px] w-96 h-96 bg-pink-200 rounded-full opacity-20 animate-pulse"></div>
     </div>
   );
-} 
+}

@@ -1,21 +1,28 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { getCurrentUser, getUserProfile, updateUserProfile, uploadAvatar, deleteAvatar } from '@/lib/supabase';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import TopMenu from "@/components/TopMenu";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  getCurrentUser,
+  getUserProfile,
+  updateUserProfile,
+  uploadAvatar,
+  deleteAvatar,
+} from "@/lib/supabase";
 
 const profileSchema = z.object({
-  display_name: z.string().min(2, 'Display name must be at least 2 characters'),
-  bio: z.string().max(500, 'Bio must be less than 500 characters').optional(),
+  display_name: z.string().min(2, "Display name must be at least 2 characters"),
+  bio: z.string().max(500, "Bio must be less than 500 characters").optional(),
 });
 
 type ProfileFormData = z.infer<typeof profileSchema>;
@@ -42,28 +49,28 @@ export default function EditProfilePage() {
         const user = await getCurrentUser();
         console.log("Profile page user:", user);
         if (!user) {
-          router.push('/login');
+          router.push("/login");
           return;
         }
 
         setUserId(user.id);
         const profile = await getUserProfile(user.id);
         if (!profile) {
-          toast.error('Profile not found');
-          router.push('/profile');
+          toast.error("Profile not found");
+          router.push("/profile");
           return;
         }
 
         reset({
-          display_name: profile.display_name || '',
-          bio: profile.bio || '',
+          display_name: profile.display_name || "",
+          bio: profile.bio || "",
         });
         setAvatarUrl(profile.avatar_url || undefined);
         setLoading(false);
       } catch (error) {
-        console.error('Error loading profile:', error);
-        toast.error('Failed to load profile');
-        router.push('/profile');
+        console.error("Error loading profile:", error);
+        toast.error("Failed to load profile");
+        router.push("/profile");
       }
     };
 
@@ -72,7 +79,7 @@ export default function EditProfilePage() {
 
   const onSubmit = async (data: ProfileFormData) => {
     if (!userId) {
-      toast.error('User not authenticated');
+      toast.error("User not authenticated");
       return;
     }
 
@@ -81,11 +88,11 @@ export default function EditProfilePage() {
         ...data,
         avatar_url: avatarUrl,
       });
-      toast.success('Profile updated successfully');
-      router.push('/profile');
+      toast.success("Profile updated successfully");
+      router.push("/profile");
     } catch (error) {
-      console.error('Error updating profile:', error);
-      toast.error('Failed to update profile');
+      console.error("Error updating profile:", error);
+      toast.error("Failed to update profile");
     }
   };
 
@@ -104,10 +111,10 @@ export default function EditProfilePage() {
       // Upload new avatar
       const newAvatarUrl = await uploadAvatar(userId, file);
       setAvatarUrl(newAvatarUrl);
-      toast.success('Avatar updated successfully');
+      toast.success("Avatar updated successfully");
     } catch (error) {
-      console.error('Error uploading avatar:', error);
-      toast.error('Failed to upload avatar');
+      console.error("Error uploading avatar:", error);
+      toast.error("Failed to upload avatar");
     } finally {
       setUploading(false);
     }
@@ -122,89 +129,98 @@ export default function EditProfilePage() {
   }
 
   return (
-    <div className="container max-w-2xl py-8">
-      <Card>
-        <CardHeader>
-          <CardTitle>Edit Profile</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <div className="relative w-24 h-24">
-                  {avatarUrl ? (
-                    <img
-                      src={avatarUrl}
-                      alt="Profile"
-                      className="w-full h-full rounded-full object-cover"
+    <div className="min-h-screen bg-[#fafafa] relative overflow-hidden">
+      {/* TopMenu fixed */}
+      <div className="fixed top-0 left-0 w-full z-50 bg-[#0a0e18] h-24 flex items-center">
+        <TopMenu />
+      </div>
+      {/* Center the card vertically and horizontally */}
+      <div className="flex items-center justify-center min-h-screen ">
+        <Card className="w-full max-w-2xl">
+          <CardHeader>
+            <CardTitle>Edit Profile</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <div className="relative w-24 h-24">
+                    {avatarUrl ? (
+                      <img
+                        src={avatarUrl}
+                        alt="Profile"
+                        className="w-full h-full rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full rounded-full bg-gray-200 flex items-center justify-center">
+                        <span className="text-2xl text-gray-500">?</span>
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <Label htmlFor="avatar">Profile Picture</Label>
+                    <Input
+                      id="avatar"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleAvatarChange}
+                      disabled={uploading}
+                      className="mt-1"
                     />
-                  ) : (
-                    <div className="w-full h-full rounded-full bg-gray-200 flex items-center justify-center">
-                      <span className="text-2xl text-gray-500">?</span>
-                    </div>
-                  )}
+                    {uploading && (
+                      <p className="text-sm text-gray-500 mt-1">Uploading...</p>
+                    )}
+                  </div>
                 </div>
+
                 <div>
-                  <Label htmlFor="avatar">Profile Picture</Label>
+                  <Label htmlFor="display_name">Display Name</Label>
                   <Input
-                    id="avatar"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleAvatarChange}
-                    disabled={uploading}
+                    id="display_name"
+                    {...register("display_name")}
                     className="mt-1"
                   />
-                  {uploading && (
-                    <p className="text-sm text-gray-500 mt-1">Uploading...</p>
+                  {errors.display_name && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {errors.display_name.message}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <Label htmlFor="bio">Bio</Label>
+                  <Textarea
+                    id="bio"
+                    {...register("bio")}
+                    className="mt-1"
+                    rows={4}
+                  />
+                  {errors.bio && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {errors.bio.message}
+                    </p>
                   )}
                 </div>
               </div>
 
-              <div>
-                <Label htmlFor="display_name">Display Name</Label>
-                <Input
-                  id="display_name"
-                  {...register('display_name')}
-                  className="mt-1"
-                />
-                {errors.display_name && (
-                  <p className="text-sm text-red-500 mt-1">
-                    {errors.display_name.message}
-                  </p>
-                )}
+              <div className="flex justify-end gap-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => router.push("/profile")}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? "Saving..." : "Save Changes"}
+                </Button>
               </div>
-
-              <div>
-                <Label htmlFor="bio">Bio</Label>
-                <Textarea
-                  id="bio"
-                  {...register('bio')}
-                  className="mt-1"
-                  rows={4}
-                />
-                {errors.bio && (
-                  <p className="text-sm text-red-500 mt-1">
-                    {errors.bio.message}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => router.push('/profile')}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Saving...' : 'Save Changes'}
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+      <div className="absolute top-[-60px] left-[-60px] w-72 h-72 bg-blue-200 rounded-full opacity-30 animate-pulse"></div>
+      <div className="absolute bottom-[-80px] right-[-80px] w-96 h-96 bg-pink-200 rounded-full opacity-20 animate-pulse"></div>
     </div>
   );
-} 
+}
