@@ -199,7 +199,12 @@ export const uploadVideo = async (userId: string, file: File) => {
       .getPublicUrl(filePath);
 
     console.log('Generated public URL:', urlData); // Debug log
-    return urlData.publicUrl;
+    
+    // Return both the public URL and the storage path
+    return {
+      publicUrl: urlData.publicUrl,
+      storagePath: filePath
+    };
   } catch (error) {
     console.error('Error in uploadVideo:', error);
     throw error;

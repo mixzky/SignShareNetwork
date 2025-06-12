@@ -2,7 +2,6 @@
 
 import { notFound } from "next/navigation";
 import { useState, useEffect } from 'react';
-import supabase from '@/lib/supabase-client';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,6 +13,7 @@ import * as z from 'zod';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { getCurrentUser, getUserProfile, uploadVideo } from "@/lib/supabase";
+import { getSupabaseClient } from '@/lib/supabase';
 
 const uploadSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -127,13 +127,19 @@ export default function CountryContent({ id }: CountryContentProps) {
     try {
       const user = await getCurrentUser();
       if (!user) {
-        throw new Error('User not authenticated');
+        toast.error('Please sign in to upload videos');
+        router.push('/login');
+        return;
       }
 
       // Upload video to Supabase Storage
-      const videoUrl = await uploadVideo(user.id, videoFile);
+      const uploadResult = await uploadVideo(user.id, videoFile);
+      if (!uploadResult) {
+        throw new Error('Failed to upload video');
+      }
 
       // Save video metadata to database
+      const supabase = getSupabaseClient();
       const { error: dbError } = await supabase
         .from('sign_videos')
         .insert({
@@ -142,11 +148,19 @@ export default function CountryContent({ id }: CountryContentProps) {
           description: data.description,
           language: data.language,
           region: data.region,
-          video_url: videoUrl,
+          video_url: 'video', // Use the bucket ID as the video_url
           status: 'pending',
         });
 
-      if (dbError) throw dbError;
+      if (dbError) {
+        console.error('Database error:', dbError);
+        if (dbError.code === '42501') {
+          toast.error('Permission denied. Please make sure you are signed in.');
+          router.push('/login');
+          return;
+        }
+        throw dbError;
+      }
 
       toast.success('Video uploaded successfully');
       setIsUploadDialogOpen(false);
@@ -155,7 +169,7 @@ export default function CountryContent({ id }: CountryContentProps) {
       router.refresh();
     } catch (error) {
       console.error('Error uploading video:', error);
-      toast.error('Failed to upload video');
+      toast.error('Failed to upload video. Please try again.');
     } finally {
       setIsUploading(false);
     }
