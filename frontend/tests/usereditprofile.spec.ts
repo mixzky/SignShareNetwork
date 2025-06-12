@@ -28,4 +28,14 @@ test("user can edit profile", async ({ page }) => {
   await expect(page).toHaveURL("http://localhost:3000/profile");
   await expect(page.getByText(newDisplayName)).toBeVisible();
   await expect(page.getByText(newBio)).toBeVisible();
+
+  await page
+    .getByRole("button", { name: /khannpwks173@gmail.com|updated name/i })
+    .click();
+
+  // Log out again
+  await page.getByText(/sign out/i).waitFor({ state: "visible" });
+  await page.getByText(/sign out/i).click();
+  await expect(page).toHaveURL("http://localhost:3000/");
+  await expect(page.getByRole("link", { name: /login/i })).toBeVisible();
 });
