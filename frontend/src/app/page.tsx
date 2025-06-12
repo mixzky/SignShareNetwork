@@ -194,7 +194,7 @@ export default function Home() {
             />
             <button
               type="submit"
-              className={`flex items-center justify-center rounded-full transition-all duration-300 ${
+              className={`flex items-center justify-center rounded-full transition-all duration-300 cursor-pointer ${
                 isSearchFocused
                   ? "text-blue-300 bg-blue-400/20 p-1.5"
                   : "text-blue-200/70 p-1"
