@@ -87,7 +87,7 @@ export default async function CountryPage(props: {
         ) : (
           <div className="grid grid-cols-1 gap-4 place-items-center">
             {verifiedVideos.map((video) => (
-              <div key={video.id} className="w-full max-w-4xl  ">
+              <div key={video.id} className="w-full max-w-2xl  ">
                 <VideoCard video={video} />
               </div>
             ))}

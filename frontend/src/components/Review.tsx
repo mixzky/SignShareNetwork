@@ -278,9 +278,7 @@ export default function Review({ videoId }: { videoId: string }) {
               </button>
             </div>
           )}
-          {success && (
-            <div className="text-green-600 text-sm mb-2">{success}</div>
-          )}
+
           {error && <div className="text-red-500 text-sm mb-2">{error}</div>}
           <button
             type="submit"
@@ -297,12 +295,13 @@ export default function Review({ videoId }: { videoId: string }) {
           </button>
         </form>
       )}
+      <hr className="border-[#dedede] mb-4" />
 
       {/* Reviews List */}
       {loading ? (
         <div className="text-center text-zinc-400">Loading reviews...</div>
       ) : reviews.length === 0 ? (
-        <div className="text-center text-zinc-400">No reviews yet.</div>
+        <div className="text-center text-zinc-400 mb-6">No reviews yet.</div>
       ) : (
         <div className="space-y-3">
           {reviews.map((review, index) => (
@@ -340,7 +339,7 @@ export default function Review({ videoId }: { videoId: string }) {
               </div>
               {/* Divider between comments, except after the last one */}
               {index !== reviews.length - 1 && (
-                <hr className="border-zinc-200 dark:border-zinc-700 my-2" />
+                <hr className="border-[#dedede] my-2" />
               )}
             </div>
           ))}
