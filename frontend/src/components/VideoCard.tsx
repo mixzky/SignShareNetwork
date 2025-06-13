@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useRef, useEffect } from 'react';
-import { CheckCircle2, Flag, Volume2, VolumeX, Maximize2 } from 'lucide-react';
-import { Button } from './ui/button';
-import { Database } from '@/types/database';
-import { useRouter } from 'next/navigation';
-import { getSupabaseClient } from '@/lib/supabase';
+import { useState, useRef, useEffect } from "react";
+import { CheckCircle2, Flag, Volume2, VolumeX, Maximize2 } from "lucide-react";
+import { Button } from "./ui/button";
+import { Database } from "@/types/database";
+import { useRouter } from "next/navigation";
+import { getSupabaseClient } from "@/lib/supabase";
+import Review from "./Review";
 
-type SignVideo = Database['public']['Tables']['sign_videos']['Row'] & {
+type SignVideo = Database["public"]["Tables"]["sign_videos"]["Row"] & {
   user: {
     avatar_url: string | null;
     display_name: string;
@@ -31,7 +32,7 @@ export default function VideoCard({ video }: VideoCardProps) {
   const [isMuted, setIsMuted] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [videoUrl, setVideoUrl] = useState<string>('');
+  const [videoUrl, setVideoUrl] = useState<string>("");
   const videoRef = useRef<HTMLVideoElement>(null);
   const videoContainerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -40,11 +41,9 @@ export default function VideoCard({ video }: VideoCardProps) {
     // Get public URL for the video
     const supabase = getSupabaseClient();
     // Extract bucket and path from the full storage path
-    const [bucket, ...pathParts] = video.video_url.split('/');
-    const path = pathParts.join('/');
-    const { data } = supabase.storage
-      .from(bucket)
-      .getPublicUrl(path);
+    const [bucket, ...pathParts] = video.video_url.split("/");
+    const path = pathParts.join("/");
+    const { data } = supabase.storage.from(bucket).getPublicUrl(path);
     setVideoUrl(data.publicUrl);
   }, [video.video_url]);
 
@@ -85,7 +84,7 @@ export default function VideoCard({ video }: VideoCardProps) {
         }
       }
     } catch (error) {
-      console.error('Error toggling fullscreen:', error);
+      console.error("Error toggling fullscreen:", error);
     }
   };
 
@@ -94,9 +93,9 @@ export default function VideoCard({ video }: VideoCardProps) {
       setIsFullscreen(!!document.fullscreenElement);
     };
 
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
     return () => {
-      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
     };
   }, []);
 
@@ -115,7 +114,7 @@ export default function VideoCard({ video }: VideoCardProps) {
               <span className="font-medium text-gray-900">
                 {video.user.display_name}
               </span>
-              {video.user.role === 'moderator' && (
+              {video.user.role === "moderator" && (
                 <CheckCircle2 className="w-4 h-4 text-blue-500" />
               )}
             </div>
@@ -173,52 +172,6 @@ export default function VideoCard({ video }: VideoCardProps) {
       </div>
 
       {/* Reviews Section */}
-      <div className="p-4">
-        {video.reviews && video.reviews.length > 0 && (
-          <div className="border-t border-gray-100 pt-4">
-            {video.reviews.map((review, index) => (
-              <div key={index} className="flex items-start gap-3 mb-4">
-                <img
-                  src={review.user.avatar_url || "/default-avatar.png"}
-                  alt={`${review.user.display_name}'s avatar`}
-                  className="w-8 h-8 rounded-full object-cover"
-                />
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="font-medium text-gray-900">
-                        {review.user.display_name}
-                      </span>
-                      <div className="flex gap-1 mt-1">
-                        {[...Array(5)].map((_, i) => (
-                          <span
-                            key={i}
-                            className={`text-sm ${
-                              i < review.rating
-                                ? "text-yellow-400"
-                                : "text-gray-300"
-                            }`}
-                          >
-                            ★
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-gray-400 hover:text-gray-600"
-                    >
-                      <Flag className="w-4 h-4" />
-                    </Button>
-                  </div>
-                  <p className="mt-1 text-sm text-gray-600">{review.comment}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
     </div>
   );
-} 
+}
