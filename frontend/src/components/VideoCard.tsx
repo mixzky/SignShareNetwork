@@ -172,6 +172,7 @@ export default function VideoCard({ video }: VideoCardProps) {
       </div>
 
       {/* Reviews Section */}
+      <Review videoId={video.id} />
     </div>
   );
 }

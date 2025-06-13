@@ -89,7 +89,6 @@ export default async function CountryPage(props: {
             {verifiedVideos.map((video) => (
               <div key={video.id} className="w-full max-w-4xl  ">
                 <VideoCard video={video} />
-                <Review videoId={video.id} />
               </div>
             ))}
           </div>
