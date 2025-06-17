@@ -348,12 +348,12 @@ export default function Review({ videoId }: { videoId: string }) {
                     </span>
                     {review.rating === 1 && (
                       <span className="ml-2 text-green-600 font-bold text-xs flex items-center gap-1">
-                        <ArrowUpwardIcon fontSize="inherit" /> Upvote
+                        <ArrowUpwardIcon fontSize="inherit" />
                       </span>
                     )}
                     {review.rating === -1 && (
                       <span className="ml-2 text-red-600 font-bold text-xs flex items-center gap-1">
-                        <ArrowDownwardIcon fontSize="inherit" /> Downvote
+                        <ArrowDownwardIcon fontSize="inherit" />
                       </span>
                     )}
                   </div>
