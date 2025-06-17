@@ -36,6 +36,7 @@ type CountryContentProps = {
 export default function CountryContent({ id }: CountryContentProps) {
   const [countryData, setCountryData] = useState<any>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [isTagging, setIsTagging] = useState(false);
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [userProfile, setUserProfile] = useState<{
@@ -151,15 +152,19 @@ export default function CountryContent({ id }: CountryContentProps) {
 
       // Save video metadata to database
       const supabase = getSupabaseClient();
-      const { error: dbError } = await supabase.from("sign_videos").insert({
-        user_id: user.id,
-        title: data.title,
-        description: data.description,
-        language: data.language,
-        region: data.region,
-        video_url: uploadResult.storagePath,
-        status: "pending",
-      });
+      const { data: videoData, error: dbError } = await supabase
+        .from('sign_videos')
+        .insert({
+          user_id: user.id,
+          title: data.title,
+          description: data.description,
+          language: data.language,
+          region: data.region,
+          video_url: uploadResult.storagePath,
+          status: 'processing',
+        })
+        .select()
+        .single();
 
       if (dbError) {
         console.error("Database error:", dbError);
@@ -171,7 +176,7 @@ export default function CountryContent({ id }: CountryContentProps) {
         throw dbError;
       }
 
-      toast.success("Video uploaded successfully");
+      toast.success('Video uploaded successfully');
       setIsUploadDialogOpen(false);
       reset();
       setVideoFile(null);
@@ -181,6 +186,7 @@ export default function CountryContent({ id }: CountryContentProps) {
       toast.error("Failed to upload video. Please try again.");
     } finally {
       setIsUploading(false);
+      setIsTagging(false);
     }
   };
 
@@ -322,8 +328,8 @@ export default function CountryContent({ id }: CountryContentProps) {
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={isUploading}>
-                  {isUploading ? "Uploading..." : "Upload Video"}
+                <Button type="submit" disabled={isUploading || isTagging}>
+                  {isUploading ? 'Uploading...' : isTagging ? 'Generating tags...' : 'Upload Video'}
                 </Button>
               </div>
             </form>
