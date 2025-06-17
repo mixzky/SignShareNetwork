@@ -7,6 +7,7 @@ import { Database } from "@/types/database";
 import { useRouter } from "next/navigation";
 import { getSupabaseClient } from "@/lib/supabase";
 import Review from "./Review";
+import { GenerateTagsButton } from "./GenerateTagsButton";
 
 type SignVideo = Database["public"]["Tables"]["sign_videos"]["Row"] & {
   user: {
@@ -33,6 +34,7 @@ export default function VideoCard({ video }: VideoCardProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [videoUrl, setVideoUrl] = useState<string>("");
+  const [tags, setTags] = useState<string[]>(video.tags || []);
   const videoRef = useRef<HTMLVideoElement>(null);
   const videoContainerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -99,6 +101,10 @@ export default function VideoCard({ video }: VideoCardProps) {
     };
   }, []);
 
+  const handleTagsUpdate = (newTags: string[]) => {
+    setTags(newTags);
+  };
+
   return (
     <div className="bg-white rounded-xl shadow-sm overflow-hidden">
       {/* User Info Section */}
@@ -109,7 +115,7 @@ export default function VideoCard({ video }: VideoCardProps) {
             alt={`${video.user.display_name}'s avatar`}
             className="w-10 h-10 rounded-full object-cover"
           />
-          <div>
+          <div className="flex-grow">
             <div className="flex items-center gap-1">
               <span className="font-medium text-gray-900">
                 {video.user.display_name}
@@ -118,9 +124,9 @@ export default function VideoCard({ video }: VideoCardProps) {
                 <CheckCircle2 className="w-4 h-4 text-blue-500" />
               )}
             </div>
-            {video.tags && (
-              <div className="flex gap-1 mt-1">
-                {video.tags.map((tag, index) => (
+            <div className="flex items-center justify-between mt-1">
+              <div className="flex flex-wrap gap-1">
+                {tags.map((tag, index) => (
                   <span
                     key={index}
                     className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full"
@@ -129,13 +135,25 @@ export default function VideoCard({ video }: VideoCardProps) {
                   </span>
                 ))}
               </div>
-            )}
+              <GenerateTagsButton videoId={video.id} onSuccess={handleTagsUpdate} />
+            </div>
           </div>
         </div>
       </div>
 
+      {/* Title and Description */}
+      <div className="px-4 pb-4">
+        <h2 className="text-xl font-semibold text-gray-900 mb-2">{video.title}</h2>
+        {video.description && (
+          <p className="text-gray-600 text-sm whitespace-pre-wrap">{video.description}</p>
+        )}
+      </div>
+
       {/* Video Section */}
-      <div ref={videoContainerRef} className="relative pt-[56.25%] bg-gray-100">
+      <div
+        ref={videoContainerRef}
+        className="relative aspect-video bg-black"
+      >
         {videoUrl && (
           <video
             ref={videoRef}
