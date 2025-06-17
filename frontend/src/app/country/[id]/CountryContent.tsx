@@ -185,8 +185,8 @@ export default function CountryContent({ id }: CountryContentProps) {
   };
 
   return (
-    <div className="flex-1 w-full p-12 pt-28 flex flex-col items-center">
-      <div className="w-full max-w-11/12 bg-white rounded-2xl shadow-md p-0 mb-8 mt-6 ">
+    <div className="flex-1 w-full pt-28 flex flex-col items-center">
+      <div className="w-full max-w-8/12 bg-white rounded-2xl shadow-md p-0  mt-8 ">
         {/* Top section: Now : Thailand */}
         <div className="flex justify-center pt-6 pb-6">
           <div className="px-6 py-2  rounded-full border w-96 border-[#cccccc] bg-[#fafafa] text-center text-base font-semibold">

@@ -8,7 +8,7 @@ export default function CountryTopMenu() {
       <div className="w-full">
         <div className="relative flex items-center justify-center h-16">
           {/* Most left: SignShare Network */}
-          <div className="absolute left-0 pl-4">
+          <div className="absolute left-0 pl-4 mb-2.5">
             <Link
               href="/"
               className="text-3xl md:text-4xl font-bold text-white"

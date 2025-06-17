@@ -6,6 +6,7 @@ import VideoCard from "@/components/VideoCard";
 import { notFound } from "next/navigation";
 import Review from "@/components/Review";
 import CountryTopMenu from "@/components/CountryTopMenu";
+import LeftMenu from "@/components/LeftMenu";
 
 // Map of country IDs to names
 const countryIdToName: { [key: string]: string } = {
@@ -68,32 +69,35 @@ export default async function CountryPage(props: {
 
   return (
     <main className="flex flex-col min-h-screen bg-[#fafafa]">
-      <div className="fixed top-0 left-0 w-full z-50  bg-[#0a0e18] h-24 flex items-center ">
+      {/* Top Menu */}
+      <div className="fixed top-0 left-0 w-full z-50 bg-[#0a0e18] h-24 flex items-center">
         <CountryTopMenu />
       </div>
+
+      {/* Country Content */}
       <Suspense fallback={<div>Loading...</div>}>
         <CountryContent id={params.id} />
       </Suspense>
 
-      {/* Videos Section */}
-      <div className="container mx-auto py-8 px-4 ">
-        <h2 className="text-2xl font-bold mb-6">Recent Videos</h2>
-        {verifiedVideos.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-500">
-              No videos found for this region yet.
-            </p>
-            <p className="text-sm text-gray-400 mt-2">Region: {regionName}</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-4 place-items-center">
-            {verifiedVideos.map((video) => (
-              <div key={video.id} className="w-full max-w-2xl  ">
-                <VideoCard video={video} />
+      {/* Videos Section with Side Menus */}
+      <div className="flex w-full justify-center">
+        <div className="flex-1 w-full flex flex-col items-center pt-10">
+          <div className="flex w-full max-w-8/12">
+            {/* Left Menu */}
+            <LeftMenu />
+
+            {/* Video Section */}
+            <section className="flex-1 flex flex-col items-center pl-8 ">
+              <div className="w-full">
+                {verifiedVideos.map((video) => (
+                  <div key={video.id} className="mb-6">
+                    <VideoCard video={video} />
+                  </div>
+                ))}
               </div>
-            ))}
+            </section>
           </div>
-        )}
+        </div>
       </div>
     </main>
   );
