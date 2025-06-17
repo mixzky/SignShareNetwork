@@ -1,5 +1,5 @@
-import { createClient } from '@/utils/supabase/client';
-import { Database } from '@/types/database';
+import { createClient } from "@/utils/supabase/client";
+import { Database } from "@/types/database";
 
 // Create a single instance of the Supabase client
 let supabaseInstance: ReturnType<typeof createClient> | null = null;
@@ -17,7 +17,9 @@ const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 export const getCurrentUser = async () => {
   const supabase = getSupabaseClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   return user;
 };
 
@@ -30,9 +32,9 @@ export const getUserProfile = async (userId: string) => {
 
   const supabase = getSupabaseClient();
   const { data, error } = await supabase
-    .from('users')
-    .select('*')
-    .eq('id', userId)
+    .from("users")
+    .select("*")
+    .eq("id", userId)
     .single();
 
   if (error) throw error;
@@ -52,9 +54,9 @@ export const updateUserProfile = async (
 ) => {
   const supabase = getSupabaseClient();
   const { data, error } = await supabase
-    .from('users')
+    .from("users")
     .update(updates)
-    .eq('id', userId)
+    .eq("id", userId)
     .select()
     .single();
 
@@ -65,145 +67,175 @@ export const updateUserProfile = async (
   return data;
 };
 
+export const getReviewsByVideoId = async (videoId: string) => {
+  const supabase = getSupabaseClient();
+  const { data, error } = await supabase
+    .from("reviews")
+    .select(
+      `
+      id,
+      user_id,
+      rating,
+      comment,
+      user:users (
+        id,
+        avatar_url,
+        display_name
+      )
+    `
+    )
+    .eq("video_id", videoId)
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+  return data;
+};
+
 export const uploadAvatar = async (userId: string, file: File) => {
   const supabase = getSupabaseClient();
-  
+
   // Validate file type
-  if (!file.type.startsWith('image/')) {
-    throw new Error('Please upload an image file');
+  if (!file.type.startsWith("image/")) {
+    throw new Error("Please upload an image file");
   }
 
   // Get file extension and create unique filename
-  const fileExt = file.name.split('.').pop();
+  const fileExt = file.name.split(".").pop();
   const fileName = `${Date.now()}.${fileExt}`;
-  
+
   // Create path: userId/filename to match RLS policies
   const filePath = `${userId}/${fileName}`;
-  console.log('Uploading avatar with path:', filePath); // Debug log
+  console.log("Uploading avatar with path:", filePath); // Debug log
 
   try {
     // Upload file
     const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('avatar')
+      .from("avatar")
       .upload(filePath, file, {
-        cacheControl: '3600',
+        cacheControl: "3600",
         upsert: true,
-        contentType: file.type
+        contentType: file.type,
       });
 
     if (uploadError) {
-      console.error('Supabase upload error:', uploadError, JSON.stringify(uploadError));
+      console.error(
+        "Supabase upload error:",
+        uploadError,
+        JSON.stringify(uploadError)
+      );
       throw uploadError;
     }
 
-    console.log('Upload successful:', uploadData); // Debug log
+    console.log("Upload successful:", uploadData); // Debug log
 
     // Get public URL
     const { data: urlData } = supabase.storage
-      .from('avatar')
+      .from("avatar")
       .getPublicUrl(filePath);
 
-    console.log('Generated public URL:', urlData); // Debug log
+    console.log("Generated public URL:", urlData); // Debug log
 
     // Update user profile with new avatar URL
     const { error: updateError } = await supabase
-      .from('users')
+      .from("users")
       .update({ avatar_url: urlData.publicUrl })
-      .eq('id', userId);
+      .eq("id", userId);
 
     if (updateError) {
-      console.error('Error updating user profile:', updateError);
+      console.error("Error updating user profile:", updateError);
       throw updateError;
     }
 
-    console.log('Profile updated with URL:', urlData.publicUrl); // Debug log
+    console.log("Profile updated with URL:", urlData.publicUrl); // Debug log
     return urlData.publicUrl;
   } catch (error) {
-    console.error('Error in uploadAvatar:', error);
+    console.error("Error in uploadAvatar:", error);
     throw error;
   }
 };
 
 export const deleteAvatar = async (userId: string, avatarUrl: string) => {
   const supabase = getSupabaseClient();
-  
+
   try {
     // Extract filename from URL
-    const urlParts = avatarUrl.split('/');
+    const urlParts = avatarUrl.split("/");
     const filePath = `${userId}/${urlParts[urlParts.length - 1]}`;
-    
-    const { error } = await supabase.storage
-      .from('avatar')
-      .remove([filePath]);
+
+    const { error } = await supabase.storage.from("avatar").remove([filePath]);
 
     if (error) {
-      console.error('Error deleting avatar:', error);
+      console.error("Error deleting avatar:", error);
       throw error;
     }
 
     // Update user profile to remove avatar_url
     const { error: updateError } = await supabase
-      .from('users')
+      .from("users")
       .update({ avatar_url: null })
-      .eq('id', userId);
+      .eq("id", userId);
 
     if (updateError) {
-      console.error('Error updating user profile:', updateError);
+      console.error("Error updating user profile:", updateError);
       throw updateError;
     }
   } catch (error) {
-    console.error('Error in deleteAvatar:', error);
+    console.error("Error in deleteAvatar:", error);
     throw error;
   }
 };
 
 export const uploadVideo = async (userId: string, file: File) => {
   const supabase = getSupabaseClient();
-  
+
   // Validate file type
-  if (!file.type.startsWith('video/')) {
-    throw new Error('Please upload a video file');
+  if (!file.type.startsWith("video/")) {
+    throw new Error("Please upload a video file");
   }
 
   // Get file extension and create unique filename
-  const fileExt = file.name.split('.').pop();
+  const fileExt = file.name.split(".").pop();
   const fileName = `${Date.now()}.${fileExt}`;
-  
+
   // Create path: userId/filename to match RLS policies
   const filePath = `${userId}/${fileName}`;
-  console.log('Uploading video with path:', filePath); // Debug log
+  console.log("Uploading video with path:", filePath); // Debug log
 
   try {
     // Upload file
     const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('video')
+      .from("video")
       .upload(filePath, file, {
-        cacheControl: '3600',
+        cacheControl: "3600",
         upsert: true,
-        contentType: file.type
+        contentType: file.type,
       });
 
     if (uploadError) {
-      console.error('Supabase upload error:', uploadError, JSON.stringify(uploadError));
+      console.error(
+        "Supabase upload error:",
+        uploadError,
+        JSON.stringify(uploadError)
+      );
       throw uploadError;
     }
 
-    console.log('Upload successful:', uploadData); // Debug log
+    console.log("Upload successful:", uploadData); // Debug log
 
     // Get public URL
     const { data: urlData } = supabase.storage
-      .from('video')
+      .from("video")
       .getPublicUrl(filePath);
 
-    console.log('Generated public URL:', urlData); // Debug log
-    
+    console.log("Generated public URL:", urlData); // Debug log
+
     // Return both the public URL and the storage path
     return {
       publicUrl: urlData.publicUrl,
-      storagePath: `video/${filePath}` // Include bucket name in the path
+      storagePath: `video/${filePath}`, // Include bucket name in the path
     };
   } catch (error) {
-    console.error('Error in uploadVideo:', error);
+    console.error("Error in uploadVideo:", error);
     throw error;
   }
-}; 
+};
