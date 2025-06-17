@@ -7,11 +7,14 @@ import {
   getCurrentUser,
   getUserProfile,
 } from "@/lib/supabase";
-import { IconButton, Tooltip } from "@mui/material";
-import ThumbUpAltIcon from "@mui/icons-material/ThumbUpAlt";
-import ThumbUpOffAltIcon from "@mui/icons-material/ThumbUpOffAlt";
-import ThumbDownAltIcon from "@mui/icons-material/ThumbDownAlt";
-import ThumbDownOffAltIcon from "@mui/icons-material/ThumbDownOffAlt";
+import IconButton from "@mui/material/IconButton";
+import MessageOutlinedIcon from "@mui/icons-material/MessageOutlined";
+import Tooltip from "@mui/material/Tooltip";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+import ArrowUpwardOutlinedIcon from "@mui/icons-material/ArrowUpwardOutlined";
+import ArrowDownwardOutlinedIcon from "@mui/icons-material/ArrowDownwardOutlined";
+import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 
 type UserProfile = {
   avatar_url: string | null;
@@ -38,6 +41,10 @@ export default function Review({ videoId }: { videoId: string }) {
   const [session, setSession] = useState<{ user: { id: string } } | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [userReviewId, setUserReviewId] = useState<string | null>(null);
+  const [showComments, setShowComments] = useState(false);
+
+  // Pagination state for comments
+  const [visibleCount, setVisibleCount] = useState(3);
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -196,25 +203,52 @@ export default function Review({ videoId }: { videoId: string }) {
     setSubmitting(false);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit(e as any);
+    }
+  };
+
   return (
     <div className="w-full">
-      {/* Upvote/Downvote Count */}
-      <div className="flex gap-6 mb-4 justify-end pr-4 pt-4">
-        <div className="flex items-center gap-1 ">
-          <ThumbUpAltIcon className="text-green-500" fontSize="small" />
-          <span className="font-bold text-base text-green-500">{upvotes}</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <ThumbDownAltIcon className="text-red-500" fontSize="small" />
-          <span className="font-bold text-base text-red-500">{downvotes}</span>
-        </div>
+      {/* Write Review Section */}
+      {/* Horizontal row: Upvote/Downvote/Comment icon */}
+      <div className="flex items-center gap-6 mt-4 ml-4 mb-4 justify-start">
+        <button
+          type="button"
+          className={`flex items-center gap-1 focus:outline-none transition 
+      ${
+        rating === 1
+          ? "text-green-400"
+          : "text-gray-500 hover:text-green-400 cursor-pointer"
+      }`}
+          onClick={() => setRating(rating === 1 ? 0 : 1)}
+        >
+          <ArrowUpwardIcon className="mr-1" fontSize="small" />
+          <span className="font-bold text-base">{upvotes}</span>
+        </button>
+        <button
+          type="button"
+          className={`flex items-center gap-1 focus:outline-none transition 
+      ${
+        rating === -1
+          ? "text-red-400"
+          : "text-gray-500 hover:text-red-400 cursor-pointer"
+      }`}
+          onClick={() => setRating(rating === -1 ? 0 : -1)}
+        >
+          <ArrowDownwardIcon className="mr-1" fontSize="small" />
+          <span className="font-bold text-base">{downvotes}</span>
+        </button>
+        <button type="button" className="flex items-center gap-1 text-gray-500">
+          <MessageOutlinedIcon />
+          <span className="text-sm font-medium">{reviews.length}</span>
+        </button>
       </div>
 
-      <hr className="border-[#dedede] mb-6" />
-
-      {/* Write Review Section */}
       {session && userProfile && (
-        <form onSubmit={handleSubmit} className="mb-6 bg-white p-4 r">
+        <form onSubmit={handleSubmit} className=" bg-white p-4 ">
           <div className="flex items-center gap-3 mb-3">
             {userProfile.avatar_url ? (
               <img
@@ -227,124 +261,131 @@ export default function Review({ videoId }: { videoId: string }) {
                 <span className="text-lg">👤</span>
               </div>
             )}
-            <span className="font-semibold text-zinc-800 dark:text-zinc-100">
+            <span className="font-bold text-black text-sm dark:text-zinc-100">
               {userProfile.display_name || "You"}
             </span>
-            <div className="flex items-center gap-1 ml-auto">
-              <Tooltip title="Upvote">
-                <IconButton
-                  color={rating === 1 ? "success" : "default"}
-                  onClick={() => setRating(rating === 1 ? 0 : 1)}
-                  size="small"
-                >
-                  {rating === 1 ? <ThumbUpAltIcon /> : <ThumbUpOffAltIcon />}
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Downvote">
-                <IconButton
-                  color={rating === -1 ? "error" : "default"}
-                  onClick={() => setRating(rating === -1 ? 0 : -1)}
-                  size="small"
-                >
-                  {rating === -1 ? (
-                    <ThumbDownAltIcon />
-                  ) : (
-                    <ThumbDownOffAltIcon />
-                  )}
-                </IconButton>
-              </Tooltip>
-            </div>
           </div>
           <textarea
-            className="w-full border border-zinc-200 dark:border-zinc-700 rounded-lg p-2 mb-2 bg-zinc-50 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 focus:ring-2 focus:ring-blue-400 transition"
+            className="w-full border border-zinc-200 dark:border-zinc-700 rounded-lg p-2 mb-2 bg-zinc-50 dark:bg-zinc-800 text-[#333d42] text-sm dark:text-zinc-100 focus:ring-2 focus:ring-blue-400 transition resize-none"
             rows={2}
             placeholder="Share your thoughts..."
             value={comment}
             onChange={(e) => setComment(e.target.value)}
+            onKeyDown={handleKeyDown}
             required
           />
           {userReviewId && (
-            <div className="flex items-center gap-2 mb-2">
-              <div className="text-blue-600 text-xs font-medium">
+            <div className="flex items-center gap-3 mb-2">
+              <span className="inline-flex items-center px-2 py-0.5 rounded bg-blue-100 text-blue-700 text-xs font-semibold">
+                <svg
+                  className="w-3 h-3 mr-1 text-blue-500"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M11 5h2m-1 0v14m-7-7h14"
+                  />
+                </svg>
                 Editing your review
-              </div>
+              </span>
               <button
                 type="button"
-                className="text-red-600 text-xs underline"
+                className="inline-flex items-center px-2 py-0.5 rounded bg-red-50 text-red-600 hover:bg-red-100 text-xs cursor-pointer  font-medium transition"
                 onClick={handleDelete}
                 disabled={submitting}
               >
-                Delete Review
+                <svg
+                  className="w-3 h-3 mr-1 text-red-500"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+                Delete
               </button>
             </div>
           )}
 
-          {error && <div className="text-red-500 text-sm mb-2">{error}</div>}
-          <button
-            type="submit"
-            className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-semibold py-2 rounded-lg shadow transition disabled:opacity-50"
-            disabled={submitting || rating === 0 || !comment.trim()}
-          >
-            {userReviewId
-              ? submitting
-                ? "Updating..."
-                : "Update Review"
-              : submitting
-              ? "Submitting..."
-              : "Submit Review"}
-          </button>
+          {error && <div className="text-red-500 text-sm ">{error}</div>}
         </form>
       )}
-      <hr className="border-[#dedede] mb-4" />
-
-      {/* Reviews List */}
-      {loading ? (
-        <div className="text-center text-zinc-400">Loading reviews...</div>
-      ) : reviews.length === 0 ? (
-        <div className="text-center text-zinc-400 mb-6">No reviews yet.</div>
-      ) : (
-        <div className="space-y-3">
-          {reviews.map((review, index) => (
-            <div key={index}>
-              <div className="p-4 bg-white flex flex-col gap-1">
-                <div className="flex items-center gap-2">
-                  {review.user?.avatar_url ? (
-                    <img
-                      src={review.user.avatar_url}
-                      alt={review.user.display_name || "User"}
-                      className="w-7 h-7 rounded-full border border-zinc-200 dark:border-zinc-700"
-                    />
-                  ) : (
-                    <div className="w-7 h-7 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center text-zinc-400">
-                      <span className="text-base">👤</span>
+      <hr className="border-zinc-200 dark:border-zinc-700" />
+      {/* Reviews List (comments) */}
+      <div>
+        {loading ? (
+          <div className="text-center text-zinc-400">Loading reviews...</div>
+        ) : reviews.length === 0 ? (
+          <div className="text-center text-zinc-400 mb-6">No reviews yet.</div>
+        ) : (
+          <div className="space-y-3">
+            {reviews.slice(0, visibleCount).map((review, index) => (
+              <div key={index}>
+                <div className="p-4 bg-white flex flex-col gap-1">
+                  <div className="flex items-center gap-2">
+                    {review.user?.avatar_url ? (
+                      <img
+                        src={review.user.avatar_url}
+                        alt={review.user.display_name || "User"}
+                        className="w-7 h-7 rounded-full border border-zinc-200 dark:border-zinc-700"
+                      />
+                    ) : (
+                      <div className="w-7 h-7 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center text-zinc-400">
+                        <span className="text-base">👤</span>
+                      </div>
+                    )}
+                    <span className="font-bold text-black text-sm dark:text-zinc-200">
+                      {review.user?.display_name || "Unknown"}
+                    </span>
+                    {review.rating === 1 && (
+                      <span className="ml-2 text-green-600 font-bold text-xs flex items-center gap-1">
+                        <ArrowUpwardIcon fontSize="inherit" /> Upvote
+                      </span>
+                    )}
+                    {review.rating === -1 && (
+                      <span className="ml-2 text-red-600 font-bold text-xs flex items-center gap-1">
+                        <ArrowDownwardIcon fontSize="inherit" /> Downvote
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[#333d42] dark:text-zinc-100 text-sm ml-9 mb-2">
+                    {review.comment}
+                  </p>
+                </div>
+                {/* Divider between comments, except after the last one */}
+                {index !== reviews.length - 1 && (
+                  <hr className="border-zinc-200 dark:border-zinc-700" />
+                )}
+                {/* Show "Show comments" button after the last visible comment */}
+                {index === visibleCount - 1 &&
+                  visibleCount < reviews.length && (
+                    <div className="flex justify-center mt-2">
+                      <button
+                        type="button"
+                        className="flex items-center gap-1 text-gray-500 hover:text-blue-400 transition focus:outline-none cursor-pointer mb-2 "
+                        onClick={() => setVisibleCount((prev) => prev + 3)}
+                      >
+                        <MessageOutlinedIcon />
+                        <span className="text-sm font-medium">
+                          Show more comments
+                        </span>
+                      </button>
                     </div>
                   )}
-                  <span className="font-semibold text-zinc-700 dark:text-zinc-200">
-                    {review.user?.display_name || "Unknown"}
-                  </span>
-                  {review.rating === 1 && (
-                    <span className="ml-2 text-green-600 font-bold text-xs flex items-center gap-1">
-                      ▲ Upvote
-                    </span>
-                  )}
-                  {review.rating === -1 && (
-                    <span className="ml-2 text-red-600 font-bold text-xs flex items-center gap-1">
-                      ▼ Downvote
-                    </span>
-                  )}
-                </div>
-                <p className="text-zinc-700 dark:text-zinc-100 text-sm">
-                  {review.comment}
-                </p>
               </div>
-              {/* Divider between comments, except after the last one */}
-              {index !== reviews.length - 1 && (
-                <hr className="border-[#dedede] my-2" />
-              )}
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
