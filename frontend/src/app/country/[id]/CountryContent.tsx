@@ -31,6 +31,7 @@ type CountryContentProps = {
 export default function CountryContent({ id }: CountryContentProps) {
   const [countryData, setCountryData] = useState<any>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [isTagging, setIsTagging] = useState(false);
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [userProfile, setUserProfile] = useState<{ avatar_url: string | null; display_name: string | null; id: string } | null>(null);
@@ -140,7 +141,7 @@ export default function CountryContent({ id }: CountryContentProps) {
 
       // Save video metadata to database
       const supabase = getSupabaseClient();
-      const { error: dbError } = await supabase
+      const { data: videoData, error: dbError } = await supabase
         .from('sign_videos')
         .insert({
           user_id: user.id,
@@ -149,8 +150,10 @@ export default function CountryContent({ id }: CountryContentProps) {
           language: data.language,
           region: data.region,
           video_url: uploadResult.storagePath,
-          status: 'pending',
-        });
+          status: 'processing',
+        })
+        .select()
+        .single();
 
       if (dbError) {
         console.error('Database error:', dbError);
@@ -162,7 +165,33 @@ export default function CountryContent({ id }: CountryContentProps) {
         throw dbError;
       }
 
-      toast.success('Video uploaded successfully');
+      // Start auto-tagging
+      setIsTagging(true);
+      console.log('Starting auto-tagging for video:', videoData.id);
+      
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/auto-tag-video`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+        },
+        body: JSON.stringify({
+          video_id: videoData.id,
+          title: data.title,
+          description: data.description
+        })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.warn('Auto-tagging failed:', errorText);
+        toast.error('Auto-tagging failed, but video was uploaded successfully');
+      } else {
+        const { tags } = await response.json();
+        toast.success('Video uploaded and tagged successfully');
+        console.log('Generated tags:', tags);
+      }
+
       setIsUploadDialogOpen(false);
       reset();
       setVideoFile(null);
@@ -172,6 +201,7 @@ export default function CountryContent({ id }: CountryContentProps) {
       toast.error('Failed to upload video. Please try again.');
     } finally {
       setIsUploading(false);
+      setIsTagging(false);
     }
   };
 
@@ -324,8 +354,8 @@ export default function CountryContent({ id }: CountryContentProps) {
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={isUploading}>
-                  {isUploading ? 'Uploading...' : 'Upload Video'}
+                <Button type="submit" disabled={isUploading || isTagging}>
+                  {isUploading ? 'Uploading...' : isTagging ? 'Generating tags...' : 'Upload Video'}
                 </Button>
               </div>
             </form>
