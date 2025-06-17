@@ -5,6 +5,7 @@ import { createClient } from "@/utils/supabase/server";
 import VideoCard from "@/components/VideoCard";
 import { notFound } from "next/navigation";
 import Review from "@/components/Review";
+import CountryTopMenu from "@/components/CountryTopMenu";
 
 // Map of country IDs to names
 const countryIdToName: { [key: string]: string } = {
@@ -67,15 +68,15 @@ export default async function CountryPage(props: {
 
   return (
     <main className="flex flex-col min-h-screen bg-[#fafafa]">
-      <div className="fixed top-0 left-0 w-full z-50 bg-[#0a0e18] h-24 flex items-center">
-        <TopMenu />
+      <div className="fixed top-0 left-0 w-full z-50  bg-[#0a0e18] h-24 flex items-center ">
+        <CountryTopMenu />
       </div>
       <Suspense fallback={<div>Loading...</div>}>
         <CountryContent id={params.id} />
       </Suspense>
 
       {/* Videos Section */}
-      <div className="container mx-auto py-8 px-4">
+      <div className="container mx-auto py-8 px-4 ">
         <h2 className="text-2xl font-bold mb-6">Recent Videos</h2>
         {verifiedVideos.length === 0 ? (
           <div className="text-center py-12">
