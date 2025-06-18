@@ -135,7 +135,10 @@ export default function VideoCard({ video }: VideoCardProps) {
                   </span>
                 ))}
               </div>
-              <GenerateTagsButton videoId={video.id} onSuccess={handleTagsUpdate} />
+              <GenerateTagsButton
+                videoId={video.id}
+                onSuccess={handleTagsUpdate}
+              />
             </div>
           </div>
         </div>
@@ -143,17 +146,18 @@ export default function VideoCard({ video }: VideoCardProps) {
 
       {/* Title and Description */}
       <div className="px-4 pb-4">
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">{video.title}</h2>
+        <h2 className="text-xl font-semibold text-gray-900 mb-2">
+          {video.title}
+        </h2>
         {video.description && (
-          <p className="text-gray-600 text-sm whitespace-pre-wrap">{video.description}</p>
+          <p className="text-gray-600 text-sm whitespace-pre-wrap">
+            {video.description}
+          </p>
         )}
       </div>
 
       {/* Video Section */}
-      <div
-        ref={videoContainerRef}
-        className="relative aspect-video bg-black"
-      >
+      <div ref={videoContainerRef} className="relative aspect-video bg-black">
         {videoUrl && (
           <video
             ref={videoRef}

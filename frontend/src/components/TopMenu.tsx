@@ -4,6 +4,8 @@ import React, { useEffect, useState } from "react";
 import { createClient } from "../utils/supabase/client";
 import { User } from "@supabase/supabase-js";
 import UserProfileDropdown from "./UserProfileDrowdown";
+import { getSupabaseClient } from "@/lib/supabase"; // your wrapper
+// or import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 export default function TopMenu() {
   const [user, setUser] = useState<User | null>(null);

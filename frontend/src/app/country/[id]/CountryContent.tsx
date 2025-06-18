@@ -152,16 +152,17 @@ export default function CountryContent({ id }: CountryContentProps) {
 
       // Save video metadata to database
       const supabase = getSupabaseClient();
+
       const { data: videoData, error: dbError } = await supabase
-        .from('sign_videos')
+        .from("sign_videos")
         .insert({
           user_id: user.id,
           title: data.title,
           description: data.description,
           language: data.language,
-          region: data.region,
+          region: id,
           video_url: uploadResult.storagePath,
-          status: 'processing',
+          status: "processing",
         })
         .select()
         .single();
@@ -176,7 +177,7 @@ export default function CountryContent({ id }: CountryContentProps) {
         throw dbError;
       }
 
-      toast.success('Video uploaded successfully');
+      toast.success("Video uploaded successfully");
       setIsUploadDialogOpen(false);
       reset();
       setVideoFile(null);
@@ -329,7 +330,11 @@ export default function CountryContent({ id }: CountryContentProps) {
                   Cancel
                 </Button>
                 <Button type="submit" disabled={isUploading || isTagging}>
-                  {isUploading ? 'Uploading...' : isTagging ? 'Generating tags...' : 'Upload Video'}
+                  {isUploading
+                    ? "Uploading..."
+                    : isTagging
+                    ? "Generating tags..."
+                    : "Upload Video"}
                 </Button>
               </div>
             </form>

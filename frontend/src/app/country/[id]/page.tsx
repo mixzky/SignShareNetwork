@@ -8,14 +8,6 @@ import Review from "@/components/Review";
 import CountryTopMenu from "@/components/CountryTopMenu";
 import LeftMenu from "@/components/LeftMenu";
 
-// Map of country IDs to names
-const countryIdToName: { [key: string]: string } = {
-  "764": "thailand",
-  "840": "united states",
-  "392": "japan",
-  // Add more mappings as needed
-};
-
 export default async function CountryPage(props: {
   params: Promise<{ id: string }>;
 }) {
@@ -23,8 +15,7 @@ export default async function CountryPage(props: {
   const supabase = await createClient();
 
   // Convert numeric ID to country name if needed
-  const regionName =
-    countryIdToName[params.id]?.toLowerCase() || params.id.toLowerCase();
+  const regionName = params.id;
 
   console.log("Fetching videos for region:", regionName);
 
