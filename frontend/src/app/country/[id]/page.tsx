@@ -7,6 +7,28 @@ import { notFound } from "next/navigation";
 import Review from "@/components/Review";
 import CountryTopMenu from "@/components/CountryTopMenu";
 import LeftMenu from "@/components/LeftMenu";
+import { Database } from "@/types/database";
+
+type RawVideoData = Database['public']['Functions']['get_videos_by_region']['Returns'][0];
+
+type VideoWithUser = {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  title: string;
+  description: string;
+  video_url: string;
+  user_id: string;
+  language: string;
+  region: string;
+  status: "verified" | "pending" | "flagged" | "processing";
+  tags: string[];
+  user: {
+    avatar_url: string | null;
+    display_name: string;
+    role: string;
+  };
+};
 
 export default async function CountryPage(props: {
   params: Promise<{ id: string }>;
@@ -19,41 +41,35 @@ export default async function CountryPage(props: {
 
   console.log("Fetching videos for region:", regionName);
 
-  // Fetch videos for this region/country
-  const { data: videos, error } = await supabase
-    .from("sign_videos")
-    .select(
-      `
-      *,
-      user:users (
-        avatar_url,
-        display_name,
-        role
-      ),
-      reviews:reviews (
-        comment,
-        rating,
-        user:users (
-          avatar_url,
-          display_name
-        )
-      )
-    `
-    )
-    .or(`region.ilike.${regionName},region.ilike.${params.id}`)
-    .order("created_at", { ascending: false });
+  // Fetch videos for this region/country using our new function
+  const { data: rawVideos, error } = await supabase
+    .rpc('get_videos_by_region', { region_param: regionName });
 
   if (error) {
     console.error("Error fetching videos:", error);
     return notFound();
   }
 
+  if (!rawVideos) {
+    return notFound();
+  }
+
+  // Transform the data to match the expected format
+  const videos = rawVideos.map((video: RawVideoData): VideoWithUser => ({
+    ...video,
+    user: {
+      avatar_url: video.user_avatar_url,
+      display_name: video.user_display_name,
+      role: video.user_role
+    }
+  }));
+
   console.log("Fetched videos:", videos);
 
   // Filter verified videos after fetching to debug status
-  const verifiedVideos = videos.filter((video) => {
+  const verifiedVideos = videos.filter((video: VideoWithUser) => {
     console.log("Video status:", video.status, "for video:", video.title);
-    return video.status === "verified" || video.status === "pending";
+    return video.status === "verified" || video.status === "pending" || video.status === "processing";
   });
 
   console.log("Verified videos:", verifiedVideos);
@@ -80,7 +96,7 @@ export default async function CountryPage(props: {
             {/* Video Section */}
             <section className="flex-1 flex flex-col items-center pl-8 ">
               <div className="w-full">
-                {verifiedVideos.map((video) => (
+                {verifiedVideos.map((video: VideoWithUser) => (
                   <div key={video.id} className="mb-6">
                     <VideoCard video={video} />
                   </div>

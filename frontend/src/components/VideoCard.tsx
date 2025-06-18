@@ -7,7 +7,6 @@ import { Database } from "@/types/database";
 import { useRouter } from "next/navigation";
 import { getSupabaseClient } from "@/lib/supabase";
 import Review from "./Review";
-import { GenerateTagsButton } from "./GenerateTagsButton";
 
 type SignVideo = Database["public"]["Tables"]["sign_videos"]["Row"] & {
   user: {
@@ -135,10 +134,6 @@ export default function VideoCard({ video }: VideoCardProps) {
                   </span>
                 ))}
               </div>
-              <GenerateTagsButton
-                videoId={video.id}
-                onSuccess={handleTagsUpdate}
-              />
             </div>
           </div>
         </div>

@@ -45,7 +45,7 @@ export interface Database {
           language: string
           region: string
           tags: string[]
-          status: 'pending' | 'verified' | 'flagged'
+          status: 'pending' | 'verified' | 'flagged' | 'processing'
           created_at: string
           updated_at: string
         }
@@ -58,7 +58,7 @@ export interface Database {
           language: string
           region: string
           tags?: string[]
-          status?: 'pending' | 'verified' | 'flagged'
+          status?: 'pending' | 'verified' | 'flagged' | 'processing'
           created_at?: string
           updated_at?: string
         }
@@ -71,7 +71,7 @@ export interface Database {
           language?: string
           region?: string
           tags?: string[]
-          status?: 'pending' | 'verified' | 'flagged'
+          status?: 'pending' | 'verified' | 'flagged' | 'processing'
           created_at?: string
           updated_at?: string
         }
@@ -139,7 +139,25 @@ export interface Database {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_videos_by_region: {
+        Args: { region_param: string }
+        Returns: {
+          id: string
+          created_at: string
+          updated_at: string
+          title: string
+          description: string
+          video_url: string
+          user_id: string
+          language: string
+          region: string
+          status: 'pending' | 'verified' | 'flagged' | 'processing'
+          tags: string[]
+          user_avatar_url: string | null
+          user_display_name: string
+          user_role: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
