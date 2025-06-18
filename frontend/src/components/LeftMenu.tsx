@@ -84,7 +84,7 @@ export default function LeftMenu() {
                       >
                         {alpha2 ? (
                           <img
-                            src={`https://flagcdn.com/w40/${alpha2.toLowerCase()}.png`}
+                            src={`https://flagcdn.com/w320/${alpha2.toLowerCase()}.png`}
                             alt={`${countryName} flag`}
                             className="w-10 h-10 rounded-full border border-black object-cover flex-shrink-0"
                           />
