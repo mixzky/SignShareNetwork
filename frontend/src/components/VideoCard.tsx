@@ -125,7 +125,7 @@ export default function VideoCard({ video }: VideoCardProps) {
             </div>
             <div className="flex items-center justify-between mt-1">
               <div className="flex flex-wrap gap-1">
-                {tags.map((tag, index) => (
+                {tags.slice(0, 5).map((tag, index) => (
                   <span
                     key={index}
                     className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full"
@@ -133,6 +133,11 @@ export default function VideoCard({ video }: VideoCardProps) {
                     {tag}
                   </span>
                 ))}
+                {tags.length > 5 && (
+                  <span className="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded-full">
+                    +{tags.length - 5} more
+                  </span>
+                )}
               </div>
             </div>
           </div>
