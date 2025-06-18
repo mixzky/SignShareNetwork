@@ -67,7 +67,17 @@ export default function LeftMenu() {
         <div>
           <div className="font-bold text-2xl">Trending</div>
           <div className="mt-6">
-            {loading && <p>Loading stats...</p>}
+            {loading && (
+              <span className="flex text-black text-2xl ml-4">
+                <span className="animate-bounce [animation-delay:0ms]">.</span>
+                <span className="animate-bounce [animation-delay:200ms]">
+                  .
+                </span>
+                <span className="animate-bounce [animation-delay:400ms]">
+                  .
+                </span>
+              </span>
+            )}
             {error && <p className="text-red-500">{error}</p>}
             {stats && (
               <ul className="space-y-1 max-h-80 overflow-auto">
