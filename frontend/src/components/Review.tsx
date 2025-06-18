@@ -217,6 +217,7 @@ export default function Review({ videoId }: { videoId: string }) {
       <div className="flex items-center gap-6 mt-4 ml-4 mb-4 justify-start">
         <button
           type="button"
+          aria-label="upvote"
           className={`flex items-center gap-1 focus:outline-none transition 
       ${
         rating === 1
@@ -230,6 +231,7 @@ export default function Review({ videoId }: { videoId: string }) {
         </button>
         <button
           type="button"
+          aria-label="downvote"
           className={`flex items-center gap-1 focus:outline-none transition 
       ${
         rating === -1
@@ -294,6 +296,7 @@ export default function Review({ videoId }: { videoId: string }) {
               </span>
               <button
                 type="button"
+                aria-label="delete"
                 className="inline-flex items-center px-2 py-0.5 rounded bg-red-50 text-red-600 hover:bg-red-100 text-xs cursor-pointer  font-medium transition"
                 onClick={handleDelete}
                 disabled={submitting}
