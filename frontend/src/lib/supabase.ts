@@ -67,6 +67,28 @@ export const updateUserProfile = async (
   return data;
 };
 
+export const fetchVideoUploadStats = async () => {
+  const supabase = getSupabaseClient();
+
+  const { data, error } = await supabase.rpc("get_latest_upload_stats");
+
+  if (error) {
+    console.error("Error fetching latest stats:", error);
+    throw error;
+  }
+
+  interface UploadStats {
+    upload_count: number;
+    [key: string]: any;
+  }
+
+  const sorted = (data as UploadStats[]).sort(
+    (a, b) => b.upload_count - a.upload_count
+  );
+
+  return sorted;
+};
+
 export const getReviewsByVideoId = async (videoId: string) => {
   const supabase = getSupabaseClient();
   const { data, error } = await supabase
