@@ -36,18 +36,20 @@ export default async function CountryPage({
   params,
   searchParams,
 }: {
-  params: { id: string };
-  searchParams: { tag?: string };
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ tag?: string }>;
 }) {
   const supabase = await createClient();
-
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
   // Convert numeric ID to country name if needed
-  const regionName = params.id;
+  const regionName = resolvedParams.id;
+  const tag = resolvedSearchParams.tag || null;
 
   // Fetch videos for this region/country using our new function
   const { data: rawVideos, error } = await supabase.rpc(
     "get_videos_by_region",
-    { region_param: regionName, tag_param: searchParams.tag || null }
+    { region_param: regionName, tag_param: tag || null }
   );
 
   if (error) {
