@@ -9,7 +9,8 @@ import CountryTopMenu from "@/components/CountryTopMenu";
 import LeftMenu from "@/components/LeftMenu";
 import { Database } from "@/types/database";
 
-type RawVideoData = Database['public']['Functions']['get_videos_by_region']['Returns'][0];
+type RawVideoData =
+  Database["public"]["Functions"]["get_videos_by_region"]["Returns"][0];
 
 type VideoWithUser = {
   id: string;
@@ -30,20 +31,23 @@ type VideoWithUser = {
   };
 };
 
-export default async function CountryPage(props: {
-  params: Promise<{ id: string }>;
+export default async function CountryPage({
+  params,
+  searchParams,
+}: {
+  params: { id: string };
+  searchParams: { tag?: string };
 }) {
-  const params = await props.params;
   const supabase = await createClient();
 
   // Convert numeric ID to country name if needed
   const regionName = params.id;
 
-  console.log("Fetching videos for region:", regionName);
-
   // Fetch videos for this region/country using our new function
-  const { data: rawVideos, error } = await supabase
-    .rpc('get_videos_by_region', { region_param: regionName });
+  const { data: rawVideos, error } = await supabase.rpc(
+    "get_videos_by_region",
+    { region_param: regionName, tag_param: searchParams.tag || null }
+  );
 
   if (error) {
     console.error("Error fetching videos:", error);
@@ -55,21 +59,27 @@ export default async function CountryPage(props: {
   }
 
   // Transform the data to match the expected format
-  const videos = rawVideos.map((video: RawVideoData): VideoWithUser => ({
-    ...video,
-    user: {
-      avatar_url: video.user_avatar_url,
-      display_name: video.user_display_name,
-      role: video.user_role
-    }
-  }));
+  const videos = rawVideos.map(
+    (video: RawVideoData): VideoWithUser => ({
+      ...video,
+      user: {
+        avatar_url: video.user_avatar_url,
+        display_name: video.user_display_name,
+        role: video.user_role,
+      },
+    })
+  );
 
   console.log("Fetched videos:", videos);
 
   // Filter verified videos after fetching to debug status
   const verifiedVideos = videos.filter((video: VideoWithUser) => {
     console.log("Video status:", video.status, "for video:", video.title);
-    return video.status === "verified" || video.status === "pending" || video.status === "processing";
+    return (
+      video.status === "verified" ||
+      video.status === "pending" ||
+      video.status === "processing"
+    );
   });
 
   console.log("Verified videos:", verifiedVideos);
@@ -83,7 +93,7 @@ export default async function CountryPage(props: {
 
       {/* Country Content */}
       <Suspense fallback={<div>Loading...</div>}>
-        <CountryContent id={params.id} />
+        <CountryContent id={regionName} />
       </Suspense>
 
       {/* Videos Section with Side Menus */}

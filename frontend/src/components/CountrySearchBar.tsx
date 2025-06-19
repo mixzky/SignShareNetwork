@@ -3,8 +3,13 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { fetchTags } from "@/lib/supabase";
+import { useRouter, useParams } from "next/navigation";
 
 export default function CountrySearchBar() {
+  const router = useRouter();
+  const params = useParams();
+  const regionId = params.id;
+
   const [searchWord, setSearchWord] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -36,6 +41,11 @@ export default function CountrySearchBar() {
 
   const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchWord(e.target.value);
+  };
+
+  // Navigate to the same region page with the tag query parameter
+  const onTagClick = (tag: string) => {
+    router.push(`/country/${regionId}?tag=${encodeURIComponent(tag)}`);
   };
 
   return (
@@ -104,6 +114,7 @@ export default function CountrySearchBar() {
               <li
                 key={tag}
                 role="option"
+                onClick={() => onTagClick(tag)}
                 className="bg-blue-100 text-blue-800 text-sm font-medium px-4 py-1 rounded-full cursor-pointer transition hover:bg-blue-200"
               >
                 {tag}
