@@ -3,20 +3,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const bouncingDot = {
-  initial: { y: 0 },
-  animate: {
-    y: [0, -6, 0], // bounce up and down
-    transition: {
-      duration: 0.6,
-      repeat: Infinity,
-      repeatType: "loop" as "loop",
-      ease: "easeInOut",
-      delay: 0,
-    },
-  },
-};
-
 export default function CountrySearchBar() {
   const [searchWord, setSearchWord] = useState("");
   const [tags, setTags] = useState<string[]>([]);
@@ -104,24 +90,12 @@ export default function CountrySearchBar() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3 }}
-            className="absolute left-20 right-20 mt-1  bg-white rounded-full border border-gray-200 shadow-lg p-2 flex justify-center gap-1 z-10"
+            className="absolute left-20 right-20 mt-1 bg-white rounded-full border border-gray-200 shadow-lg px-4 py-2 flex justify-center items-center z-10"
             aria-label="Loading suggestions"
           >
-            {[0, 1, 2].map((idx) => (
-              <motion.span
-                key={idx}
-                className="bg-blue-100 text-blue-800 text-sm font-medium px-2 mt-1 rounded-full inline-block"
-                variants={bouncingDot}
-                initial="initial"
-                animate="animate"
-                transition={{
-                  ...bouncingDot.animate.transition,
-                  delay: idx * 0.2,
-                }}
-              >
-                .
-              </motion.span>
-            ))}
+            <span className="text-sm text-blue-700 font-medium animate-pulse">
+              Suggesting tags...
+            </span>
           </motion.div>
         )}
       </AnimatePresence>
