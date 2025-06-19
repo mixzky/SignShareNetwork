@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { fetchTags } from "@/lib/supabase";
 
 export default function CountrySearchBar() {
   const [searchWord, setSearchWord] = useState("");
@@ -11,7 +12,7 @@ export default function CountrySearchBar() {
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
       if (searchWord.length >= 3) {
-        fetchTags(searchWord);
+        fetchAndSetTags(searchWord);
       } else {
         setTags([]);
       }
@@ -20,23 +21,11 @@ export default function CountrySearchBar() {
     return () => clearTimeout(delayDebounce);
   }, [searchWord]);
 
-  const fetchTags = async (word: string) => {
+  const fetchAndSetTags = async (word: string) => {
     setLoading(true);
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/search-tags`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
-          },
-          body: JSON.stringify({ search_word: word }),
-        }
-      );
-
-      const data = await res.json();
-      if (data.tags) setTags(data.tags);
+      const tags = await fetchTags(word);
+      setTags(tags);
     } catch (err) {
       console.error("Failed to fetch tags:", err);
       setTags([]);
@@ -47,7 +36,6 @@ export default function CountrySearchBar() {
 
   const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchWord(e.target.value);
-    setTags([]);
   };
 
   return (

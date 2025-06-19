@@ -67,6 +67,27 @@ export const updateUserProfile = async (
   return data;
 };
 
+export async function fetchTags(word: string): Promise<string[]> {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/search-tags`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
+      },
+      body: JSON.stringify({ search_word: word }),
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch tags");
+  }
+
+  const data = await res.json();
+  return data.tags || [];
+}
+
 export const fetchVideoUploadStats = async () => {
   const supabase = getSupabaseClient();
 
