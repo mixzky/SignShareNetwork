@@ -8,6 +8,7 @@ import Review from "@/components/Review";
 import CountryTopMenu from "@/components/CountryTopMenu";
 import LeftMenu from "@/components/LeftMenu";
 import { Database } from "@/types/database";
+import SearchAssistant from "@/components/searchassistant";
 
 type RawVideoData = Database['public']['Functions']['get_videos_by_region']['Returns'][0];
 
@@ -92,7 +93,13 @@ export default async function CountryPage(props: {
           <div className="flex w-full max-w-8/12">
             {/* Left Menu */}
             <LeftMenu />
-
+            {/* Main Content Section */}
+            <section className="flex-1 flex flex-col items-center pl-8">
+              {/* Search Assistant moved here, above video list */}
+              <div className="w-full mb-8">
+                <SearchAssistant countryId={params.id} />
+              </div>
+            </section>
             {/* Video Section */}
             <section className="flex-1 flex flex-col items-center pl-8 ">
               <div className="w-full">
