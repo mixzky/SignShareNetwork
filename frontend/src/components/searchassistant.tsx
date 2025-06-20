@@ -26,55 +26,73 @@ interface SearchResult {
   };
 }
 
-export default function SearchAssistant({ countryId }: { countryId: string }) {
+export default function SearchAssistant({ countryId, defaultVideos }: { countryId: string, defaultVideos: any[] }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
+  const [isSearchMode, setIsSearchMode] = useState(false);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!searchQuery.trim()) return;
+    if (!searchQuery.trim()) {
+      setIsSearchMode(false);
+      setHasSearched(false);
+      return;
+    }
 
     setIsLoading(true);
+    setIsSearchMode(true);
     try {
       const supabase = createClient();
 
-      // Call the smart-search edge function
-      const { data: edgeFunctionResponse, error } = await supabase.functions.invoke('smart-search', {
-        body: {
+      // Call the smart-search edge function with proper error handling
+      const { data, error } = await supabase.functions.invoke<{
+        results: SearchResult[];
+        error?: string;
+      }>('smart-search', {
+        body: JSON.stringify({
           query: searchQuery,
           region: countryId,
           limit: 20
-        }
+        })
       });
 
       if (error) {
-        console.error('Search error:', error);
-        // You might want to display an error message to the user here
-        setSearchResults([]); // Clear previous results on error
+        console.error('Edge function error:', error);
+        setSearchResults([]);
         setHasSearched(true);
         return;
       }
 
-      // --- FIX IS HERE ---
-      // Access the 'results' array from the edgeFunctionResponse object
-      const resultsArray = edgeFunctionResponse?.results || [];
+      if (!data) {
+        console.error('No data returned from search');
+        setSearchResults([]);
+        setHasSearched(true);
+        return;
+      }
+
+      if ('error' in data) {
+        console.error('Search returned error:', data.error);
+        setSearchResults([]);
+        setHasSearched(true);
+        return;
+      }
 
       // Transform the results to match the required type
-      const transformedResults = resultsArray.map((result: any): SearchResult => ({
-        id: result.id, // Ensure ID is always present
+      const transformedResults = data.results.map((result: any): SearchResult => ({
+        id: result.id,
         created_at: result.created_at || new Date().toISOString(),
         updated_at: result.updated_at || new Date().toISOString(),
-        title: result.title || "No Title", // Provide default for critical fields
+        title: result.title || "No Title",
         description: result.description || "",
-        video_url: result.video_url || "", // Ensure video_url is present
+        video_url: result.video_url || "",
         user_id: result.user_id || "",
         language: result.language || "",
-        region: result.region || countryId, // Use result.region if available, else countryId
-        status: result.status || "verified", // Default status
-        tags: result.tags || [], // Default to empty array if no tags
-        similarity: result.similarity, // Optional, might be undefined for text search
+        region: result.region || countryId,
+        status: result.status || "verified",
+        tags: result.tags || [],
+        similarity: result.similarity,
         user: {
           avatar_url: result.user?.avatar_url || null,
           display_name: result.user?.display_name || "Unknown User",
@@ -86,11 +104,19 @@ export default function SearchAssistant({ countryId }: { countryId: string }) {
       setHasSearched(true);
     } catch (error) {
       console.error('Search error (frontend catch block):', error);
-      // You might want to display an error message to the user here
-      setSearchResults([]); // Clear previous results on error
+      setSearchResults([]);
       setHasSearched(true);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    if (!value.trim()) {
+      setIsSearchMode(false);
+      setHasSearched(false);
     }
   };
 
@@ -103,7 +129,7 @@ export default function SearchAssistant({ countryId }: { countryId: string }) {
               type="text"
               placeholder="Search for signs..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={handleInputChange}
               className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
             />
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -118,35 +144,50 @@ export default function SearchAssistant({ countryId }: { countryId: string }) {
         </div>
       </form>
 
-      {/* Search Results */}
-      {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="bg-white rounded-lg shadow-md p-4 animate-pulse">
-              <div className="w-full h-48 bg-gray-200 rounded-md mb-4"></div>
-              <div className="h-6 bg-gray-200 rounded w-3/4 mb-2"></div>
-              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-            </div>
-          ))}
-        </div>
-      ) : hasSearched && (
-        <div>
-          {searchResults.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Search Results or Default Videos */}
+      <div>
+        {isLoading ? (
+          <div className="space-y-4">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="bg-white rounded-lg shadow-md p-4 animate-pulse">
+                <div className="flex gap-4">
+                  <div className="w-64 h-36 bg-gray-200 rounded-md flex-shrink-0"></div>
+                  <div className="flex-1">
+                    <div className="h-6 bg-gray-200 rounded w-3/4 mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : isSearchMode ? (
+          searchResults.length > 0 ? (
+            <div className="space-y-4">
               {searchResults.map((result) => (
-                <VideoCard
-                  key={result.id}
-                  video={result}
-                />
+                <div key={result.id} className="w-full">
+                  <VideoCard
+                    video={result}
+                  />
+                </div>
               ))}
             </div>
-          ) : (
+          ) : hasSearched && (
             <div className="text-center py-8">
               <p className="text-gray-500 text-lg">No videos found for your search</p>
             </div>
-          )}
-        </div>
-      )}
+          )
+        ) : (
+          <div className="space-y-4">
+            {defaultVideos.map((video) => (
+              <div key={video.id} className="w-full">
+                <VideoCard
+                  video={video}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

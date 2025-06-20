@@ -6,7 +6,6 @@ import { Database } from '@/types/database';
 export interface SearchParams {
   query: string;
   region?: string;
-  handshape?: string;
   limit?: number;
 }
 
@@ -126,7 +125,6 @@ Only include videos with relevance_score >= 7.
 export async function searchVideos({
   query,
   region,
-  handshape,
   limit = DEFAULT_LIMIT
 }: SearchParams): Promise<SearchResult[]> {
   const supabase = createClient<Database>(
@@ -143,9 +141,6 @@ export async function searchVideos({
   // Apply filters if provided
   if (region) {
     queryBuilder = queryBuilder.eq('region', region);
-  }
-  if (handshape) {
-    queryBuilder = queryBuilder.eq('handshape', handshape);
   }
 
   // First, try embedding-based search
@@ -200,7 +195,6 @@ export async function searchVideos({
 export async function enhancedSearchVideos({
   query,
   region,
-  handshape,
   limit = DEFAULT_LIMIT
 }: SearchParams): Promise<SearchResult[]> {
   const supabase = createClient<Database>(

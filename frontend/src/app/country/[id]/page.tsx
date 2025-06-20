@@ -109,11 +109,11 @@ export default async function CountryPage({
             <section className="flex-1 flex flex-col items-center pl-8">
               {/* Search Assistant moved here, above video list */}
               <div className="w-full mb-8">
-                <SearchAssistant countryId={params.id} />
+                <SearchAssistant countryId={resolvedParams.id} defaultVideos={verifiedVideos} />
               </div>
             </section>
-            {/* Video Section */}
-            <section className="flex-1 flex flex-col items-center pl-8 ">
+            {/* Video Section - Remove this since we're showing videos in SearchAssistant */}
+            {/* <section className="flex-1 flex flex-col items-center pl-8 ">
               <div className="w-full">
                 {verifiedVideos.map((video: VideoWithUser) => (
                   <div key={video.id} className="mb-6">
@@ -121,7 +121,7 @@ export default async function CountryPage({
                   </div>
                 ))}
               </div>
-            </section>
+            </section> */}
           </div>
         </div>
       </div>
