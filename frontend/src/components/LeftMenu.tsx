@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
@@ -16,11 +17,13 @@ type LeftMenuProps = {
 };
 
 export default function LeftMenu({ id }: LeftMenuProps) {
+  const router = useRouter();
   const [stats, setStats] = useState<any[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [countryMap, setCountryMap] = useState<Record<string, string>>({});
-
+  const [tags, setTags] = useState<Array<{ tag: string; tag_count: number }>>([]);
+ 
   useEffect(() => {
     async function loadCountryMap() {
       try {
@@ -28,8 +31,10 @@ export default function LeftMenu({ id }: LeftMenuProps) {
           "https://unpkg.com/world-atlas/countries-110m.json"
         );
         const topojsonData = await res.json();
-        const tags = await getMostTagsByCountry(id);
-        console.log("Tags by country:", tags);
+        const tagsData = await getMostTagsByCountry(id);
+        //console.log("Tags by country:", tagsData);
+        setTags(tagsData);
+        console.log(tagsData);
         const geojson = feature(
           topojsonData,
           topojsonData.objects.countries
@@ -65,12 +70,32 @@ export default function LeftMenu({ id }: LeftMenuProps) {
     loadStats();
   }, []);
 
+  
   return (
     <aside className="hidden md:block sticky top-28 h-[calc(98vh-7rem)] w-84 bg-white rounded-xl shadow-md">
-      <div className="p-4 h-full flex flex-col">
-        {/* Trending Section */}
+      <div className="p-4 h-full flex flex-col">        {/* Trending Section */}
         <div>
           <div className="font-bold text-2xl">Trending</div>
+          
+          {/* Tags Section */}
+          {tags.length > 0 && (
+            <div className="mt-4 mb-6">              <div className="flex flex-wrap gap-2">
+                {tags.slice(0, 5).map((tagItem, index) => (
+                  <span
+                    key={index}
+                    onClick={() => router.push(`/country/${id}?tag=${tagItem.tag}`)}
+                    className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 cursor-pointer hover:bg-blue-200 transition-colors"
+                  >
+                    {tagItem.tag}
+                    <span className="ml-1 text-xs text-blue-600">
+                      ({tagItem.tag_count})
+                    </span>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+          
           <div className="mt-6">
             {loading && (
               <span className="flex text-black text-2xl ml-4">
@@ -101,10 +126,10 @@ export default function LeftMenu({ id }: LeftMenuProps) {
                           <img
                             src={`https://flagcdn.com/w320/${alpha2.toLowerCase()}.png`}
                             alt={`${countryName} flag`}
-                            className="w-10 h-10 rounded-full border border-black object-cover flex-shrink-0"
+                            className="w-8 h-8 rounded-full border border-black object-cover flex-shrink-0"
                           />
                         ) : (
-                          <span className="w-10 h-10 flex items-center justify-center text-xl">
+                          <span className="w-8 h-8 flex items-center justify-center text-xl">
                             🏳️
                           </span>
                         )}
@@ -122,11 +147,10 @@ export default function LeftMenu({ id }: LeftMenuProps) {
                 })}
               </ul>
             )}
-          </div>
-        </div>
+          </div>        </div>
 
         {/* Bottom Section: hr and links */}
-        <div className="mt-auto pt-6">
+        <div className="mt-auto ">
           <hr className="border-zinc-200 dark:border-zinc-700 mb-4" />
           <div className="flex flex-col gap-2">
             <Link
