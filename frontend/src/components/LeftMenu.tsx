@@ -108,10 +108,9 @@ export default function LeftMenu({ id }: LeftMenuProps) {
                 </span>
               </span>
             )}
-            {error && <p className="text-red-500">{error}</p>}
-            {stats && (
+            {error && <p className="text-red-500">{error}</p>}            {stats && (
               <ul className="space-y-1 max-h-80 overflow-auto">
-                {stats.map((stat) => {
+                {stats.slice(0, 4).map((stat) => {
                   const code = stat.country.toString().padStart(3, "0");
                   const countryName = countryMap[code] ?? stat.country;
                   const alpha2 = countries.numericToAlpha2(code);
