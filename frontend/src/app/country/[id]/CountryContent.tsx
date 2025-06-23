@@ -9,6 +9,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -235,10 +236,10 @@ export default function CountryContent({ id }: CountryContentProps) {
           <button
             type="button"
             onClick={() => setIsUploadDialogOpen(true)}
-            className="bg-green-50 border border-green-200 text-green-900 font-semibold px-8 py-4 rounded-xl shadow-sm hover:bg-green-100 flex items-center text-lg transition basis-1/2 justify-center"
+            className="bg-green-50 border border-green-200 text-green-900 font-semibold px-8 py-4 rounded-xl shadow-sm hover:bg-green-100 flex items-center text-lg transition basis-1/2 justify-center cursor-pointer"
           >
             Upload Your Video
-            <span className="ml-2 text-2xl">⤴️</span>
+            <span className="ml-2 mb-2 text-2xl"> <UploadFileIcon/></span>
           </button>
         </div>
       </div>
