@@ -34,6 +34,7 @@ export default function VideoCard({ video }: VideoCardProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [videoUrl, setVideoUrl] = useState<string>("");
   const [tags, setTags] = useState<string[]>(video.tags || []);
+  const [showAllTags, setShowAllTags] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const videoContainerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -105,16 +106,15 @@ export default function VideoCard({ video }: VideoCardProps) {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-      {/* User Info Section */}
+    <div className="bg-white rounded-xl shadow-sm overflow-hidden">      {/* User Info Section */}
       <div className="p-4">
-        <div className="flex items-center gap-3">
+        <div className="flex items-start gap-3">
           <img
             src={video.user.avatar_url || "/default-avatar.png"}
             alt={`${video.user.display_name}'s avatar`}
-            className="w-10 h-10 rounded-full object-cover"
+            className="w-10 h-10 rounded-full object-cover flex-shrink-0"
           />
-          <div className="flex-grow">
+          <div className="flex-grow min-w-0">
             <div className="flex items-center gap-1">
               <span className="font-medium text-gray-900">
                 {video.user.display_name}
@@ -122,20 +122,31 @@ export default function VideoCard({ video }: VideoCardProps) {
               {video.user.role === "moderator" && (
                 <CheckCircle2 className="w-4 h-4 text-blue-500" />
               )}
-            </div>
-            <div className="flex items-center justify-between mt-1">
+            </div>            <div className="flex items-center justify-between mt-1">
               <div className="flex flex-wrap gap-1">
-                {tags.slice(0, 5).map((tag, index) => (
+                {(showAllTags ? tags : tags.slice(0, 5)).map((tag, index) => (
                   <span
                     key={index}
-                    className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full"
+                    onClick={() => router.push(`/country/${video.region}?tag=${tag}`)}
+                    className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full cursor-pointer hover:bg-gray-200 transition-colors"
                   >
                     {tag}
                   </span>
                 ))}
-                {tags.length > 5 && (
-                  <span className="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded-full">
+                {tags.length > 5 && !showAllTags && (
+                  <span 
+                    onClick={() => setShowAllTags(true)}
+                    className="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded-full cursor-pointer hover:bg-gray-200 transition-colors"
+                  >
                     +{tags.length - 5} more
+                  </span>
+                )}
+                {showAllTags && tags.length > 5 && (
+                  <span 
+                    onClick={() => setShowAllTags(false)}
+                    className="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded-full cursor-pointer hover:bg-gray-200 transition-colors"
+                  >
+                    show less
                   </span>
                 )}
               </div>
