@@ -7,11 +7,15 @@ import { fetchVideoUploadStats } from "@/lib/supabase";
 import { useState, useEffect } from "react";
 import { feature } from "topojson-client";
 import countries from "i18n-iso-countries";
+import { getMostTagsByCountry } from "@/lib/supabase";
 
 // Register English locale for country names & codes
 countries.registerLocale(require("i18n-iso-countries/langs/en.json"));
+type LeftMenuProps = {
+  id: string;
+};
 
-export default function LeftMenu() {
+export default function LeftMenu({ id }: LeftMenuProps) {
   const [stats, setStats] = useState<any[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -24,7 +28,8 @@ export default function LeftMenu() {
           "https://unpkg.com/world-atlas/countries-110m.json"
         );
         const topojsonData = await res.json();
-
+        const tags = await getMostTagsByCountry(id);
+        console.log("Tags by country:", tags);
         const geojson = feature(
           topojsonData,
           topojsonData.objects.countries

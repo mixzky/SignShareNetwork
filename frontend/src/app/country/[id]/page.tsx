@@ -10,6 +10,7 @@ import LeftMenu from "@/components/LeftMenu";
 import { Database } from "@/types/database";
 import SearchAssistant from "@/components/searchassistant";
 
+
 type RawVideoData =
   Database["public"]["Functions"]["get_videos_by_region"]["Returns"][0];
 
@@ -104,7 +105,7 @@ export default async function CountryPage({
         <div className="flex-1 w-full flex flex-col items-center pt-10">
           <div className="flex w-full max-w-8/12">
             {/* Left Menu */}
-            <LeftMenu />
+            <LeftMenu id={resolvedParams.id}/>
             {/* Main Content Section */}
             <section className="flex-1 flex flex-col items-center pl-8">
               {/* Search Assistant moved here, above video list */}
