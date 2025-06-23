@@ -228,6 +228,28 @@ export const deleteAvatar = async (userId: string, avatarUrl: string) => {
   }
 };
 
+type TagCount = {
+  tag: string;
+  tag_count: number;
+};
+
+export const getMostTagsByCountry = async (
+  country: string
+): Promise<TagCount[]> => {
+  const supabase = getSupabaseClient();
+
+  const { data, error } = await supabase.rpc("get_most_tags_by_country", {
+    country_param: country,
+  });
+
+  if (error) {
+    console.error("Failed to fetch tags by country:", error);
+    throw error;
+  }
+
+  return data as TagCount[];
+};
+
 export const uploadVideo = async (userId: string, file: File) => {
   const supabase = getSupabaseClient();
 
