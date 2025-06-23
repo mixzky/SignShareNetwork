@@ -84,7 +84,7 @@ export default function LeftMenu({ id }: LeftMenuProps) {
                   <span
                     key={index}
                     onClick={() => router.push(`/country/${id}?tag=${tagItem.tag}`)}
-                    className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 cursor-pointer hover:bg-blue-200 transition-colors"
+                    className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border-2 border-[#d6e5bd] text-blue-800 cursor-pointer hover:bg-blue-200 transition-colors"
                   >
                     {tagItem.tag}
                     <span className="ml-1 text-xs text-blue-600">
@@ -149,8 +149,8 @@ export default function LeftMenu({ id }: LeftMenuProps) {
           </div>        </div>
 
         {/* Bottom Section: hr and links */}
-        <div className="mt-auto ">
-          <hr className="border-zinc-200 dark:border-zinc-700 mb-4" />
+        <div className="mt-auto">
+          <hr className="border-zinc-200 dark:border-zinc-700 mb-2" />
           <div className="flex flex-col gap-2">
             <Link
               href="/"
