@@ -128,7 +128,7 @@ export default function VideoCard({ video }: VideoCardProps) {
                   <span
                     key={index}
                     onClick={() => router.push(`/country/${video.region}?tag=${tag}`)}
-                    className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full cursor-pointer hover:bg-gray-200 transition-colors"
+                    className="px-2 py-0.5 text-[#002b4f] border-2 border-[#bcd8ec] text-xs rounded-full cursor-pointer hover:bg-[#d2ecff] hover:border-[#d2ecff]  hover:text-[#005a9e] transition-colors duration-150"
                   >
                     {tag}
                   </span>
@@ -136,7 +136,7 @@ export default function VideoCard({ video }: VideoCardProps) {
                 {tags.length > 5 && !showAllTags && (
                   <span 
                     onClick={() => setShowAllTags(true)}
-                    className="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded-full cursor-pointer hover:bg-gray-200 transition-colors"
+                    className="px-2 py-0.5  text-[#002b4f] border-2 border-[#bcd8ec] text-xs rounded-full cursor-pointer hover:bg-[#d2ecff] hover:border-[#d2ecff] hover:text-[#005a9e] transition-colors duration-150"
                   >
                     +{tags.length - 5} more
                   </span>
@@ -144,7 +144,7 @@ export default function VideoCard({ video }: VideoCardProps) {
                 {showAllTags && tags.length > 5 && (
                   <span 
                     onClick={() => setShowAllTags(false)}
-                    className="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded-full cursor-pointer hover:bg-gray-200 transition-colors"
+                    className="px-2 py-0.5 text-[#002b4f] border-2 border-[#bcd8ec] text-xs rounded-full cursor-pointer hover:bg-[#d2ecff] hover:border-[#d2ecff] hover:text-[#005a9e] transition-colors duration-150"
                   >
                     show less
                   </span>
