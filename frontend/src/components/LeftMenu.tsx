@@ -22,8 +22,10 @@ export default function LeftMenu({ id }: LeftMenuProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [countryMap, setCountryMap] = useState<Record<string, string>>({});
-  const [tags, setTags] = useState<Array<{ tag: string; tag_count: number }>>([]);
- 
+  const [tags, setTags] = useState<Array<{ tag: string; tag_count: number }>>(
+    []
+  );
+
   useEffect(() => {
     async function loadCountryMap() {
       try {
@@ -70,24 +72,28 @@ export default function LeftMenu({ id }: LeftMenuProps) {
     loadStats();
   }, []);
 
-  
   return (
     <aside className="hidden md:block sticky top-28 h-[calc(98vh-7rem)] w-84 bg-white rounded-xl shadow-md">
-      <div className="p-4 h-full flex flex-col">        {/* Trending Section */}
+      <div className="p-4 h-full flex flex-col">
+        {" "}
+        {/* Trending Section */}
         <div>
           <div className="font-bold text-2xl">Trending</div>
-          
           {/* Tags Section */}
           {tags.length > 0 && (
-            <div className="mt-4 mb-6">              <div className="flex flex-wrap gap-2">
+            <div className="mt-4 mb-6">
+              {" "}
+              <div className="flex flex-wrap gap-2">
                 {tags.slice(0, 5).map((tagItem, index) => (
                   <span
                     key={index}
-                    onClick={() => router.push(`/country/${id}?tag=${tagItem.tag}`)}
-                    className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border-2 border-[#d6e5bd] text-blue-800 cursor-pointer hover:bg-blue-200 transition-colors"
+                    onClick={() =>
+                      router.push(`/country/${id}?tag=${tagItem.tag}`)
+                    }
+                    className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border border-[#fcd9db]  text-[#d88c92] cursor-pointer hover:bg-[#f9e5e7] transition-colors"
                   >
                     {tagItem.tag}
-                    <span className="ml-1 text-xs text-blue-600">
+                    <span className="ml-1 text-xs text-[#e3a3a9]">
                       ({tagItem.tag_count})
                     </span>
                   </span>
@@ -95,7 +101,6 @@ export default function LeftMenu({ id }: LeftMenuProps) {
               </div>
             </div>
           )}
-          
           <div className="mt-6">
             {loading && (
               <span className="flex text-black text-2xl ml-4">
@@ -108,7 +113,8 @@ export default function LeftMenu({ id }: LeftMenuProps) {
                 </span>
               </span>
             )}
-            {error && <p className="text-red-500">{error}</p>}            {stats && (
+            {error && <p className="text-red-500">{error}</p>}{" "}
+            {stats && (
               <ul className="space-y-1 max-h-80 overflow-auto">
                 {stats.slice(0, 4).map((stat) => {
                   const code = stat.country.toString().padStart(3, "0");
@@ -146,8 +152,8 @@ export default function LeftMenu({ id }: LeftMenuProps) {
                 })}
               </ul>
             )}
-          </div>        </div>
-
+          </div>{" "}
+        </div>
         {/* Bottom Section: hr and links */}
         <div className="mt-auto">
           <hr className="border-zinc-200 dark:border-zinc-700 mb-2" />

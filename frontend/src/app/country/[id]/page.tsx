@@ -111,7 +111,8 @@ const searchQuery = resolvedSearchParams || null;
           role: result.user?.role || "user"
         }
       }));
-
+      
+      console.log("Transformed Results:", transformedResults);
         verifiedVideos = (transformedResults || []).filter(
           (video: SearchResult) =>
             video.status === "verified" ||
