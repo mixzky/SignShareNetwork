@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   getReviewsByVideoId,
   getSupabaseClient,
@@ -42,6 +43,8 @@ export default function Review({ videoId }: { videoId: string }) {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [userReviewId, setUserReviewId] = useState<string | null>(null);
   const [showComments, setShowComments] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [showUpdated, setShowUpdated] = useState(false);
 
   // Pagination state for comments
   const [visibleCount, setVisibleCount] = useState(3);
@@ -135,6 +138,9 @@ export default function Review({ videoId }: { videoId: string }) {
           .eq("id", userReviewId);
         if (error) throw error;
         setSuccess("Review updated successfully.");
+        setShowUpdated(true);
+        setTimeout(() => setShowUpdated(false), 3000);
+        setIsEditing(false);
       } else {
         const { error } = await supabase.from("reviews").insert([
           {
@@ -214,19 +220,22 @@ export default function Review({ videoId }: { videoId: string }) {
     <div className="w-full">
       {/* Write Review Section */}
       {/* Horizontal row: Upvote/Downvote/Comment icon */}
-      <div className="flex items-center gap-6 mt-4 ml-4 mb-4 justify-start">
+      <div className="flex items-center gap-6 mt-4 ml-4 mb-4 justify-start ">
         <button
           type="button"
           aria-label="upvote"
-          className={`flex items-center gap-1 focus:outline-none transition 
+          className={`flex items-center gap-1  focus:outline-none transition 
       ${
         rating === 1
-          ? "text-green-400"
-          : "text-gray-500 hover:text-green-400 cursor-pointer"
+          ? "text-green-500"
+          : "text-gray-600 hover:text-green-500  cursor-pointer transition duration-200"
       }`}
           onClick={() => setRating(rating === 1 ? 0 : 1)}
         >
-          <ArrowUpwardIcon className="mr-1" fontSize="small" />
+          <ArrowUpwardIcon
+            className="mr-1 border-2 rounded-full bg-green-300 border-green-300 "
+            fontSize="medium"
+          />
           <span className="font-bold text-base">{upvotes}</span>
         </button>
         <button
@@ -235,20 +244,27 @@ export default function Review({ videoId }: { videoId: string }) {
           className={`flex items-center gap-1 focus:outline-none transition 
       ${
         rating === -1
-          ? "text-red-400"
-          : "text-gray-500 hover:text-red-400 cursor-pointer"
+          ? "text-red-500"
+          : "text-gray-600 hover:text-red-500 cursor-pointer"
       }`}
           onClick={() => setRating(rating === -1 ? 0 : -1)}
         >
-          <ArrowDownwardIcon className="mr-1" fontSize="small" />
+          <ArrowDownwardIcon
+            className="mr-1 border-2 rounded-full bg-red-300 border-red-300"
+            fontSize="medium"
+          />
           <span className="font-bold text-base">{downvotes}</span>
         </button>
-        <button type="button" className="flex items-center gap-1 text-gray-500">
+        <button
+          type="button"
+          className="flex items-center gap-1 text-gray-600 "
+        >
           <MessageOutlinedIcon />
           <span className="text-sm font-medium">{reviews.length}</span>
         </button>
       </div>
 
+      <hr className="border-zinc-200 dark:border-zinc-700" />
       {session && userProfile && (
         <form onSubmit={handleSubmit} className=" bg-white p-4 ">
           <div className="flex items-center gap-3 mb-3">
@@ -266,6 +282,34 @@ export default function Review({ videoId }: { videoId: string }) {
             <span className="font-bold text-black text-sm dark:text-zinc-100">
               {userProfile.display_name || "You"}
             </span>
+            {/* Animated Updated Review badge */}
+            <AnimatePresence>
+              {showUpdated && (
+                <motion.span
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="inline-flex items-center px-2 py-0.5 rounded bg-green-100 text-green-700 text-xs font-semibold ml-3"
+                >
+                  <svg
+                    className="w-3 h-3 mr-1 text-green-500"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                  Updated Review
+                </motion.span>
+              )}
+            </AnimatePresence>
+            {/* ...your Edit/Editing badges/buttons here... */}
           </div>
           <textarea
             className="w-full border border-zinc-200 dark:border-zinc-700 rounded-lg p-2 mb-2 bg-zinc-50 dark:bg-zinc-800 text-[#333d42] text-sm dark:text-zinc-100 focus:ring-2 focus:ring-blue-400 transition resize-none"
@@ -328,11 +372,9 @@ export default function Review({ videoId }: { videoId: string }) {
         {loading ? (
           <div className="text-center text-zinc-400">Loading reviews...</div>
         ) : reviews.length === 0 ? (
-          
-  <div className="text-center  text-[#555555] mb-6 mt-6 px-4 py-3  font-medium">
-  No reviews yet — be the first to add one!
-</div>
-
+          <div className="text-center  text-[#555555] mb-6 mt-6 px-4 py-3  font-medium">
+            No reviews yet — be the first to add one!
+          </div>
         ) : (
           <div className="space-y-3">
             {reviews.slice(0, visibleCount).map((review, index) => (

@@ -9,16 +9,18 @@ export default function CountryTopMenu() {
       <div className="w-full">
         <div className="relative flex items-center justify-center h-16">
           {/* Most left: SignShare Network */}
-         <div className="absolute left-4 pl-4 mb-2.5 flex items-center h-full">
+          <div className="absolute left-4 pl-4 mb-2.5 flex items-center h-full">
             <Link href="/">
-              <Image
-                src="https://njzzkhcoecjmnyuizobo.supabase.co/storage/v1/object/public/assets//signsharewhite.png"
-                alt="SignShare Network Logo"
-                width={120}
-                height={48}
-                className="object-contain"
-                priority
-              />
+              <div className="transition-transform duration-300 hover:scale-110 hover:rotate-6">
+                <Image
+                  src="https://njzzkhcoecjmnyuizobo.supabase.co/storage/v1/object/public/assets//signsharewhite.png"
+                  alt="SignShare Network Logo"
+                  width={120}
+                  height={48}
+                  className="object-contain"
+                  priority
+                />
+              </div>
             </Link>
           </div>
 

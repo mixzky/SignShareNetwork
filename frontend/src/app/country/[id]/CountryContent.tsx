@@ -236,10 +236,14 @@ export default function CountryContent({ id }: CountryContentProps) {
           <button
             type="button"
             onClick={() => setIsUploadDialogOpen(true)}
-            className="bg-green-50 border-2 border-green-200 text-green-900 font-semibold px-8 py-4 rounded-xl shadow-sm hover:bg-green-100 flex items-center transition-200 text-lg transition basis-1/2 justify-center cursor-pointer"
+            className="bg-green-50 border-2 border-green-200 text-green-900 font-semibold px-8 py-4 rounded-xl shadow-sm hover:bg-green-100 flex items-center transition-200 text-lg transition basis-1/2 justify-center cursor-pointer group"
           >
-            Upload Your Video
-            <span className="ml-2 mb-2 text-2xl"> <UploadFileIcon/></span>
+            <span className="transition-transform duration-300 group-hover:scale-105">
+              Upload Your Video
+            </span>
+            <span className="ml-2 mb-2 text-2xl transition-transform duration-300 group-hover:rotate-6 group-hover:scale-125">
+              <UploadFileIcon />
+            </span>
           </button>
         </div>
       </div>
