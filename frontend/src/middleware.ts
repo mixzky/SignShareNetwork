@@ -12,8 +12,14 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getSession();
 
   // Protected routes that require authentication
-  const protectedRoutes = ["/profile", "/profile/edit", "/upload"];
+  const protectedRoutes = ["/profile", "/profile/edit", "/upload", "/admin"];
   const isProtectedRoute = protectedRoutes.some((route) =>
+    request.nextUrl.pathname.startsWith(route)
+  );
+
+  // Admin routes that require admin/moderator role
+  const adminRoutes = ["/admin"];
+  const isAdminRoute = adminRoutes.some((route) =>
     request.nextUrl.pathname.startsWith(route)
   );
 
@@ -33,6 +39,20 @@ export async function middleware(request: NextRequest) {
   if (session && isAuthRoute) {
     // Redirect to home if accessing auth routes while logged in
     return NextResponse.redirect(new URL("/", request.url));
+  }
+
+  if (isAdminRoute) {
+    // Check user role for admin routes
+    const { data: userRole } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', session?.user?.id)
+      .single();
+
+    if (!userRole || (userRole.role !== 'admin' && userRole.role !== 'moderator')) {
+      // Redirect to home if user doesn't have required role
+      return NextResponse.redirect(new URL("/", request.url));
+    }
   }
 
   return res;

@@ -291,7 +291,7 @@ export const uploadVideo = async (userId: string, file: File) => {
     const { data: urlData } = supabase.storage
       .from("video")
       .getPublicUrl(filePath);
-
+ 
     console.log("Generated public URL:", urlData); // Debug log
 
     // Return both the public URL and the storage path
