@@ -1,14 +1,11 @@
 import { Suspense } from "react";
 import CountryContent from "./CountryContent";
-import TopMenu from "@/components/TopMenu";
 import { createClient } from "@/utils/supabase/server";
 import VideoCard from "@/components/VideoCard";
 import { notFound } from "next/navigation";
-import Review from "@/components/Review";
 import CountryTopMenu from "@/components/CountryTopMenu";
 import LeftMenu from "@/components/LeftMenu";
 import { Database } from "@/types/database";
-import SearchAssistant from "@/components/searchassistant";
 
 
 type RawVideoData =
@@ -33,60 +30,137 @@ type VideoWithUser = {
   };
 };
 
+interface SearchResult {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  title: string;
+  description: string;
+  video_url: string;
+  user_id: string;
+  language: string;
+  region: string;
+  status: "verified" | "pending" | "flagged" | "processing";
+  tags: string[];
+  similarity?: number;
+  user: {
+    avatar_url: string | null;
+    display_name: string;
+    role: string;
+  };
+}
+
 export default async function CountryPage({
   params,
-  searchParams,
+  searchParams
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ tag?: string }>;
+  searchParams?: { tag?: string; search?: string };
 }) {
   const supabase = await createClient();
   const resolvedParams = await params;
-  const resolvedSearchParams = await searchParams;
-  // Convert numeric ID to country name if needed
-  const regionName = resolvedParams.id;
-  const tag = resolvedSearchParams.tag || null;
+const resolvedSearchParamsObj = await searchParams;
 
-  // Fetch videos for this region/country using our new function
-  const { data: rawVideos, error } = await supabase.rpc(
-    "get_videos_by_region",
-    { region_param: regionName, tag_param: tag || null }
-  );
+const resolvedTagParams = resolvedSearchParamsObj?.tag;
+const resolvedSearchParams = resolvedSearchParamsObj?.search;
 
-  if (error) {
-    console.error("Error fetching videos:", error);
-    return notFound();
-  }
+const regionName = resolvedParams.id;
+const tag = resolvedTagParams || null;
+const searchQuery = resolvedSearchParams || null;
 
-  if (!rawVideos) {
-    return notFound();
-  }
 
-  // Transform the data to match the expected format
-  const videos = rawVideos.map(
-    (video: RawVideoData): VideoWithUser => ({
-      ...video,
-      user: {
-        avatar_url: video.user_avatar_url,
-        display_name: video.user_display_name,
-        role: video.user_role,
-      },
-    })
-  );
 
-  console.log("Fetched videos:", videos);
+  let verifiedVideos: VideoWithUser[] = [];
 
-  // Filter verified videos after fetching to debug status
-  const verifiedVideos = videos.filter((video: VideoWithUser) => {
-    console.log("Video status:", video.status, "for video:", video.title);
-    return (
-      video.status === "verified" ||
-      video.status === "pending" ||
-      video.status === "processing"
+  if (searchQuery) {
+    try {
+      // Use smart-search edge function
+    
+      const { data, error } = await supabase.functions.invoke<{
+        results: SearchResult[];
+        error?: string;
+      }>('smart-search', {
+        body: JSON.stringify({
+          query: searchQuery,
+          region: regionName,
+          limit: 20
+        })
+      });
+
+      if (error || !data || "error" in data) {
+        verifiedVideos = [];
+        
+      } else {
+        
+        const transformedResults = data.results.map((result: any): SearchResult => ({
+        id: result.id,
+        created_at: result.created_at || new Date().toISOString(),
+        updated_at: result.updated_at || new Date().toISOString(),
+        title: result.title || "No Title",
+        description: result.description || "",
+        video_url: result.video_url || "",
+        user_id: result.user_id || "",
+        language: result.language || "",
+        region: result.region || regionName,
+        status: result.status || "verified",
+        tags: result.tags || [],
+        similarity: result.similarity,
+        user: {
+          avatar_url: result.user?.avatar_url || null,
+          display_name: result.user?.display_name || "Unknown User",
+          role: result.user?.role || "user"
+        }
+      }));
+
+        verifiedVideos = (transformedResults || []).filter(
+          (video: SearchResult) =>
+            video.status === "verified" ||
+            video.status === "pending" ||
+            video.status === "processing"
+        );
+       
+      }
+    } catch (err) {
+      console.error("Error in smart-search:", err);
+      verifiedVideos = [];
+    }
+  } else {
+    // Fetch videos for this region/country using our new function
+    const { data: rawVideos, error } = await supabase.rpc(
+      "get_videos_by_region",
+      { region_param: regionName, tag_param: tag || null }
     );
-  });
 
-  console.log("Verified videos:", verifiedVideos);
+    if (error) {
+      console.error("Error fetching videos:", error);
+      return notFound();
+    }
+
+    if (!rawVideos) {
+      return notFound();
+    }
+
+    // Transform the data to match the expected format
+    const videos = rawVideos.map(
+      (video: RawVideoData): VideoWithUser => ({
+        ...video,
+        user: {
+          avatar_url: video.user_avatar_url,
+          display_name: video.user_display_name,
+          role: video.user_role,
+        },
+      })
+    );
+
+    // Filter verified videos after fetching to debug status
+    verifiedVideos = videos.filter((video: VideoWithUser) => {
+      return (
+        video.status === "verified" ||
+        video.status === "pending" ||
+        video.status === "processing"
+      );
+    });
+  }
 
   return (
     <main className="flex flex-col min-h-screen bg-[#F0F2F5]">
@@ -107,8 +181,6 @@ export default async function CountryPage({
             {/* Left Menu */}
             <LeftMenu id={resolvedParams.id}/>
             {/* Main Content Section */}
-     
-            {/* Video Section - Remove this since we're showing videos in SearchAssistant */}
             <section className="flex-1 flex flex-col items-center pl-8 ">
               <div className="w-full">
                 {verifiedVideos.map((video: VideoWithUser) => (

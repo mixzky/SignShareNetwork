@@ -17,11 +17,15 @@ export default function CountrySearchBar() {
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (searchWord.trim().length >= 3) {
+    if (searchWord.trim().length >= 1) {
       router.push(
         `/country/${regionId}?search=${encodeURIComponent(searchWord.trim())}`
       );
     }
+    else {
+    // If search is empty, go to /country/regionId (remove all search/tag params)
+    router.push(`/country/${regionId}`);
+  }
   };
 
   useEffect(() => {
