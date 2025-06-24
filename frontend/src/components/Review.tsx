@@ -370,7 +370,9 @@ export default function Review({ videoId }: { videoId: string }) {
       {/* Reviews List (comments) */}
       <div>
         {loading ? (
-          <div className="text-center text-zinc-400">Loading reviews...</div>
+          <div className="text-center text-[#555555] mt-2 mb-2">
+            Loading reviews...
+          </div>
         ) : reviews.length === 0 ? (
           <div className="text-center  text-[#555555] mb-6 mt-6 px-4 py-3  font-medium">
             No reviews yet — be the first to add one!
