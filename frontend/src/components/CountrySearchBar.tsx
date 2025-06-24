@@ -14,6 +14,13 @@ export default function CountrySearchBar() {
   const [tags, setTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
+   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (searchWord.trim().length >= 3) {
+      router.push(`/country/${regionId}?search=${encodeURIComponent(searchWord.trim())}`);
+    }
+  };
+  
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
       if (searchWord.length >= 3) {
@@ -50,7 +57,7 @@ export default function CountrySearchBar() {
 
   return (
     <div className="w-full max-w-xl p-4 mb-8 relative">
-      <form className="w-full" onSubmit={(e) => e.preventDefault()}>
+      <form className="w-full" onSubmit={onSubmit}>
         <div className="relative">
           <input
             type="text"
