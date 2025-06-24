@@ -24,24 +24,65 @@ export const getCurrentUser = async () => {
 };
 
 export const getUserProfile = async (userId: string) => {
-  // Check cache first
-  const cached = profileCache.get(userId);
-  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
-    return cached.data;
+  try {
+    // Check cache first
+    const cached = profileCache.get(userId);
+    if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+      return cached.data;
+    }
+
+    const supabase = getSupabaseClient();
+     
+    // First check if user exists in auth
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError) throw authError;
+     
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+ 
+    // Then get the user profile
+    const { data, error } = await supabase
+      .from("users")
+      .select("id, display_name, avatar_url, bio, role, created_at, banned, is_disabled, username, email")
+      .eq("id", userId)
+      .single();
+ 
+    if (error) {
+      if (error.code === 'PGRST116') {
+        // Record not found - create default profile
+        const { data: newProfile, error: createError } = await supabase
+          .from("users")
+          .insert([
+            { 
+              id: userId,
+              display_name: user.email?.split('@')[0] || 'User',
+              role: 'user',
+              banned: false,
+              is_disabled: false,
+              username: user.email?.split('@')[0] || 'user_' + Date.now(),
+              email: user.email
+            }
+          ])
+          .select()
+          .single();
+
+        if (createError) throw createError;
+        
+        // Update cache with new profile
+        profileCache.set(userId, { data: newProfile, timestamp: Date.now() });
+        return newProfile;
+      }
+      throw error;
+    }
+ 
+    // Update cache
+    profileCache.set(userId, { data, timestamp: Date.now() });
+    return data;
+  } catch (error) {
+    console.error('Error in getUserProfile:', error);
+    throw error;
   }
-
-  const supabase = getSupabaseClient();
-  const { data, error } = await supabase
-    .from("users")
-    .select("*")
-    .eq("id", userId)
-    .single();
-
-  if (error) throw error;
-
-  // Update cache
-  profileCache.set(userId, { data, timestamp: Date.now() });
-  return data;
 };
 
 export const updateUserProfile = async (
