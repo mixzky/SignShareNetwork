@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { fetchTags } from "@/lib/supabase";
 import { useRouter, useParams } from "next/navigation";
@@ -13,14 +13,17 @@ export default function CountrySearchBar() {
   const [searchWord, setSearchWord] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (searchWord.trim().length >= 3) {
-      router.push(`/country/${regionId}?search=${encodeURIComponent(searchWord.trim())}`);
+      router.push(
+        `/country/${regionId}?search=${encodeURIComponent(searchWord.trim())}`
+      );
     }
   };
-  
+
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
       if (searchWord.length >= 3) {
@@ -55,8 +58,22 @@ export default function CountrySearchBar() {
     router.push(`/country/${regionId}?tag=${encodeURIComponent(tag)}`);
   };
 
+  // Hide tag suggestions when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setTags([]);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
-    <div className="w-full max-w-xl p-4 mb-8 relative">
+    <div ref={containerRef} className="w-full max-w-xl p-4 mb-8 relative">
       <form className="w-full" onSubmit={onSubmit}>
         <div className="relative">
           <input
