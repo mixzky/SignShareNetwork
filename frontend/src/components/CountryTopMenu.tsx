@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import CountrySearchBar from "./CountrySearchBar";
 
 export default function CountryTopMenu() {
@@ -8,16 +9,16 @@ export default function CountryTopMenu() {
       <div className="w-full">
         <div className="relative flex items-center justify-center h-16">
           {/* Most left: SignShare Network */}
-          <div className="absolute left-0 pl-4 mb-2.5">
-            <Link
-              href="/"
-              className="text-3xl md:text-4xl font-bold text-white"
-              style={{
-                textShadow:
-                  "0 4px 8px rgba(0, 0, 0, 0.5), 0 2px 4px rgba(0, 0, 0, 0.5)",
-              }}
-            >
-              SignShare Network
+         <div className="absolute left-4 pl-4 mb-2.5 flex items-center h-full">
+            <Link href="/">
+              <Image
+                src="https://njzzkhcoecjmnyuizobo.supabase.co/storage/v1/object/public/assets//signsharewhite.png"
+                alt="SignShare Network Logo"
+                width={120}
+                height={48}
+                className="object-contain"
+                priority
+              />
             </Link>
           </div>
 

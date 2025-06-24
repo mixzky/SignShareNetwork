@@ -328,9 +328,11 @@ export default function Review({ videoId }: { videoId: string }) {
         {loading ? (
           <div className="text-center text-zinc-400">Loading reviews...</div>
         ) : reviews.length === 0 ? (
-          <div className="text-center text-zinc-400 mb-6 mt-6">
-            No reviews yet.
-          </div>
+          
+  <div className="text-center  text-[#555555] mb-6 mt-6 px-4 py-3  font-medium">
+  No reviews yet — be the first to add one!
+</div>
+
         ) : (
           <div className="space-y-3">
             {reviews.slice(0, visibleCount).map((review, index) => (

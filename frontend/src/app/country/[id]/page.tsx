@@ -89,7 +89,7 @@ export default async function CountryPage({
   console.log("Verified videos:", verifiedVideos);
 
   return (
-    <main className="flex flex-col min-h-screen bg-[#fafafa]">
+    <main className="flex flex-col min-h-screen bg-[#F0F2F5]">
       {/* Top Menu */}
       <div className="fixed top-0 left-0 w-full z-50 bg-[#0a0e18] h-24 flex items-center">
         <CountryTopMenu />
@@ -107,14 +107,9 @@ export default async function CountryPage({
             {/* Left Menu */}
             <LeftMenu id={resolvedParams.id}/>
             {/* Main Content Section */}
-            <section className="flex-1 flex flex-col items-center pl-8">
-              {/* Search Assistant moved here, above video list */}
-              <div className="w-full mb-8">
-                <SearchAssistant countryId={resolvedParams.id} defaultVideos={verifiedVideos} />
-              </div>
-            </section>
+     
             {/* Video Section - Remove this since we're showing videos in SearchAssistant */}
-            {/* <section className="flex-1 flex flex-col items-center pl-8 ">
+            <section className="flex-1 flex flex-col items-center pl-8 ">
               <div className="w-full">
                 {verifiedVideos.map((video: VideoWithUser) => (
                   <div key={video.id} className="mb-6">
@@ -122,7 +117,7 @@ export default async function CountryPage({
                   </div>
                 ))}
               </div>
-            </section> */}
+            </section> 
           </div>
         </div>
       </div>
