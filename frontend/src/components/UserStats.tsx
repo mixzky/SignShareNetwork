@@ -130,7 +130,7 @@ export default function UserStats() {
   }
   console.log("User stats:", stats);
   return (
-    <div className="bg-white rounded-3xl shadow-xl p-12 flex flex-col items-center w-full max-w-5xl min-w-[75vw] border border-[#e0e3ea]">
+    <div className="bg-white rounded-3xl shadow-md p-12 flex flex-col items-center w-full max-w-5xl min-w-[75vw] border border-[#e0e3ea]">
       <h2 className="text-4xl font-extrabold mb-10 text-[#2d2d2d] tracking-tight">
         User Statistics
       </h2>

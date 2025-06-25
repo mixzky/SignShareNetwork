@@ -92,7 +92,7 @@ export default function UserVideoList() {
   // Unique tags and statuses for filter dropdowns
   const allTags = Array.from(
     new Set(
-      videos.flatMap((v) => {
+      allVideos.flatMap((v) => {
         if (typeof v.tags === "string") {
           return v.tags.split(",").map((t: string) => t.trim());
         }
@@ -104,9 +104,9 @@ export default function UserVideoList() {
     )
   ).filter(Boolean);
 
-  const allStatuses = Array.from(new Set(videos.map((v) => v.status))).filter(
-    Boolean
-  );
+  const allStatuses = Array.from(
+    new Set(allVideos.map((v) => v.status))
+  ).filter(Boolean);
 
   if (loading) {
     return (
@@ -119,7 +119,7 @@ export default function UserVideoList() {
   }
 
   return (
-    <div className="bg-white rounded-3xl shadow-xl p-12 flex flex-col items-center w-full max-w-5xl min-w-[75vw] border border-[#e0e3ea] mb-20">
+    <div className="bg-white rounded-3xl shadow-md p-12 flex flex-col items-center w-full max-w-5xl min-w-[75vw] border border-[#e0e3ea] mb-20">
       <h2 className="text-3xl font-extrabold mb-8 text-[#2d2d2d] tracking-tight">
         My Videos
       </h2>
@@ -130,16 +130,22 @@ export default function UserVideoList() {
             placeholder="Search by title..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="border border-[#e0e3ea] rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#ffb300] bg-[#f8fafc] text-[#2d2d2d] w-56 shadow-sm transition"
+            className="border border-[#e0e3ea] rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#2563eb] bg-[#f8fafc] text-[#1a2233] w-56 shadow-sm transition font-medium placeholder:italic placeholder:text-[#b0b6c1] cursor-text"
           />
           <select
             value={filterTag}
             onChange={(e) => setFilterTag(e.target.value)}
-            className="border border-[#e0e3ea] rounded-xl px-4 py-2 bg-[#f8fafc] text-[#2d2d2d] shadow-sm transition"
+            className="border border-[#e0e3ea] rounded-xl px-4 py-2 bg-[#f8fafc] text-[#1a2233] shadow-sm transition font-semibold focus:ring-2 focus:ring-[#2563eb] cursor-pointer"
           >
-            <option value="">All Tags</option>
+            <option value="" className="text-[#b0b6c1] font-normal">
+              All Tags
+            </option>
             {allTags.map((tag) => (
-              <option key={tag} value={tag}>
+              <option
+                key={tag}
+                value={tag}
+                className="text-[#2563eb] font-semibold"
+              >
                 {tag}
               </option>
             ))}
@@ -147,11 +153,17 @@ export default function UserVideoList() {
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="border border-[#e0e3ea] rounded-xl px-4 py-2 bg-[#f8fafc] text-[#2d2d2d] shadow-sm transition"
+            className="border border-[#e0e3ea] rounded-xl px-4 py-2 bg-[#f8fafc] text-[#1a2233] shadow-sm transition font-semibold focus:ring-2 focus:ring-[#2563eb] cursor-pointer"
           >
-            <option value="">All Statuses</option>
+            <option value="" className="text-[#b0b6c1] font-normal">
+              All Statuses
+            </option>
             {allStatuses.map((status) => (
-              <option key={status} value={status}>
+              <option
+                key={status}
+                value={status}
+                className="text-[#2563eb] font-semibold"
+              >
                 {status}
               </option>
             ))}
@@ -161,18 +173,33 @@ export default function UserVideoList() {
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value)}
-            className="border border-[#e0e3ea] rounded-xl px-4 py-2 bg-[#fffbe6] text-[#b48a4a] font-semibold shadow-sm transition"
+            className="border border-[#e0e3ea] rounded-xl px-4 py-2 bg-[#e6f0ff] text-[#2563eb] font-bold shadow-sm transition tracking-wide uppercase focus:ring-2 focus:ring-[#2563eb] cursor-pointer"
           >
-            <option value="newest">Newest</option>
-            <option value="oldest">Oldest</option>
-            <option value="title">Title</option>
+            <option
+              value="newest"
+              className="text-[#2563eb] bg-[#e6f0ff] font-bold"
+            >
+              Newest
+            </option>
+            <option
+              value="oldest"
+              className="text-[#2563eb] bg-[#e6f0ff] font-bold"
+            >
+              Oldest
+            </option>
+            <option
+              value="title"
+              className="text-[#2563eb] bg-[#e6f0ff] font-bold"
+            >
+              Title
+            </option>
           </select>
         </div>
       </div>
       {/* Video List Container */}
       <div
         className="w-full max-w-7xl bg-[#f8fafc] rounded-2xl border border-[#e0e3ea] shadow-inner p-4"
-        style={{ maxHeight: "600px", minHeight: "600px", overflowY: "auto" }} // About 3 cards tall
+        style={{ maxHeight: "500px", minHeight: "500px", overflowY: "auto" }} // About 3 cards tall
       >
         <div className="flex flex-col gap-8 w-full">
           {videos.length === 0 && (
@@ -183,21 +210,26 @@ export default function UserVideoList() {
           {videos.map((video) => (
             <div
               key={video.id}
-              className="flex flex-col bg-white border border-[#e0e3ea] rounded-xl p-4 gap-4 shadow hover:shadow-lg transition w-full max-w-2xl mx-auto"
+              className="flex flex-col bg-white border border-[#e0e3ea] rounded-xl p-4 gap-4 shadow hover:shadow-xl transition w-full max-w-full mx-auto cursor-pointer hover:bg-[#f6faff]"
               style={{ minHeight: "140px" }}
+              onClick={() => {
+                // Replace with your navigation or modal logic
+                // Example: router.push(`/dashboard/video/${video.id}`)
+                alert(`Clicked video: ${video.title}`);
+              }}
             >
               <div className="w-full flex flex-col md:flex-row gap-4">
-                <div className="w-full md:w-1/3 max-h-36 flex items-center justify-center rounded-lg bg-[#e9ecef] shadow-inner border border-[#e0e3ea] overflow-hidden">
+                <div className="w-full md:w-1/5 max-h-36 flex items-center justify-center rounded-lg bg-gradient-to-br from-[#f9fafb] to-[#e9ecef] shadow-inner border border-[#e0e3ea] overflow-hidden">
                   <video
                     src={getPublicUrl(video.video_url)}
                     controls
-                    className="w-full h-full rounded-lg object-cover"
+                    className="w-full h-full rounded-lg "
                     style={{ background: "#f3f3f3", minHeight: "90px" }}
                   />
                 </div>
                 <div className="flex-1 flex flex-col justify-between">
                   <div>
-                    <h3 className="font-bold text-lg text-[#2d2d2d] mb-1 truncate">
+                    <h3 className="font-bold text-lg text-[#1a2233] mb-1 truncate tracking-tight">
                       {video.title}
                     </h3>
                     <div className="flex flex-wrap gap-2 mb-1">
@@ -206,46 +238,42 @@ export default function UserVideoList() {
                           ? video.tags.split(",").map((tag: string) => (
                               <span
                                 key={tag}
-                                className="bg-[#ffb300]/10 text-[#ffb300] px-2 py-0.5 rounded text-xs font-semibold"
+                                className="bg-[#fff3cd] text-[#b48a4a] px-2 py-0.5 rounded-full text-xs font-semibold tracking-wide shadow-sm"
                               >
-                                {tag.trim()}
+                                #{tag.trim()}
                               </span>
                             ))
                           : Array.isArray(video.tags)
                           ? video.tags.map((tag: string) => (
                               <span
                                 key={tag}
-                                className="bg-[#ffb300]/10 text-[#ffb300] px-2 py-0.5 rounded text-xs font-semibold"
+                                className="bg-[#fff3cd] text-[#b48a4a] px-2 py-0.5 rounded-full text-xs font-semibold tracking-wide shadow-sm"
                               >
-                                {tag.trim()}
+                                #{tag.trim()}
                               </span>
                             ))
                           : null)}
                     </div>
                     <div className="flex items-center gap-2 mb-1">
                       <span
-                        className={`px-2 py-0.5 rounded text-xs font-bold ${
+                        className={`px-2 py-0.5 rounded-full text-xs font-bold shadow-sm ${
                           video.status === "verified"
-                            ? "bg-[#00b894]/10 text-[#00b894]"
+                            ? "bg-[#e6fcf3] text-[#00b894]"
                             : video.status === "pending"
-                            ? "bg-[#ffd166]/10 text-[#ffb300]"
-                            : "bg-[#ff6b6b]/10 text-[#ff6b6b]"
+                            ? "bg-[#fffbe6] text-[#ffb300]"
+                            : "bg-[#ffeaea] text-[#ff6b6b]"
                         }`}
                       >
-                        {video.status}
+                        {video.status.charAt(0).toUpperCase() +
+                          video.status.slice(1)}
                       </span>
                       <span className="text-[#6c63ff] text-xs font-semibold">
                         <ReviewsCount videoId={video.id} />
                       </span>
-                      <span className="text-gray-400 text-xs">
+                      <span className="text-[#b0b6c1] text-xs font-medium italic">
                         {new Date(video.created_at).toLocaleDateString()}
                       </span>
                     </div>
-                  </div>
-                  <div className="flex justify-end">
-                    <button className="px-3 py-1.5 rounded-lg bg-[#f0f2f5] border border-[#e0e3ea] text-[#7c5e2e] text-sm font-semibold hover:bg-[#ffb300]/10 transition">
-                      Video Settings
-                    </button>
                   </div>
                 </div>
               </div>
