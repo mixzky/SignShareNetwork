@@ -137,7 +137,12 @@ export async function middleware(request: NextRequest) {
   // --- END: Use getUser() for secure authentication and authorization ---
 
   // --- Route Protection based on authenticated 'user' status ---
-  const protectedRoutes = ["/profile", "/profile/edit", "/upload"];
+  const protectedRoutes = [
+    "/profile",
+    "/profile/edit",
+    "/upload",
+    "/dashboard",
+  ];
   const isProtectedRoute = protectedRoutes.some((route) =>
     request.nextUrl.pathname.startsWith(route)
   );
