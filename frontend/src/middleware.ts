@@ -11,15 +11,56 @@ export async function middleware(request: NextRequest) {
     data: { session },
   } = await supabase.auth.getSession();
 
-  // Protected routes that require authentication
-  const protectedRoutes = ["/profile", "/profile/edit", "/upload", "/admin"];
-  const isProtectedRoute = protectedRoutes.some((route) =>
-    request.nextUrl.pathname.startsWith(route)
-  );
+  // If user is authenticated, check if they're banned or disabled
+  if (session?.user) {
+    const { data: userData, error } = await supabase
+      .from('users')
+      .select('banned, is_disabled')
+      .eq('id', session.user.id)
+      .single();
 
-  // Admin routes that require admin/moderator role
-  const adminRoutes = ["/admin"];
-  const isAdminRoute = adminRoutes.some((route) =>
+    if (error) {
+      console.error('Error checking user status:', error);
+      // If there's an error checking the status, let them through but log the error
+      return res;
+    }
+
+    if (userData?.banned || userData?.is_disabled) {
+      // If user is banned or disabled, sign them out and redirect to login with message
+      await supabase.auth.signOut();
+      
+      // Create a URL with an error message
+      const redirectUrl = new URL('/login', request.url);
+      redirectUrl.searchParams.set('error', 'Your account has been disabled. Please contact support for more information.');
+      
+      return NextResponse.redirect(redirectUrl);
+    }
+
+    // If user doesn't have a profile yet, create one
+    if (!userData) {
+      try {
+        await supabase
+          .from('users')
+          .insert([
+            {
+              id: session.user.id,
+              display_name: session.user.email?.split('@')[0] || 'User',
+              role: 'user',
+              banned: false,
+              is_disabled: false,
+              username: session.user.email?.split('@')[0] || 'user_' + Date.now(),
+              email: session.user.email
+            }
+          ]);
+      } catch (error) {
+        console.error('Error creating user profile:', error);
+      }
+    }
+  }
+
+  // Protected routes that require authentication
+  const protectedRoutes = ["/profile", "/profile/edit", "/upload"];
+  const isProtectedRoute = protectedRoutes.some((route) =>
     request.nextUrl.pathname.startsWith(route)
   );
 
@@ -41,7 +82,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
-  if (isAdminRoute) {
+  if (request.nextUrl.pathname.startsWith('/admin')) {
     // Check user role for admin routes
     const { data: userRole } = await supabase
       .from("users")
