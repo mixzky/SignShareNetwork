@@ -57,6 +57,12 @@ export default function AdminLayout({
 
   const navigation = [
     {
+      name: 'Insights',
+      href: '/admin/insights',
+      icon: LayoutDashboard,
+      allowedRoles: ['admin']
+    },
+    {
       name: 'Dashboard',
       href: '/admin',
       icon: LayoutDashboard,
