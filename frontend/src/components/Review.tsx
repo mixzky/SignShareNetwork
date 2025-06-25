@@ -264,7 +264,7 @@ export default function Review({ videoId }: { videoId: string }) {
         </button>
       </div>
 
-      <hr className="border-zinc-200 dark:border-zinc-700" />
+      <hr className="border-zinc-200 dark:border-zinc-700 w-31/32 mx-auto " />
       {session && userProfile && (
         <form onSubmit={handleSubmit} className=" bg-white p-4 ">
           <div className="flex items-center gap-3 mb-3">
@@ -366,7 +366,7 @@ export default function Review({ videoId }: { videoId: string }) {
           {error && <div className="text-red-500 text-sm ">{error}</div>}
         </form>
       )}
-      <hr className="border-zinc-200 dark:border-zinc-700" />
+      <hr className="border-zinc-200 dark:border-zinc-700 w-31/32 mx-auto " />
       {/* Reviews List (comments) */}
       <div>
         {loading ? (
@@ -414,7 +414,7 @@ export default function Review({ videoId }: { videoId: string }) {
                 </div>
                 {/* Divider between comments, except after the last one */}
                 {index !== reviews.length - 1 && (
-                  <hr className="border-zinc-200 dark:border-zinc-700" />
+                  <hr className="border-zinc-200 dark:border-zinc-700 w-31/32 mx-auto " />
                 )}
                 {/* Show "Show comments" button after the last visible comment */}
                 {index === visibleCount - 1 &&

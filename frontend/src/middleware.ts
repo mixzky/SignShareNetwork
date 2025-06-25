@@ -44,12 +44,15 @@ export async function middleware(request: NextRequest) {
   if (isAdminRoute) {
     // Check user role for admin routes
     const { data: userRole } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', session?.user?.id)
+      .from("users")
+      .select("role")
+      .eq("id", session?.user?.id)
       .single();
 
-    if (!userRole || (userRole.role !== 'admin' && userRole.role !== 'moderator')) {
+    if (
+      !userRole ||
+      (userRole.role !== "admin" && userRole.role !== "moderator")
+    ) {
       // Redirect to home if user doesn't have required role
       return NextResponse.redirect(new URL("/", request.url));
     }
