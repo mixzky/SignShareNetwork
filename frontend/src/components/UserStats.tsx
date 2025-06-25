@@ -130,20 +130,17 @@ export default function UserStats() {
   }
   console.log("User stats:", stats);
   return (
-    <div className="bg-white rounded-3xl shadow-2xl p-12 flex flex-col items-center w-full max-w-2xl transition-all duration-300 border border-[#e0e7ef]">
-      <h2 className="text-3xl font-extrabold mb-8 text-[#0a0e18] tracking-tight drop-shadow-sm">
+    <div className="bg-white rounded-3xl shadow-xl p-12 flex flex-col items-center w-full max-w-5xl min-w-[75vw] border border-[#e0e3ea]">
+      <h2 className="text-4xl font-extrabold mb-10 text-[#2d2d2d] tracking-tight">
         User Statistics
       </h2>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-8 w-full mb-8">
-        <div className="flex flex-col items-center">
-          <span
-            className="flex items-center gap-1 text-xs uppercase tracking-wide mb-1"
-            style={{ color: "#7EE787" }}
-          >
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-8 w-full mb-10">
+        <div className="flex flex-col items-center border rounded-2xl border-[#e0e3ea] bg-white p-6 hover:shadow-lg transition">
+          <span className="flex items-center gap-1 text-xs uppercase tracking-wide mb-1 text-[#ffb300] font-semibold">
             <svg
               className="w-4 h-4"
               fill="none"
-              stroke="#7EE787"
+              stroke="#ffb300"
               strokeWidth={2}
               viewBox="0 0 24 24"
             >
@@ -155,22 +152,16 @@ export default function UserStats() {
             </svg>
             Total Videos
           </span>
-          <span
-            className="text-4xl font-extrabold"
-            style={{ color: "#7EE787" }}
-          >
+          <span className="text-4xl font-extrabold text-[#ffb300]">
             {stats.videosCount}
           </span>
         </div>
-        <div className="flex flex-col items-center">
-          <span
-            className="flex items-center gap-1 text-xs uppercase tracking-wide mb-1"
-            style={{ color: "#A5D8FF" }}
-          >
+        <div className="flex flex-col items-center border rounded-2xl border-[#e0e3ea] bg-white p-6 hover:shadow-lg transition">
+          <span className="flex items-center gap-1 text-xs uppercase tracking-wide mb-1 text-[#00b894] font-semibold">
             <svg
               className="w-4 h-4"
               fill="none"
-              stroke="#A5D8FF"
+              stroke="#00b894"
               strokeWidth={2}
               viewBox="0 0 24 24"
             >
@@ -178,7 +169,7 @@ export default function UserStats() {
                 cx="12"
                 cy="12"
                 r="10"
-                stroke="#A5D8FF"
+                stroke="#00b894"
                 strokeWidth="2"
                 fill="none"
               />
@@ -190,22 +181,16 @@ export default function UserStats() {
             </svg>
             Verified Videos
           </span>
-          <span
-            className="text-4xl font-extrabold"
-            style={{ color: "#A5D8FF" }}
-          >
+          <span className="text-4xl font-extrabold text-[#00b894]">
             {stats.verifiedVideosCount}
           </span>
         </div>
-        <div className="flex flex-col items-center">
-          <span
-            className="flex items-center gap-1 text-xs uppercase tracking-wide mb-1"
-            style={{ color: "#D0BFFF" }}
-          >
+        <div className="flex flex-col items-center border rounded-2xl border-[#e0e3ea] bg-white p-6 hover:shadow-lg transition">
+          <span className="flex items-center gap-1 text-xs uppercase tracking-wide mb-1 text-[#6c63ff] font-semibold">
             <svg
               className="w-4 h-4"
               fill="none"
-              stroke="#D0BFFF"
+              stroke="#6c63ff"
               strokeWidth={2}
               viewBox="0 0 24 24"
             >
@@ -217,22 +202,16 @@ export default function UserStats() {
             </svg>
             Total Reviews
           </span>
-          <span
-            className="text-4xl font-extrabold"
-            style={{ color: "#D0BFFF" }}
-          >
+          <span className="text-4xl font-extrabold text-[#6c63ff]">
             {stats.reviewsCount}
           </span>
         </div>
-        <div className="flex flex-col items-center">
-          <span
-            className="flex items-center gap-1 text-xs uppercase tracking-wide mb-1"
-            style={{ color: "#FFB3C6" }}
-          >
+        <div className="flex flex-col items-center border rounded-2xl border-[#e0e3ea] bg-white p-6 hover:shadow-lg transition">
+          <span className="flex items-center gap-1 text-xs uppercase tracking-wide mb-1 text-[#ff6b6b] font-semibold">
             <svg
               className="w-4 h-4"
               fill="none"
-              stroke="#FFB3C6"
+              stroke="#ff6b6b"
               strokeWidth={2}
               viewBox="0 0 24 24"
             >
@@ -244,18 +223,15 @@ export default function UserStats() {
             </svg>
             Flagged Videos
           </span>
-          <span
-            className="text-4xl font-extrabold"
-            style={{ color: "#FFB3C6" }}
-          >
+          <span className="text-4xl font-extrabold text-[#ff6b6b]">
             {stats.flagsCount}
           </span>
         </div>
       </div>
       <div className="mt-4 w-full">
-        <h3 className="text-xl font-semibold mb-3 text-[#0a0e18] flex items-center gap-2">
+        <h3 className="text-2xl font-semibold mb-4 text-[#2d2d2d] flex items-center gap-2">
           <svg
-            className="w-6 h-6 text-[#7EE787]"
+            className="w-7 h-7 text-[#e9b949]"
             fill="none"
             stroke="currentColor"
             strokeWidth={2}
@@ -269,21 +245,28 @@ export default function UserStats() {
           </svg>
           Top Video by Comments
         </h3>
-        <div className="bg-gradient-to-r from-[#e0f7fa] via-[#f3e8ff] to-[#ffe0f0] rounded-2xl p-6 flex flex-col items-start shadow-inner border border-[#e0e7ef]">
+        <div className="bg-[#f8fafc] border border-[#e0e3ea] rounded-2xl p-8 flex flex-col md:flex-row items-center gap-8 shadow-inner transition-all duration-300">
           {topVideoUrl ? (
             <video
               src={topVideoUrl}
               controls
-              className="w-full max-w-xs rounded-lg mb-3"
-              style={{ background: "#eee" }}
+              className="w-full max-w-84 max-h-48 rounded-lg mb-3 md:mb-0 md:mr-8 shadow"
+              style={{ background: "#f3f3f3" }}
             />
-          ) : null}
-          <h4 className="font-bold text-lg text-[#0a0e18] truncate w-full">
-            {stats.topView.title || "No videos yet"}
-          </h4>
-          <p className="text-gray-600 text-base mt-2">
-            {stats.topView.views} comment{stats.topView.views === 1 ? "" : "s"}
-          </p>
+          ) : (
+            <div className="w-full max-w-84 max-h-48 flex items-center justify-center rounded-lg bg-[#f0f2f5] text-[#bdbdbd] mb-3 md:mb-0 md:mr-8">
+              No preview
+            </div>
+          )}
+          <div className="flex-1 flex flex-col justify-center w-full">
+            <h4 className="font-bold text-2xl text-[#2d2d2d] truncate w-full mb-2">
+              {stats.topView.title || "No videos yet"}
+            </h4>
+            <p className="text-[#7c5e2e] text-lg">
+              {stats.topView.views} comment
+              {stats.topView.views === 1 ? "" : "s"}
+            </p>
+          </div>
         </div>
       </div>
     </div>

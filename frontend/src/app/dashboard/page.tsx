@@ -1,5 +1,6 @@
 import TopMenu from "@/components/TopMenu";
 import UserStats from "@/components/UserStats";
+import UserVideoList from "@/components/UserVideoList";
 import React from "react";
 
 export default async function DashboardPage() {
@@ -10,8 +11,9 @@ export default async function DashboardPage() {
         <TopMenu />
       </div>
 
-      <div className="flex flex-1 items-center justify-center ">
+      <div className="flex flex-1 flex-col items-center justify-center gap-10 mt-36">
         <UserStats />
+        <UserVideoList />
       </div>
     </main>
   );
