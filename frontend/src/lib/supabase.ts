@@ -291,6 +291,23 @@ export const getMostTagsByCountry = async (
   return data as TagCount[];
 };
 
+export const getVideosByUserId = async (userId: string) => {
+  const supabase = getSupabaseClient();
+
+  const { data, error } = await supabase
+    .from("sign_videos")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Error fetching videos by user ID:", error);
+    throw error;
+  }
+
+  return data;
+};
+
 export const uploadVideo = async (userId: string, file: File) => {
   const supabase = getSupabaseClient();
 
@@ -332,7 +349,7 @@ export const uploadVideo = async (userId: string, file: File) => {
     const { data: urlData } = supabase.storage
       .from("video")
       .getPublicUrl(filePath);
- 
+
     console.log("Generated public URL:", urlData); // Debug log
 
     // Return both the public URL and the storage path

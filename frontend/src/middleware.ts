@@ -1,61 +1,67 @@
-import { createServerClient } from '@supabase/ssr'
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+import { createServerClient } from "@supabase/ssr";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
-  const response = NextResponse.next()
+  const response = NextResponse.next();
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
         get(name: string) {
-          return request.cookies.get(name)?.value
+          return request.cookies.get(name)?.value;
         },
         set(name: string, value: string, options: any) {
           request.cookies.set({
             name,
             value,
             ...options,
-          })
+          });
           response.cookies.set({
             name,
             value,
             ...options,
-          })
+          });
         },
         remove(name: string, options: any) {
           request.cookies.set({
             name,
-            value: '',
+            value: "",
             ...options,
-          })
+          });
           response.cookies.set({
             name,
-            value: '',
+            value: "",
             ...options,
-          })
+          });
         },
       },
     }
-  )
+  );
 
   // --- BEGIN: Use getUser() for secure authentication and authorization ---
-  const { data: { user }, error: getUserError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: getUserError,
+  } = await supabase.auth.getUser();
 
   let userData = null; // This will store the user's profile data from your 'users' table
 
   if (user) {
     // If a user object is returned, it means the session is authentic and verified by Supabase Auth server.
     const { data: fetchedUserData, error: userProfileError } = await supabase
-      .from('users')
+      .from("users")
       // IMPORTANT: Always select 'id' if you plan to use it from userData, and other fields you need
-      .select('id, banned, is_disabled, role, display_name, username, email')
-      .eq('id', user.id) // Use the 'id' from the authentic 'user' object
+      .select("id, banned, is_disabled, role, display_name, username, email")
+      .eq("id", user.id) // Use the 'id' from the authentic 'user' object
       .single();
 
     if (userProfileError) {
-      console.error('Error fetching user profile from database:', userProfileError);
+      console.error(
+        "Error fetching user profile from database:",
+        userProfileError
+      );
       // Depending on the error, you might want to sign out or redirect
       // For now, let's just log and continue, but this might need stronger handling
       // await supabase.auth.signOut();
@@ -69,8 +75,11 @@ export async function middleware(request: NextRequest) {
     // Check if user is banned or disabled (using the securely fetched userData)
     if (userData?.banned || userData?.is_disabled) {
       await supabase.auth.signOut();
-      const redirectUrl = new URL('/login', request.url);
-      redirectUrl.searchParams.set('error', 'Your account has been disabled. Please contact support for more information.');
+      const redirectUrl = new URL("/login", request.url);
+      redirectUrl.searchParams.set(
+        "error",
+        "Your account has been disabled. Please contact support for more information."
+      );
       return NextResponse.redirect(redirectUrl);
     }
 
@@ -79,53 +88,61 @@ export async function middleware(request: NextRequest) {
     // Ensure that if a user logs in via Supabase Auth, they get an entry in your 'users' table.
     if (!userData) {
       try {
-        await supabase
-          .from('users')
-          .insert([
-            {
-              id: user.id, // Use user.id from the authentic getUser()
-              display_name: user.email?.split('@')[0] || 'User',
-              role: 'user', // Default role
-              banned: false,
-              is_disabled: false,
-              username: user.email?.split('@')[0] || 'user_' + Date.now(),
-              email: user.email
-            }
-          ]);
+        await supabase.from("users").insert([
+          {
+            id: user.id, // Use user.id from the authentic getUser()
+            display_name: user.email?.split("@")[0] || "User",
+            role: "user", // Default role
+            banned: false,
+            is_disabled: false,
+            username: user.email?.split("@")[0] || "user_" + Date.now(),
+            email: user.email,
+          },
+        ]);
         // After successful insertion, update userData so subsequent checks in this request are accurate
         userData = {
           id: user.id,
-          display_name: user.email?.split('@')[0] || 'User',
-          role: 'user',
+          display_name: user.email?.split("@")[0] || "User",
+          role: "user",
           banned: false,
           is_disabled: false,
-          username: user.email?.split('@')[0] || 'user_' + Date.now(),
-          email: user.email
+          username: user.email?.split("@")[0] || "user_" + Date.now(),
+          email: user.email,
         };
       } catch (error) {
-        console.error('Error creating user profile:', error);
+        console.error("Error creating user profile:", error);
         // Consider signing out or redirecting if profile creation fails critically
       }
     }
 
     // Admin/Moderator access check (using the securely fetched userData.role)
-    if (request.nextUrl.pathname.startsWith('/admin')) {
+    if (request.nextUrl.pathname.startsWith("/admin")) {
       // Ensure userData exists and has a role, and that the role is 'admin' or 'moderator'
-      if (!userData || (userData.role !== 'admin' && userData.role !== 'moderator')) {
+      if (
+        !userData ||
+        (userData.role !== "admin" && userData.role !== "moderator")
+      ) {
         return NextResponse.redirect(new URL("/", request.url)); // Redirect to home if not authorized
       }
     }
   } else if (getUserError) {
     // If getUser() returns an error, it often means the session is invalid or expired.
-    console.warn('Supabase getUser() failed, likely an invalid or expired session:', getUserError.message);
+    console.warn(
+      "Supabase getUser() failed, likely an invalid or expired session:",
+      getUserError.message
+    );
     // You might want to sign out to clear potentially bad cookies.
     await supabase.auth.signOut();
   }
   // --- END: Use getUser() for secure authentication and authorization ---
 
-
   // --- Route Protection based on authenticated 'user' status ---
-  const protectedRoutes = ["/profile", "/profile/edit", "/upload"];
+  const protectedRoutes = [
+    "/profile",
+    "/profile/edit",
+    "/upload",
+    "/dashboard",
+  ];
   const isProtectedRoute = protectedRoutes.some((route) =>
     request.nextUrl.pathname.startsWith(route)
   );
@@ -148,8 +165,8 @@ export async function middleware(request: NextRequest) {
   }
 
   // If no authentic user and trying to access /admin (which wasn't caught by protectedRoutes if not listed there)
-  if (!user && request.nextUrl.pathname.startsWith('/admin')) {
-      return NextResponse.redirect(new URL("/login", request.url)); // Or to home, based on preference
+  if (!user && request.nextUrl.pathname.startsWith("/admin")) {
+    return NextResponse.redirect(new URL("/login", request.url)); // Or to home, based on preference
   }
 
   return response; // Continue to the requested page
