@@ -121,51 +121,34 @@ export default function VideoManagement({
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      {successMsg && (
-        <div className="flex items-center justify-center gap-2 text-green-700 bg-green-100 border border-green-300 rounded-lg px-4 py-2 text-base font-semibold shadow-sm animate-fade-in">
-          <svg
-            className="w-5 h-5 text-green-600"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={2}
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M5 13l4 4L19 7"
-            />
-          </svg>
-          {successMsg}
-        </div>
-      )}
+    <div className="flex flex-col gap-6 relative">
+      {/* Close button (keep at top right if needed) */}
       <video
         src={publicUrl}
         controls
         className="w-full h-56 rounded-xl border border-[#e0e3ea] bg-[#f8fafc] shadow"
       />
-      <div>
+      <div className="bg-[#f8fafc] rounded-xl p-4 border border-[#e0e3ea]">
         <label className="block text-sm font-semibold mb-1">Title</label>
         <input
           type="text"
           value={editTitle}
           onChange={(e) => setEditTitle(e.target.value)}
-          className="border border-[#e0e3ea] rounded px-3 py-2 w-full font-semibold focus:ring-2 focus:ring-[#2563eb] focus:border-[#2563eb] transition"
+          className="border border-[#e0e3ea] rounded px-3 py-2 w-full font-semibold focus:ring-2 focus:ring-[#2563eb] focus:border-[#2563eb] transition bg-white"
           placeholder="Enter video title"
         />
       </div>
-      <div>
+      <div className="bg-[#f8fafc] rounded-xl p-4 border border-[#e0e3ea]">
         <label className="block text-sm font-semibold mb-1">Description</label>
         <textarea
           value={editDescription}
           onChange={(e) => setEditDescription(e.target.value)}
-          className="border border-[#e0e3ea] rounded px-3 py-2 w-full focus:ring-2 focus:ring-[#2563eb] focus:border-[#2563eb] transition"
+          className="border border-[#e0e3ea] rounded px-3 py-2 w-full focus:ring-2 focus:ring-[#2563eb] focus:border-[#2563eb] transition bg-white"
           rows={3}
           placeholder="Enter video description"
         />
       </div>
-      <div>
+      <div className="bg-[#f8fafc] rounded-xl p-4 border border-[#e0e3ea]">
         <label className="block text-sm font-semibold mb-1">Tags</label>
         <div className="flex flex-wrap gap-2">
           {editTags.map((tag) => (
@@ -192,14 +175,32 @@ export default function VideoManagement({
           Click or press Enter/Space on a tag to remove it.
         </div>
       </div>
-      <div className="flex gap-2 mt-4 justify-end">
+      <div className="flex gap-3 mt-4 justify-end items-center">
+        {successMsg && (
+          <div className="flex items-center gap-2 text-green-700 bg-green-100 border border-green-300 rounded-lg px-4 py-2 text-base font-semibold shadow-sm animate-fade-in">
+            <svg
+              className="w-5 h-5 text-green-600"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+            {successMsg}
+          </div>
+        )}
         <button
           onClick={handleSave}
           disabled={saving}
-          className="px-5 py-2 rounded bg-[#2563eb] text-white font-semibold hover:bg-[#1749b1] transition disabled:opacity-60 shadow"
+          className="flex items-center gap-2 px-6 py-2 rounded-lg bg-gradient-to-r from-[#2563eb] to-[#3b82f6] text-white font-bold shadow-md hover:from-[#1749b1] hover:to-[#2563eb] focus:outline-none focus:ring-2 focus:ring-[#2563eb] transition disabled:opacity-60"
         >
           {saving ? (
-            <span className="flex items-center gap-2">
+            <>
               <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
                 <circle
                   className="opacity-25"
@@ -217,18 +218,33 @@ export default function VideoManagement({
                 />
               </svg>
               Saving...
-            </span>
+            </>
           ) : (
-            "Save"
+            <>
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+              Save
+            </>
           )}
         </button>
         <button
           onClick={handleDelete}
           disabled={deleting}
-          className="px-5 py-2 rounded bg-[#ffeaea] text-[#ff6b6b] font-semibold hover:bg-[#ffd6d6] transition disabled:opacity-60 shadow"
+          className="flex items-center gap-2 px-6 py-2 rounded-lg bg-gradient-to-r from-[#ffeaea] to-[#ffd6d6] text-[#ff6b6b] font-bold shadow-md hover:from-[#ffd6d6] hover:to-[#ffeaea] focus:outline-none focus:ring-2 focus:ring-[#ff6b6b] transition disabled:opacity-60"
         >
           {deleting ? (
-            <span className="flex items-center gap-2">
+            <>
               <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
                 <circle
                   className="opacity-25"
@@ -246,9 +262,24 @@ export default function VideoManagement({
                 />
               </svg>
               Deleting...
-            </span>
+            </>
           ) : (
-            "Delete"
+            <>
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+              Delete
+            </>
           )}
         </button>
       </div>

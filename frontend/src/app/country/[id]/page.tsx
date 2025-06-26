@@ -7,7 +7,6 @@ import CountryTopMenu from "@/components/CountryTopMenu";
 import LeftMenu from "@/components/LeftMenu";
 import { Database } from "@/types/database";
 
-
 type RawVideoData =
   Database["public"]["Functions"]["get_videos_by_region"]["Returns"][0];
 
@@ -52,74 +51,71 @@ interface SearchResult {
 
 export default async function CountryPage({
   params,
-  searchParams
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
   searchParams?: { tag?: string; search?: string };
 }) {
   const supabase = await createClient();
   const resolvedParams = await params;
-const resolvedSearchParamsObj = await searchParams;
+  const resolvedSearchParamsObj = await searchParams;
 
-const resolvedTagParams = resolvedSearchParamsObj?.tag;
-const resolvedSearchParams = resolvedSearchParamsObj?.search;
+  const resolvedTagParams = resolvedSearchParamsObj?.tag;
+  const resolvedSearchParams = resolvedSearchParamsObj?.search;
 
-const regionName = resolvedParams.id;
-const tag = resolvedTagParams || null;
-const searchQuery = resolvedSearchParams || null;
-
-
+  const regionName = resolvedParams.id;
+  const tag = resolvedTagParams || null;
+  const searchQuery = resolvedSearchParams || null;
 
   let verifiedVideos: VideoWithUser[] = [];
 
   if (searchQuery) {
     try {
       // Use smart-search edge function
-    
+
       const { data, error } = await supabase.functions.invoke<{
         results: SearchResult[];
         error?: string;
-      }>('smart-search', {
+      }>("smart-search", {
         body: JSON.stringify({
           query: searchQuery,
           region: regionName,
-          limit: 20
-        })
+          limit: 20,
+        }),
       });
 
       if (error || !data || "error" in data) {
         verifiedVideos = [];
-        
       } else {
-        
-        const transformedResults = data.results.map((result: any): SearchResult => ({
-        id: result.id,
-        created_at: result.created_at || new Date().toISOString(),
-        updated_at: result.updated_at || new Date().toISOString(),
-        title: result.title || "No Title",
-        description: result.description || "",
-        video_url: result.video_url || "",
-        user_id: result.user_id || "",
-        language: result.language || "",
-        region: result.region || regionName,
-        status: result.status || "verified",
-        tags: result.tags || [],
-        similarity: result.similarity,
-        user: {
-          avatar_url: result.user?.avatar_url || null,
-          display_name: result.user?.display_name || "Unknown User",
-          role: result.user?.role || "user"
-        }
-      }));
-      
-      console.log("Transformed Results:", transformedResults);
+        const transformedResults = data.results.map(
+          (result: any): SearchResult => ({
+            id: result.id,
+            created_at: result.created_at || new Date().toISOString(),
+            updated_at: result.updated_at || new Date().toISOString(),
+            title: result.title || "No Title",
+            description: result.description || "",
+            video_url: result.video_url || "",
+            user_id: result.user_id || "",
+            language: result.language || "",
+            region: result.region || regionName,
+            status: result.status || "verified",
+            tags: result.tags || [],
+            similarity: result.similarity,
+            user: {
+              avatar_url: result.user?.avatar_url || null,
+              display_name: result.user?.display_name || "Unknown User",
+              role: result.user?.role || "user",
+            },
+          })
+        );
+
+        console.log("Transformed Results:", transformedResults);
         verifiedVideos = (transformedResults || []).filter(
           (video: SearchResult) =>
             video.status === "verified" ||
             video.status === "pending" ||
             video.status === "processing"
         );
-       
       }
     } catch (err) {
       console.error("Error in smart-search:", err);
@@ -166,7 +162,7 @@ const searchQuery = resolvedSearchParams || null;
   return (
     <main className="flex flex-col min-h-screen bg-[#F0F2F5]">
       {/* Top Menu */}
-      <div className="fixed top-0 left-0 w-full z-50 bg-[#0a0e18] h-24 flex items-center">
+      <div className="fixed top-0 left-0 w-full z-50 bg-[#0a0e18] shadow-md h-24 flex items-center">
         <CountryTopMenu />
       </div>
 
@@ -180,7 +176,7 @@ const searchQuery = resolvedSearchParams || null;
         <div className="flex-1 w-full flex flex-col items-center pt-10">
           <div className="flex w-full max-w-8/12">
             {/* Left Menu */}
-            <LeftMenu id={resolvedParams.id}/>
+            <LeftMenu id={resolvedParams.id} />
             {/* Main Content Section */}
             <section className="flex-1 flex flex-col items-center pl-8 ">
               <div className="w-full">
@@ -190,7 +186,7 @@ const searchQuery = resolvedSearchParams || null;
                   </div>
                 ))}
               </div>
-            </section> 
+            </section>
           </div>
         </div>
       </div>

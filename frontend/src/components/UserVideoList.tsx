@@ -256,15 +256,95 @@ export default function UserVideoList() {
                           : null)}
                     </div>
                     <div className="flex items-center gap-2 mb-1">
+                      {/* Status Icon */}
                       <span
-                        className={`px-2 py-0.5 rounded-full text-xs font-bold shadow-sm ${
+                        className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold shadow-sm ${
                           video.status === "verified"
                             ? "bg-[#e6fcf3] text-[#00b894]"
                             : video.status === "pending"
                             ? "bg-[#fffbe6] text-[#ffb300]"
+                            : video.status === "processing"
+                            ? "bg-[#e3eafe] text-[#2563eb]"
                             : "bg-[#ffeaea] text-[#ff6b6b]"
                         }`}
                       >
+                        {video.status === "verified" && (
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="#00b894"
+                            strokeWidth={2}
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M5 13l4 4L19 7"
+                            />
+                          </svg>
+                        )}
+                        {video.status === "pending" && (
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="#ffb300"
+                            strokeWidth={2}
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M12 8v4m0 4h.01"
+                            />
+                            <circle
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="#ffb300"
+                              strokeWidth="2"
+                              fill="none"
+                            />
+                          </svg>
+                        )}
+                        {video.status === "processing" && (
+                          <svg
+                            className="w-4 h-4 animate-spin"
+                            fill="none"
+                            stroke="#2563eb"
+                            strokeWidth={2}
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="#2563eb"
+                              strokeWidth="2"
+                              fill="none"
+                            />
+                            <path
+                              className="opacity-75"
+                              fill="#2563eb"
+                              d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z"
+                            />
+                          </svg>
+                        )}
+                        {video.status === "rejected" && (
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="#ff6b6b"
+                            strokeWidth={2}
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M6 18L18 6M6 6l12 12"
+                            />
+                          </svg>
+                        )}
                         {video.status.charAt(0).toUpperCase() +
                           video.status.slice(1)}
                       </span>
@@ -287,7 +367,7 @@ export default function UserVideoList() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-2xl w-full relative">
             <button
-              className="absolute top-3 right-3 text-2xl text-gray-400 hover:text-gray-700"
+              className="absolute top-1 right-2 text-2xl text-gray-400 hover:text-gray-700"
               onClick={() => setSelectedVideoId(null)}
               aria-label="Close"
             >
