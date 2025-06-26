@@ -7,6 +7,10 @@ import { Database } from "@/types/database";
 import { useRouter } from "next/navigation";
 import { getSupabaseClient } from "@/lib/supabase";
 import Review from "./Review";
+import { Dialog } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
+import { Textarea } from "@/components/ui/textarea";
 
 type SignVideo = Database["public"]["Tables"]["sign_videos"]["Row"] & {
   user: {
@@ -38,6 +42,9 @@ export default function VideoCard({ video }: VideoCardProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const videoContainerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const [flagOpen, setFlagOpen] = useState(false);
+  const [flagReason, setFlagReason] = useState("");
+  const [flagLoading, setFlagLoading] = useState(false);
 
   useEffect(() => {
     // Get public URL for the video
@@ -103,6 +110,37 @@ export default function VideoCard({ video }: VideoCardProps) {
 
   const handleTagsUpdate = (newTags: string[]) => {
     setTags(newTags);
+  };
+
+  const handleFlag = async () => {
+    setFlagLoading(true);
+    try {
+      const supabase = getSupabaseClient();
+      // Get current user
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+        toast.error("You must be logged in to flag a video.");
+        setFlagLoading(false);
+        return;
+      }
+      // Insert flag
+      const { error } = await supabase.from("flags").insert({
+        video_id: video.id,
+        flagged_by: user.id,
+        reason: flagReason,
+      });
+      if (error) {
+        toast.error("Failed to flag video: " + error.message);
+      } else {
+        toast.success("Video flagged for review.");
+        setFlagOpen(false);
+        setFlagReason("");
+      }
+    } catch (e) {
+      toast.error("Unexpected error flagging video.");
+    } finally {
+      setFlagLoading(false);
+    }
   };
 
   return (
@@ -206,6 +244,47 @@ export default function VideoCard({ video }: VideoCardProps) {
 
       {/* Reviews Section */}
       <Review videoId={video.id} />
+
+      {/* Flag Button and Dialog */}
+      <div className="flex justify-end p-4">
+        <Button variant="outline" size="sm" onClick={() => setFlagOpen(true)}>
+          <Flag className="w-4 h-4 mr-1 text-red-500" />
+          Flag
+        </Button>
+      </div>
+      {flagOpen && (
+        <Dialog open={flagOpen} onOpenChange={setFlagOpen}>
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+            <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-md w-full relative">
+              <h2 className="text-lg font-bold mb-2 flex items-center gap-2">
+                <Flag className="w-5 h-5 text-red-500" />
+                Flag this video
+              </h2>
+              <p className="mb-4 text-gray-600">Why are you flagging this video?</p>
+              <Textarea
+                value={flagReason}
+                onChange={e => setFlagReason(e.target.value)}
+                placeholder="Describe the reason for flagging (required)"
+                className="mb-4"
+                rows={4}
+                disabled={flagLoading}
+              />
+              <div className="flex gap-2 justify-end">
+                <Button variant="ghost" onClick={() => setFlagOpen(false)} disabled={flagLoading}>
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleFlag}
+                  disabled={flagLoading || !flagReason.trim()}
+                  className="bg-red-500 hover:bg-red-600 text-white"
+                >
+                  {flagLoading ? "Flagging..." : "Submit Flag"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Dialog>
+      )}
     </div>
   );
 }
