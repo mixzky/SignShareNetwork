@@ -1,4 +1,5 @@
 import TopMenu from "@/components/TopMenu";
+import UserFeed from "@/components/UserFeed";
 import UserStats from "@/components/UserStats";
 import UserVideoList from "@/components/UserVideoList";
 import React from "react";
@@ -46,7 +47,7 @@ export default async function DashboardPage() {
       <div className="flex flex-1 flex-col items-center justify-center gap-10 mt-10 w-full">
         {/* Two UserStats cards side by side */}
         <div className="flex flex-col md:flex-row gap-8 w-full max-w-145/192 justify-center items-center">
-          <UserStats />
+          <UserFeed />
           <UserStats />
         </div>
         {/* UserVideoList below */}
