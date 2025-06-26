@@ -12,7 +12,7 @@ import { Search, Flag, CheckCircle, XCircle } from "lucide-react";
 type RawVideoFlag = {
   id: string;
   video_id: string;
-  user_id: string;
+  flagged_by: string;
   reason: string;
   status: 'pending' | 'resolved' | 'dismissed';
   created_at: string;
@@ -20,20 +20,18 @@ type RawVideoFlag = {
     id: string;
     title: string;
     video_url: string;
-    user: Array<{
-      display_name: string;
-    }>;
+    user_id: string;
   };
-  reporter: Array<{
+  flagged_by_user?: {
     display_name: string;
-  }>;
+  };
 };
 
 // Processed flag type for our UI
 type Flag = {
   id: string;
   video_id: string;
-  user_id: string;
+  flagged_by: string;
   reason: string;
   status: 'pending' | 'resolved' | 'dismissed';
   created_at: string;
@@ -45,7 +43,7 @@ type Flag = {
       display_name: string;
     };
   };
-  reporter: {
+  flagged_by_user?: {
     display_name: string;
   };
 };
@@ -61,24 +59,19 @@ export default function FlagsPage() {
   const fetchFlags = async () => {
     try {
       let query = supabase
-        .from('video_flags')
+        .from('flags')
         .select(`
           id,
           video_id,
-          user_id,
+          flagged_by,
           reason,
           status,
           created_at,
-          video:sign_videos!inner (
+          video:sign_videos (
             id,
             title,
             video_url,
-            user:users!inner (
-              display_name
-            )
-          ),
-          reporter:users!inner (
-            display_name
+            user_id
           )
         `)
         .order('created_at', { ascending: false });
@@ -88,30 +81,49 @@ export default function FlagsPage() {
       }
 
       const { data, error: flagsError } = await query;
-
       if (flagsError) throw flagsError;
-
       if (!data) {
         setFlags([]);
         return;
       }
 
-      // Transform the data to match our Flag type
+      // Get all unique flagged_by user ids
       const rawFlags = data as unknown as RawVideoFlag[];
+      const userIds = Array.from(new Set(rawFlags.map(flag => flag.flagged_by)));
+
+      // Fetch user info for those ids
+      let userMap: Record<string, { display_name: string }> = {};
+      if (userIds.length > 0) {
+        const { data: users, error: usersError } = await supabase
+          .from('users')
+          .select('id, display_name')
+          .in('id', userIds);
+        if (usersError) throw usersError;
+        userMap = Object.fromEntries((users || []).map((u: any) => [u.id, u]));
+      }
+
+      // Map user info to flags
       const mappedFlags: Flag[] = rawFlags.map(flag => ({
         ...flag,
-        video: {
-          ...flag.video,
-          user: flag.video.user[0]
-        },
-        reporter: flag.reporter[0]
+        video: flag.video && typeof flag.video === 'object' && !Array.isArray(flag.video)
+          ? {
+              ...flag.video,
+              user: userMap[flag.video.user_id] || { display_name: 'Unknown' }
+            }
+          : {
+              id: '',
+              title: '',
+              video_url: '',
+              user: { display_name: 'Unknown' },
+              user_id: ''
+            },
+        flagged_by_user: userMap[flag.flagged_by] || { display_name: 'Unknown' }
       }));
 
       // Initialize video states for new videos
       const newVideoStates = { ...videoStates };
       for (const flag of mappedFlags) {
         if (!newVideoStates[flag.video.id]) {
-          // Get public URL for the video
           const [bucket, ...pathParts] = flag.video.video_url.split("/");
           const path = pathParts.join("/");
           const { data } = supabase.storage.from(bucket).getPublicUrl(path);
@@ -125,7 +137,7 @@ export default function FlagsPage() {
         ? mappedFlags.filter(flag =>
             flag.video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             flag.reason.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            flag.reporter.display_name.toLowerCase().includes(searchQuery.toLowerCase())
+            flag.flagged_by_user?.display_name.toLowerCase().includes(searchQuery.toLowerCase())
           )
         : mappedFlags;
 
@@ -312,7 +324,7 @@ export default function FlagsPage() {
                       <div className="bg-red-50 border border-red-100 rounded-lg p-3">
                         <div className="flex items-center gap-2 text-red-600 mb-1">
                           <Flag className="h-4 w-4" />
-                          <p className="font-medium">Reported by {flag.reporter.display_name}</p>
+                          <p className="font-medium">Reported by {flag.flagged_by_user?.display_name}</p>
                         </div>
                         <p className="text-sm text-red-700">{flag.reason}</p>
                       </div>

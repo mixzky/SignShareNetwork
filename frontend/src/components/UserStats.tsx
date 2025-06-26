@@ -59,7 +59,7 @@ export default function UserStats() {
             .from("sign_videos")
             .select("id", { count: "exact", head: true })
             .eq("user_id", userId)
-            .eq("isFlag", true);
+            .eq("isflag", true);
           return count ?? 0;
         }
 
