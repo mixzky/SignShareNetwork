@@ -1,7 +1,9 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { getCurrentUser } from "@/lib/supabase";
+import VideoManagement from "@/components/VideoManagement"; // Update the path to the correct location
+import { useRouter } from "next/navigation";
 
 export default function UserVideoList() {
   const [user, setUser] = useState<any>(null);
@@ -12,25 +14,28 @@ export default function UserVideoList() {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("newest");
   const [loading, setLoading] = useState(true);
+  const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
+  const router = useRouter();
 
-  // Fetch all videos only once
-  useEffect(() => {
+  // Move fetchUserAndVideos outside useEffect so you can call it anywhere
+  const fetchUserAndVideos = useCallback(async () => {
+    setLoading(true);
     const supabase = createClient();
-    async function fetchUserAndVideos() {
-      setLoading(true);
-      const user = await getCurrentUser();
-      setUser(user);
-      if (user) {
-        const { data } = await supabase
-          .from("sign_videos")
-          .select("id, title, video_url, tags, status, created_at")
-          .eq("user_id", user.id);
-        setAllVideos(data || []);
-      }
-      setLoading(false);
+    const user = await getCurrentUser();
+    setUser(user);
+    if (user) {
+      const { data } = await supabase
+        .from("sign_videos")
+        .select("id, title, video_url, tags, status, created_at")
+        .eq("user_id", user.id);
+      setAllVideos(data || []);
     }
-    fetchUserAndVideos();
+    setLoading(false);
   }, []);
+
+  useEffect(() => {
+    fetchUserAndVideos();
+  }, [fetchUserAndVideos]);
 
   // Filter/sort on client only
   useEffect(() => {
@@ -212,11 +217,7 @@ export default function UserVideoList() {
               key={video.id}
               className="flex flex-col bg-white border border-[#e0e3ea] rounded-xl p-4 gap-4 shadow hover:shadow-xl transition w-full max-w-full mx-auto cursor-pointer hover:bg-[#f6faff]"
               style={{ minHeight: "140px" }}
-              onClick={() => {
-                // Replace with your navigation or modal logic
-                // Example: router.push(`/dashboard/video/${video.id}`)
-                alert(`Clicked video: ${video.title}`);
-              }}
+              onClick={() => setSelectedVideoId(video.id)}
             >
               <div className="w-full flex flex-col md:flex-row gap-4">
                 <div className="w-full md:w-1/5 max-h-36 flex items-center justify-center rounded-lg bg-gradient-to-br from-[#f9fafb] to-[#e9ecef] shadow-inner border border-[#e0e3ea] overflow-hidden">
@@ -281,6 +282,30 @@ export default function UserVideoList() {
           ))}
         </div>
       </div>
+      {/* Modal for VideoManagement */}
+      {selectedVideoId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-2xl w-full relative">
+            <button
+              className="absolute top-3 right-3 text-2xl text-gray-400 hover:text-gray-700"
+              onClick={() => setSelectedVideoId(null)}
+              aria-label="Close"
+            >
+              &times;
+            </button>
+            <VideoManagement
+              videoId={selectedVideoId}
+              publicUrl={getPublicUrl(
+                videos.find((v) => v.id === selectedVideoId)?.video_url || ""
+              )}
+              onAction={async () => {
+                await fetchUserAndVideos();
+                setSelectedVideoId(null);
+              }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
