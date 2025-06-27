@@ -362,3 +362,48 @@ export const uploadVideo = async (userId: string, file: File) => {
     throw error;
   }
 };
+
+/**
+ * Get the public URL for a video given a Supabase storage path (bucket/path/to/file)
+ */
+export function getPublicVideoUrl(storagePath: string): string {
+  const supabase = getSupabaseClient();
+  const [bucket, ...pathParts] = storagePath.split("/");
+  const path = pathParts.join("/");
+  const { data } = supabase.storage.from(bucket).getPublicUrl(path);
+  return data.publicUrl;
+}
+
+/**
+ * Get the Tailwind color classes for a given status string
+ */
+export function getStatusColor(status: string): string {
+  switch (status) {
+    case 'verified':
+      return 'bg-green-100 text-green-800';
+    case 'resolved':
+      return 'bg-green-100 text-green-800';
+    case 'rejected':
+      return 'bg-red-100 text-red-800';
+    case 'flagged':
+      return 'bg-yellow-100 text-yellow-800';
+    case 'pending':
+      return 'bg-yellow-100 text-yellow-800';
+    case 'processing':
+      return 'bg-blue-100 text-blue-800';
+    case 'dismissed':
+      return 'bg-gray-100 text-gray-800';
+    default:
+      return 'bg-gray-100 text-gray-800';
+  }
+}
+
+/**
+ * Format a date string or Date object to a readable string (e.g., 2024-06-01 → 6/1/2024)
+ */
+export function formatDate(date: string | Date): string {
+  if (!date) return '';
+  const d = typeof date === 'string' ? new Date(date) : date;
+  if (isNaN(d.getTime())) return '';
+  return d.toLocaleDateString();
+}

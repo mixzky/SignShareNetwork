@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
-import { getCurrentUser } from "@/lib/supabase";
+import { getCurrentUser, formatDate } from "@/lib/supabase";
 
 type Activity = {
   id: number;
@@ -236,7 +236,7 @@ export default function UserFeed() {
                 )}
               </span>
               <span className="text-xs text-gray-400">
-                {new Date(activity.created_at).toLocaleString()}
+                {formatDate(activity.created_at)}
               </span>
             </div>
           );

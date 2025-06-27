@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getCurrentUser, getUserProfile } from "@/lib/supabase";
+import { getCurrentUser, getUserProfile, formatDate } from "@/lib/supabase";
 import { toast } from "sonner";
 import TopMenu from "@/components/TopMenu";
 import Particles from "react-tsparticles";
@@ -130,7 +130,7 @@ export default function ProfilePage() {
                   </p>
                   <p>
                     <span className="font-medium">Member since:</span>{" "}
-                    {new Date(profile.created_at).toLocaleDateString()}
+                    {formatDate(profile.created_at)}
                   </p>
                 </div>
               </div>

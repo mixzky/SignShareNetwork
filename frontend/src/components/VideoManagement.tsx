@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
+import { getPublicVideoUrl } from "@/lib/supabase";
 
 type Video = {
   id: string;
@@ -124,7 +125,7 @@ export default function VideoManagement({
     <div className="flex flex-col gap-6 relative">
       {/* Close button (keep at top right if needed) */}
       <video
-        src={publicUrl}
+        src={getPublicVideoUrl(video?.video_url || "")}
         controls
         className="w-full h-56 rounded-xl border border-[#e0e3ea] bg-[#f8fafc] shadow"
       />

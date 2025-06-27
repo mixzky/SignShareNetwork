@@ -7,6 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Search, Flag, CheckCircle, XCircle } from "lucide-react";
+import { getStatusColor, formatDate } from "@/lib/supabase";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import ErrorMessage from "@/components/ui/ErrorMessage";
 
 // Raw response type from Supabase
 type RawVideoFlag = {
@@ -55,16 +58,6 @@ function FlagCard({ flag, videoUrl, onResolve, onDismiss, updating }: {
   onDismiss: () => void;
   updating: boolean;
 }) {
-  const getStatusColor = (status: Flag['status']) => {
-    switch (status) {
-      case 'resolved':
-        return 'bg-green-100 text-green-800';
-      case 'dismissed':
-        return 'bg-gray-100 text-gray-800';
-      default:
-        return 'bg-yellow-100 text-yellow-800';
-    }
-  };
   return (
     <Card className="p-6">
       <div className="flex gap-6">
@@ -100,7 +93,7 @@ function FlagCard({ flag, videoUrl, onResolve, onDismiss, updating }: {
               <p className="text-sm text-red-700">{flag.reason}</p>
             </div>
             <p className="text-sm text-gray-500">
-              Reported on: {new Date(flag.created_at).toLocaleDateString()}
+              Reported on: {formatDate(flag.created_at)}
             </p>
           </div>
           {/* Action Buttons */}
@@ -299,19 +292,7 @@ export default function FlagsPage() {
   };
 
   if (loading) {
-    return (
-      <div className="animate-pulse">
-        <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
-        <div className="space-y-4">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="bg-white rounded-lg p-6">
-              <div className="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
-              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
+    return <LoadingSpinner className="h-32" size={48} />;
   }
 
   return (
