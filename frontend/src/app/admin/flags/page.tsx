@@ -157,9 +157,9 @@ export default function FlagsPage() {
   useEffect(() => {
     // Set up real-time subscriptions
     const flagsSubscription = supabase
-      .channel('video_flags_changes')
+      .channel('flags_changes')
       .on('postgres_changes', 
-        { event: '*', schema: 'public', table: 'video_flags' },
+        { event: '*', schema: 'public', table: 'flags' },
         () => {
           fetchFlags();
         }
@@ -192,7 +192,7 @@ export default function FlagsPage() {
       }
 
       const { error: updateError } = await supabase
-        .from('video_flags')
+        .from('flags')
         .update({ 
           status: action === 'resolve' ? 'resolved' : 'dismissed'
         })
