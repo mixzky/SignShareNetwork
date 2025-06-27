@@ -111,10 +111,7 @@ export default async function CountryPage({
 
         console.log("Transformed Results:", transformedResults);
         verifiedVideos = (transformedResults || []).filter(
-          (video: SearchResult) =>
-            video.status === "verified" ||
-            video.status === "pending" ||
-            video.status === "processing"
+          (video: SearchResult) => video.status === "verified"
         );
       }
     } catch (err) {
@@ -151,11 +148,7 @@ export default async function CountryPage({
 
     // Filter verified videos after fetching to debug status
     verifiedVideos = videos.filter((video: VideoWithUser) => {
-      return (
-        video.status === "verified" ||
-        video.status === "pending" ||
-        video.status === "processing"
-      );
+      return video.status === "verified";
     });
   }
 
