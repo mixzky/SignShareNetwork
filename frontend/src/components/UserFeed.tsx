@@ -110,7 +110,7 @@ export default function UserFeed() {
         Activity Feed
       </h2>
       <div
-        className="w-full flex flex-col gap-4 bg-[#f8fafc] rounded-lg p-2 overflow-y-auto border  border-[#e0e3ea]"
+        className="w-full flex flex-col gap-4 bg-[#f8fafc] rounded-lg p-2 overflow-y-auto border border-[#e0e3ea] shadow-inner"
         style={{ minHeight: "280px", maxHeight: "300px" }}
       >
         {activities.length === 0 && (
@@ -128,7 +128,7 @@ export default function UserFeed() {
           return (
             <div
               key={activity.id}
-              className={`flex items-center gap-3 ${bgColor} border border-[#e0e3ea] rounded-lg px-4 py-3 shadow-sm`}
+              className={`flex items-center gap-3 ${bgColor} border border-[#e0e3ea] rounded-lg px-4 py-3 shadow-md`}
             >
               {/* Icon based on activity type */}
               <span>

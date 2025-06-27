@@ -111,7 +111,10 @@ export default function VideoCard({ video }: VideoCardProps) {
     try {
       const supabase = getSupabaseClient();
       // Get current user
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
       if (userError || !user) {
         toast.error("You must be logged in to flag a video.");
         setFlagLoading(false);
@@ -138,7 +141,9 @@ export default function VideoCard({ video }: VideoCardProps) {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm overflow-hidden">      {/* User Info Section */}
+    <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+      {" "}
+      {/* User Info Section */}
       <div className="p-4">
         <div className="flex items-start gap-3">
           <img
@@ -154,29 +159,32 @@ export default function VideoCard({ video }: VideoCardProps) {
               {video.user.role === "moderator" && (
                 <CheckCircle2 className="w-4 h-4 text-blue-500" />
               )}
-            </div>            <div className="flex items-center justify-between mt-1">
+            </div>{" "}
+            <div className="flex items-center justify-between mt-1">
               <div className="flex flex-wrap gap-1">
                 {(showAllTags ? tags : tags.slice(0, 5)).map((tag, index) => (
                   <span
                     key={index}
-                    onClick={() => router.push(`/country/${video.region}?tag=${tag}`)}
-                    className="px-2 py-0.5 text-[#002b4f] border-2 border-[#bcd8ec] text-xs rounded-full cursor-pointer hover:bg-[#d2ecff] hover:border-[#d2ecff]  hover:text-[#005a9e] transition-colors duration-150"
+                    onClick={() =>
+                      router.push(`/country/${video.region}?tag=${tag}`)
+                    }
+                    className="bg-[#fff3cd] text-[#b48a4a] px-2 py-0.5 rounded-full text-xs font-semibold tracking-wide shadow-sm cursor-pointer hover:scale-105 hover:shadow-md transition-transform duration-150"
                   >
                     {tag}
                   </span>
                 ))}
                 {tags.length > 5 && !showAllTags && (
-                  <span 
+                  <span
                     onClick={() => setShowAllTags(true)}
-                    className="px-2 py-0.5  text-[#002b4f] border-2 border-[#bcd8ec] text-xs rounded-full cursor-pointer hover:bg-[#d2ecff] hover:border-[#d2ecff] hover:text-[#005a9e] transition-colors duration-150"
+                    className="bg-[#fff3cd] text-[#b48a4a] px-2 py-0.5 rounded-full text-xs font-semibold tracking-wide shadow-sm cursor-pointer hover:scale-105 hover:shadow-md transition-transform duration-150"
                   >
                     +{tags.length - 5} more
                   </span>
                 )}
                 {showAllTags && tags.length > 5 && (
-                  <span 
+                  <span
                     onClick={() => setShowAllTags(false)}
-                    className="px-2 py-0.5 text-[#002b4f] border-2 border-[#bcd8ec] text-xs rounded-full cursor-pointer hover:bg-[#d2ecff] hover:border-[#d2ecff] hover:text-[#005a9e] transition-colors duration-150"
+                    className="bg-[#fff3cd] text-[#b48a4a] px-2 py-0.5 rounded-full text-xs font-semibold tracking-wide shadow-sm cursor-pointer hover:scale-105 hover:shadow-md transition-transform duration-150"
                   >
                     show less
                   </span>
@@ -186,7 +194,6 @@ export default function VideoCard({ video }: VideoCardProps) {
           </div>
         </div>
       </div>
-
       {/* Title and Description */}
       <div className="px-4 pb-4">
         <h2 className="text-xl font-semibold text-gray-900 mb-2">
@@ -198,7 +205,6 @@ export default function VideoCard({ video }: VideoCardProps) {
           </p>
         )}
       </div>
-
       {/* Video Section */}
       <div ref={videoContainerRef} className="relative aspect-video bg-black">
         {videoUrl && (
@@ -235,10 +241,8 @@ export default function VideoCard({ video }: VideoCardProps) {
           </Button>
         </div>
       </div>
-
       {/* Reviews Section */}
       <Review videoId={video.id} />
-
       {/* Flag Button and Dialog */}
       <div className="flex justify-end p-4">
         <Button variant="outline" size="sm" onClick={() => setFlagOpen(true)}>
@@ -254,17 +258,23 @@ export default function VideoCard({ video }: VideoCardProps) {
                 <Flag className="w-5 h-5 text-red-500" />
                 Flag this video
               </h2>
-              <p className="mb-4 text-gray-600">Why are you flagging this video?</p>
+              <p className="mb-4 text-gray-600">
+                Why are you flagging this video?
+              </p>
               <Textarea
                 value={flagReason}
-                onChange={e => setFlagReason(e.target.value)}
+                onChange={(e) => setFlagReason(e.target.value)}
                 placeholder="Describe the reason for flagging (required)"
                 className="mb-4"
                 rows={4}
                 disabled={flagLoading}
               />
               <div className="flex gap-2 justify-end">
-                <Button variant="ghost" onClick={() => setFlagOpen(false)} disabled={flagLoading}>
+                <Button
+                  variant="ghost"
+                  onClick={() => setFlagOpen(false)}
+                  disabled={flagLoading}
+                >
                   Cancel
                 </Button>
                 <Button

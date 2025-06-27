@@ -9,7 +9,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import UploadFileIcon from '@mui/icons-material/UploadFile';
+import UploadFileIcon from "@mui/icons-material/UploadFile";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -26,6 +26,7 @@ const uploadSchema = z.object({
   description: z.string().min(1, "Description is required"),
   language: z.string().min(1, "Language is required"),
   region: z.string().min(1, "Region is required"),
+  video: z.instanceof(File).optional(),
 });
 
 type UploadFormData = z.infer<typeof uploadSchema>;
@@ -259,35 +260,78 @@ export default function CountryContent({ id }: CountryContentProps) {
 
           <div className="space-y-6 py-4">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              {/* Step 1: Video File */}
               <div className="space-y-2">
                 <Label htmlFor="video">Video File (MP4 or WebM)</Label>
-                <Input
-                  id="video"
-                  type="file"
-                  accept="video/mp4,video/webm"
-                  onChange={handleFileChange}
-                  className="cursor-pointer"
-                />
+                <div
+                  className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer transition hover:border-[#2563eb] ${
+                    videoFile
+                      ? "border-green-400 bg-green-50"
+                      : "border-gray-300 bg-gray-50"
+                  }`}
+                  onClick={() => document.getElementById("video")?.click()}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const file = e.dataTransfer.files?.[0];
+                    if (
+                      file &&
+                      (file.type === "video/mp4" || file.type === "video/webm")
+                    ) {
+                      setVideoFile(file);
+                    }
+                  }}
+                >
+                  {videoFile ? (
+                    <video
+                      src={URL.createObjectURL(videoFile)}
+                      controls
+                      className="w-full max-h-40 rounded mb-2"
+                    />
+                  ) : (
+                    <span className="text-gray-400">
+                      Drag & drop or click to select a video file
+                    </span>
+                  )}
+                  <Input
+                    id="video"
+                    type="file"
+                    accept="video/mp4,video/webm"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                </div>
+                {errors.video && (
+                  <p className="text-sm text-red-500">{errors.video.message}</p>
+                )}
               </div>
 
+              {/* Step 2: Title */}
               <div className="space-y-2">
                 <Label htmlFor="title">Title</Label>
                 <Input
                   id="title"
                   {...register("title")}
                   placeholder="Enter video title"
+                  className={errors.title ? "border-red-500" : ""}
                 />
                 {errors.title && (
                   <p className="text-sm text-red-500">{errors.title.message}</p>
                 )}
               </div>
 
+              {/* Step 3: Description */}
               <div className="space-y-2">
                 <Label htmlFor="description">Description</Label>
                 <Textarea
                   id="description"
                   {...register("description")}
                   placeholder="Enter video description"
+                  className={errors.description ? "border-red-500" : ""}
                 />
                 {errors.description && (
                   <p className="text-sm text-red-500">
@@ -296,6 +340,7 @@ export default function CountryContent({ id }: CountryContentProps) {
                 )}
               </div>
 
+              {/* Step 4: Language & Region */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="language">Language</Label>
@@ -303,6 +348,7 @@ export default function CountryContent({ id }: CountryContentProps) {
                     id="language"
                     {...register("language")}
                     placeholder="e.g., Thai Sign Language"
+                    className={errors.language ? "border-red-500" : ""}
                   />
                   {errors.language && (
                     <p className="text-sm text-red-500">
@@ -310,13 +356,13 @@ export default function CountryContent({ id }: CountryContentProps) {
                     </p>
                   )}
                 </div>
-
                 <div className="space-y-2">
                   <Label htmlFor="region">Region</Label>
                   <Input
                     id="region"
                     {...register("region")}
                     placeholder="e.g., Bangkok"
+                    className={errors.region ? "border-red-500" : ""}
                   />
                   {errors.region && (
                     <p className="text-sm text-red-500">
@@ -326,15 +372,45 @@ export default function CountryContent({ id }: CountryContentProps) {
                 </div>
               </div>
 
-              <div className="flex justify-end gap-4">
+              {/* Step 5: Actions */}
+              <div className="flex justify-end gap-4 pt-2">
                 <Button
                   type="button"
                   variant="outline"
+                  className="cursor-pointer"
                   onClick={() => setIsUploadDialogOpen(false)}
+                  disabled={isUploading || isTagging}
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={isUploading || isTagging}>
+                <Button
+                  type="submit"
+                  disabled={isUploading || isTagging}
+                  className="relative cursor-pointer"
+                >
+                  {(isUploading || isTagging) && (
+                    <span className="absolute left-4">
+                      <svg
+                        className="animate-spin h-5 w-5 text-white"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v8z"
+                        ></path>
+                      </svg>
+                    </span>
+                  )}
                   {isUploading
                     ? "Uploading..."
                     : isTagging

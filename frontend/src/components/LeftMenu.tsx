@@ -90,10 +90,12 @@ export default function LeftMenu({ id }: LeftMenuProps) {
                     onClick={() =>
                       router.push(`/country/${id}?tag=${tagItem.tag}`)
                     }
-                    className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border border-[#fcd9db]  text-[#d88c92] cursor-pointer hover:bg-[#f9e5e7] transition-colors"
+                    className="bg-[#d1ecf1] text-[#0c5460] px-2 py-0.5 rounded-full text-sm font-semibold tracking-wide shadow-sm cursor-pointer hover:scale-105 hover:shadow-md transition-transform duration-150
+
+"
                   >
                     {tagItem.tag}
-                    <span className="ml-1 text-xs text-[#e3a3a9]">
+                    <span className="ml-1 text-xs text-[#31708f]">
                       ({tagItem.tag_count})
                     </span>
                   </span>
