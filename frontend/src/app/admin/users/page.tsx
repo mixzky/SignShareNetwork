@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Search, UserX, UserCheck, Shield } from "lucide-react";
+import { formatDate } from "@/lib/supabase";
 
 type User = {
   id: string;
@@ -319,7 +320,7 @@ export default function UsersPage() {
                       </div>
                     </div>
                     <div className="mt-2 text-sm text-gray-500">
-                      <p>Joined: {new Date(user.created_at).toLocaleDateString()}</p>
+                      <p>Joined: {formatDate(user.created_at)}</p>
                     </div>
                   </div>
 

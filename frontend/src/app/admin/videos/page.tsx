@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Search, Filter } from "lucide-react";
+import { getPublicVideoUrl, getStatusColor, formatDate } from "@/lib/supabase";
 
 type Video = {
   id: string;
@@ -91,12 +92,8 @@ export default function VideosPage() {
       for (const video of mappedVideos) {
         if (!newVideoStates[video.id]) {
           try {
-            const [bucket, ...pathParts] = video.video_url.split("/");
-            const path = pathParts.join("/");
-            const { data } = supabase.storage.from(bucket).getPublicUrl(path);
-            
             newVideoStates[video.id] = {
-              url: data.publicUrl,
+              url: getPublicVideoUrl(video.video_url),
               isMuted: true,
               isPlaying: false
             };
@@ -191,21 +188,6 @@ export default function VideosPage() {
     } catch (error) {
       console.error('Error in handleVideoAction:', error);
       toast.error('An unexpected error occurred');
-    }
-  };
-
-  const getStatusColor = (status: Video['status']) => {
-    switch (status) {
-      case 'verified':
-        return 'bg-green-100 text-green-800';
-      case 'rejected':
-        return 'bg-red-100 text-red-800';
-      case 'flagged':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'processing':
-        return 'bg-blue-100 text-blue-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -323,7 +305,7 @@ export default function VideosPage() {
                         <p className="text-sm">
                           <span className="text-gray-500">Uploaded:</span>{" "}
                           <span className="font-medium">
-                            {new Date(video.created_at).toLocaleDateString()}
+                            {formatDate(video.created_at)}
                           </span>
                         </p>
                         {video.flags && video.flags.length > 0 && (

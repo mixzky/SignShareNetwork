@@ -1,9 +1,12 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
-import { createClient } from "@/utils/supabase/client";
 import { getCurrentUser } from "@/lib/supabase";
 import VideoManagement from "@/components/VideoManagement"; // Update the path to the correct location
 import { useRouter } from "next/navigation";
+import { getPublicVideoUrl } from "@/lib/supabase";
+import { createClient } from "@/utils/supabase/client";
+import { getStatusColor } from "@/lib/supabase";
+import { formatDate } from "@/lib/supabase";
 
 export default function UserVideoList() {
   const [user, setUser] = useState<any>(null);
@@ -83,16 +86,6 @@ export default function UserVideoList() {
     }
     setVideos(filtered);
   }, [allVideos, filterTag, filterStatus, search, sort]);
-
-  // Helper to get public video URL
-  const getPublicUrl = (video_url: string) => {
-    if (!video_url) return "";
-    const supabase = createClient();
-    const [bucket, ...pathParts] = video_url.split("/");
-    const path = pathParts.join("/");
-    const { data } = supabase.storage.from(bucket).getPublicUrl(path);
-    return data.publicUrl;
-  };
 
   // Unique tags and statuses for filter dropdowns
   const allTags = Array.from(
@@ -222,7 +215,7 @@ export default function UserVideoList() {
               <div className="w-full flex flex-col md:flex-row gap-4">
                 <div className="w-full md:w-1/5 max-h-36 flex items-center justify-center rounded-lg bg-gradient-to-br from-[#f9fafb] to-[#e9ecef] shadow-inner border border-[#e0e3ea] overflow-hidden">
                   <video
-                    src={getPublicUrl(video.video_url)}
+                    src={getPublicVideoUrl(video.video_url)}
                     controls
                     className="w-full h-full rounded-lg "
                     style={{ background: "#f3f3f3", minHeight: "90px" }}
@@ -258,15 +251,7 @@ export default function UserVideoList() {
                     <div className="flex items-center gap-2 mb-1">
                       {/* Status Icon */}
                       <span
-                        className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold shadow-sm ${
-                          video.status === "verified"
-                            ? "bg-[#e6fcf3] text-[#00b894]"
-                            : video.status === "pending"
-                            ? "bg-[#fffbe6] text-[#ffb300]"
-                            : video.status === "processing"
-                            ? "bg-[#e3eafe] text-[#2563eb]"
-                            : "bg-[#ffeaea] text-[#ff6b6b]"
-                        }`}
+                        className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold shadow-sm ${getStatusColor(video.status)}`}
                       >
                         {video.status === "verified" && (
                           <svg
@@ -352,7 +337,7 @@ export default function UserVideoList() {
                         <ReviewsCount videoId={video.id} />
                       </span>
                       <span className="text-[#b0b6c1] text-xs font-medium italic">
-                        {new Date(video.created_at).toLocaleDateString()}
+                        {formatDate(video.created_at)}
                       </span>
                     </div>
                   </div>
@@ -375,7 +360,7 @@ export default function UserVideoList() {
             </button>
             <VideoManagement
               videoId={selectedVideoId}
-              publicUrl={getPublicUrl(
+              publicUrl={getPublicVideoUrl(
                 videos.find((v) => v.id === selectedVideoId)?.video_url || ""
               )}
               onAction={async () => {
@@ -395,8 +380,8 @@ function ReviewsCount({ videoId }: { videoId: string }) {
   const [count, setCount] = useState<number | null>(null);
 
   useEffect(() => {
-    const supabase = createClient();
     async function fetchCount() {
+      const supabase = createClient();
       const { count } = await supabase
         .from("reviews")
         .select("id", { count: "exact", head: true })

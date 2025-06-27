@@ -5,7 +5,7 @@ import { CheckCircle2, Flag, Volume2, VolumeX, Maximize2 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Database } from "@/types/database";
 import { useRouter } from "next/navigation";
-import { getSupabaseClient } from "@/lib/supabase";
+import { getSupabaseClient, getPublicVideoUrl } from "@/lib/supabase";
 import Review from "./Review";
 import { Dialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -47,13 +47,7 @@ export default function VideoCard({ video }: VideoCardProps) {
   const [flagLoading, setFlagLoading] = useState(false);
 
   useEffect(() => {
-    // Get public URL for the video
-    const supabase = getSupabaseClient();
-    // Extract bucket and path from the full storage path
-    const [bucket, ...pathParts] = video.video_url.split("/");
-    const path = pathParts.join("/");
-    const { data } = supabase.storage.from(bucket).getPublicUrl(path);
-    setVideoUrl(data.publicUrl);
+    setVideoUrl(getPublicVideoUrl(video.video_url));
   }, [video.video_url]);
 
   const togglePlay = () => {

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import TopMenu from "@/components/TopMenu";
 import { Volume2, VolumeX, Maximize2 } from "lucide-react";
-import { getSupabaseClient } from "@/lib/supabase";
+import { getSupabaseClient, getPublicVideoUrl, getStatusColor } from "@/lib/supabase";
 
 interface VideoState {
   url: string;
@@ -85,13 +85,8 @@ export default function AdminDashboard() {
       const newVideoStates = { ...videoStates };
       for (const video of mappedVideos) {
         if (!newVideoStates[video.id]) {
-          // Get public URL for the video
-          const [bucket, ...pathParts] = video.video_url.split("/");
-          const path = pathParts.join("/");
-          const { data } = supabase.storage.from(bucket).getPublicUrl(path);
-          
           newVideoStates[video.id] = {
-            url: data.publicUrl,
+            url: getPublicVideoUrl(video.video_url),
             isMuted: true,
             isPlaying: false,
             isFullscreen: false

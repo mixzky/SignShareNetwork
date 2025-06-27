@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
-import { getCurrentUser } from "@/lib/supabase";
+import { getCurrentUser, getPublicVideoUrl } from "@/lib/supabase";
 import { get } from "http";
 
 export default function UserStats() {
@@ -109,11 +109,7 @@ export default function UserStats() {
 
   useEffect(() => {
     if (stats.topView.video_url) {
-      const supabase = createClient();
-      const [bucket, ...pathParts] = stats.topView.video_url.split("/");
-      const path = pathParts.join("/");
-      const { data } = supabase.storage.from(bucket).getPublicUrl(path);
-      setTopVideoUrl(data.publicUrl);
+      setTopVideoUrl(getPublicVideoUrl(stats.topView.video_url));
     } else {
       setTopVideoUrl("");
     }
