@@ -51,12 +51,11 @@ type Flag = {
 export default function FlagsPage() {
   const [flags, setFlags] = useState<Flag[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<Flag['status'] | 'all'>('all');
+  const [statusFilter, setStatusFilter] = useState<Flag['status']>('pending');
   const [videoStates, setVideoStates] = useState<{[key: string]: string}>({});
   const supabase = createClient();
 
-  const fetchFlags = async () => {
+  const fetchFlags = async (status: Flag['status']) => {
     try {
       let query = supabase
         .from('flags')
@@ -74,11 +73,8 @@ export default function FlagsPage() {
             user_id
           )
         `)
-        .order('created_at', { ascending: false });
-
-      if (statusFilter !== 'all') {
-        query = query.eq('status', statusFilter);
-      }
+        .order('created_at', { ascending: false })
+        .eq('status', status);
 
       const { data, error: flagsError } = await query;
       if (flagsError) throw flagsError;
@@ -131,17 +127,7 @@ export default function FlagsPage() {
         }
       }
       setVideoStates(newVideoStates);
-
-      // Filter flags by search query
-      const filteredFlags = searchQuery
-        ? mappedFlags.filter(flag =>
-            flag.video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            flag.reason.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            flag.flagged_by_user?.display_name.toLowerCase().includes(searchQuery.toLowerCase())
-          )
-        : mappedFlags;
-
-      setFlags(filteredFlags);
+      setFlags(mappedFlags);
     } catch (error) {
       console.error('Error fetching flags:', error);
       toast.error('Failed to load flags');
@@ -151,8 +137,8 @@ export default function FlagsPage() {
   };
 
   useEffect(() => {
-    fetchFlags();
-  }, [statusFilter]); // Refetch when status filter changes
+    fetchFlags(statusFilter);
+  }, [statusFilter]);
 
   useEffect(() => {
     // Set up real-time subscriptions
@@ -161,7 +147,7 @@ export default function FlagsPage() {
       .on('postgres_changes', 
         { event: '*', schema: 'public', table: 'flags' },
         () => {
-          fetchFlags();
+          fetchFlags(statusFilter);
         }
       )
       .subscribe();
@@ -169,7 +155,7 @@ export default function FlagsPage() {
     return () => {
       flagsSubscription.unsubscribe();
     };
-  }, []);
+  }, [statusFilter]);
 
   const handleFlagAction = async (flagId: string, action: 'resolve' | 'dismiss') => {
     try {
@@ -205,7 +191,7 @@ export default function FlagsPage() {
       }
 
       toast.success(`Flag ${action === 'resolve' ? 'resolved' : 'dismissed'} successfully`);
-      await fetchFlags();
+      await fetchFlags(statusFilter);
     } catch (error) {
       console.error('Error in handleFlagAction:', error);
       toast.error('An unexpected error occurred');
@@ -243,53 +229,32 @@ export default function FlagsPage() {
     <div>
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900 mb-4">Flagged Content</h1>
-        
-        {/* Filters and Search */}
-        <div className="flex gap-4 mb-6">
-          <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-              <Input
-                type="text"
-                placeholder="Search flags..."
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  // Debounce search
-                  const timeoutId = setTimeout(() => fetchFlags(), 500);
-                  return () => clearTimeout(timeoutId);
-                }}
-                className="pl-10"
-              />
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              variant={statusFilter === 'all' ? 'default' : 'outline'}
-              onClick={() => setStatusFilter('all')}
-            >
-              All
-            </Button>
-            <Button
-              variant={statusFilter === 'pending' ? 'default' : 'outline'}
-              onClick={() => setStatusFilter('pending')}
-            >
-              Pending
-            </Button>
-            <Button
-              variant={statusFilter === 'resolved' ? 'default' : 'outline'}
-              onClick={() => setStatusFilter('resolved')}
-            >
-              Resolved
-            </Button>
-          </div>
+        {/* Status Filter Buttons */}
+        <div className="flex gap-2 mb-6">
+          <Button
+            variant={statusFilter === 'pending' ? 'default' : 'outline'}
+            onClick={() => setStatusFilter('pending')}
+          >
+            Pending
+          </Button>
+          <Button
+            variant={statusFilter === 'resolved' ? 'default' : 'outline'}
+            onClick={() => setStatusFilter('resolved')}
+          >
+            Resolved
+          </Button>
+          <Button
+            variant={statusFilter === 'dismissed' ? 'default' : 'outline'}
+            onClick={() => setStatusFilter('dismissed')}
+          >
+            Dismissed
+          </Button>
         </div>
-
         {/* Flags Grid */}
         <div className="grid grid-cols-1 gap-4">
           {flags.length === 0 ? (
             <div className="text-center py-12 bg-white rounded-lg">
-              <p className="text-gray-500">No flags found</p>
+              <p className="text-gray-500">No pending flags found</p>
             </div>
           ) : (
             flags.map((flag) => (
