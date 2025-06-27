@@ -19,6 +19,7 @@ import {
   uploadAvatar,
   deleteAvatar,
 } from "@/lib/supabase";
+import { Pencil } from "lucide-react";
 
 const profileSchema = z.object({
   display_name: z.string().min(2, "Display name must be at least 2 characters"),
@@ -129,13 +130,20 @@ export default function EditProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fafafa] relative overflow-hidden">
+    <div className="min-h-screen bg-[#F0F2F5] relative overflow-hidden">
       {/* TopMenu fixed */}
       <div className="fixed top-0 left-0 w-full z-50 bg-[#0a0e18] h-24 flex items-center">
         <TopMenu />
       </div>
+      <div className="w-full flex justify-center items-center bg-[#ffffff] h-16 mt-24 shadow z-40 relative">
+        <span className="flex items-center gap-3 text-black text-2xl font-bold tracking-wide">
+          {/* Edit Profile icon */}
+          <Pencil className="w-8 h-8 text-[#2563eb]" />
+          Edit Profile
+        </span>
+      </div>
       {/* Center the card vertically and horizontally */}
-      <div className="flex items-center justify-center min-h-screen ">
+      <div className="flex items-center justify-center  mt-20 ">
         <Card className="w-full max-w-2xl">
           <CardHeader>
             <CardTitle>Edit Profile</CardTitle>
@@ -165,7 +173,7 @@ export default function EditProfilePage() {
                       accept="image/*"
                       onChange={handleAvatarChange}
                       disabled={uploading}
-                      className="mt-1"
+                      className="mt-1 cursor-pointer"
                     />
                     {uploading && (
                       <p className="text-sm text-gray-500 mt-1">Uploading...</p>
@@ -207,11 +215,16 @@ export default function EditProfilePage() {
                 <Button
                   type="button"
                   variant="outline"
+                  className="cursor-pointer"
                   onClick={() => router.push("/profile")}
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={isSubmitting}>
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="cursor-pointer"
+                >
                   {isSubmitting ? "Saving..." : "Save Changes"}
                 </Button>
               </div>

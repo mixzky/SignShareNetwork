@@ -8,6 +8,7 @@ import { getCurrentUser, getUserProfile } from "@/lib/supabase";
 import { toast } from "sonner";
 import TopMenu from "@/components/TopMenu";
 import Particles from "react-tsparticles";
+import { User } from "lucide-react"; // Add this import at the top
 
 type UserProfile = {
   id: string;
@@ -83,13 +84,20 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fafafa] relative overflow-hidden">
+    <div className="min-h-screen bg-[#F0F2F5] relative overflow-hidden">
       {/* TopMenu fixed */}
       <div className="fixed top-0 left-0 w-full z-50 bg-[#0a0e18] h-24 flex items-center">
         <TopMenu />
       </div>
+      <div className="w-full flex justify-center items-center bg-[#ffffff] h-16 mt-24 shadow z-40 relative">
+        <span className="flex items-center gap-3 text-black text-2xl font-bold tracking-wide">
+          {/* User Profile icon */}
+          <User className="w-8 h-8 text-[#2563eb]" />
+          User Profile
+        </span>
+      </div>
       {/* Center the card vertically and horizontally */}
-      <div className="flex items-center justify-center min-h-screen ">
+      <div className="flex items-center justify-center mt-20 ">
         <Card className="w-full max-w-2xl">
           <CardHeader>
             <CardTitle>Profile</CardTitle>
@@ -135,7 +143,10 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              <Button onClick={() => router.push("/profile/edit")}>
+              <Button
+                onClick={() => router.push("/profile/edit")}
+                className="cursor-pointer"
+              >
                 Edit Profile
               </Button>
             </div>
