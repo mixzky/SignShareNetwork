@@ -71,7 +71,7 @@ test.describe('Admin Insights Dashboard', () => {
     await page.getByPlaceholder('Password').fill('//*pass*//', { timeout: 10000 });
     await page.getByRole('button', { name: /login/i }).click({ timeout: 10000 });
 
-    //TODO: Implement frontend to toast error message when user try to login with banned user using import toast from sooner and write test to check
+    //TODO: Implement Test when login with banned user, it will show error messagae via toast
   });
 });
 
