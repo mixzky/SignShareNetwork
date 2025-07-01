@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,7 +16,7 @@ type Video = {
   title: string;
   description: string;
   video_url: string;
-  status: 'pending' | 'verified' | 'flagged' | 'processing' | 'rejected';
+  status: "pending" | "verified" | "flagged" | "processing" | "rejected";
   region: string;
   user: {
     id: string;
@@ -32,19 +34,24 @@ export default function VideosPage() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<Video['status'] | 'all'>('all');
-  const [videoStates, setVideoStates] = useState<{[key: string]: {
-    url: string;
-    isMuted: boolean;
-    isPlaying: boolean;
-  }}>({});
+  const [statusFilter, setStatusFilter] = useState<Video["status"] | "all">(
+    "all"
+  );
+  const [videoStates, setVideoStates] = useState<{
+    [key: string]: {
+      url: string;
+      isMuted: boolean;
+      isPlaying: boolean;
+    };
+  }>({});
   const supabase = createClient();
 
   const fetchVideos = async () => {
     try {
       let query = supabase
-        .from('sign_videos')
-        .select(`
+        .from("sign_videos")
+        .select(
+          `
           id,
           title,
           description,
@@ -62,29 +69,30 @@ export default function VideosPage() {
             reason,
             created_at
           )
-        `)
-        .order('created_at', { ascending: false });
+        `
+        )
+        .order("created_at", { ascending: false });
 
-      if (statusFilter !== 'all') {
-        query = query.eq('status', statusFilter);
+      if (statusFilter !== "all") {
+        query = query.eq("status", statusFilter);
       }
 
       const { data: videosData, error: videosError } = await query;
 
       if (videosError) {
-        console.error('Supabase query error:', videosError);
+        console.error("Supabase query error:", videosError);
         throw videosError;
       }
 
       if (!videosData) {
-        console.error('No data returned from query');
-        throw new Error('No data returned from query');
+        console.error("No data returned from query");
+        throw new Error("No data returned from query");
       }
 
-      const mappedVideos = videosData.map(video => ({
+      const mappedVideos = videosData.map((video) => ({
         ...video,
         user: Array.isArray(video.user) ? video.user[0] : video.user,
-        flags: Array.isArray(video.flags) ? video.flags : []
+        flags: Array.isArray(video.flags) ? video.flags : [],
       }));
 
       // Initialize video states for new videos
@@ -95,10 +103,13 @@ export default function VideosPage() {
             newVideoStates[video.id] = {
               url: getPublicVideoUrl(video.video_url),
               isMuted: true,
-              isPlaying: false
+              isPlaying: false,
             };
           } catch (error) {
-            console.error(`Error getting public URL for video ${video.id}:`, error);
+            console.error(
+              `Error getting public URL for video ${video.id}:`,
+              error
+            );
           }
         }
       }
@@ -106,18 +117,25 @@ export default function VideosPage() {
 
       // Filter videos by search query
       const filteredVideos = searchQuery
-        ? mappedVideos.filter(video =>
-            video.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            video.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            video.user?.display_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            video.region?.toLowerCase().includes(searchQuery.toLowerCase())
+        ? mappedVideos.filter(
+            (video) =>
+              video.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              video.description
+                ?.toLowerCase()
+                .includes(searchQuery.toLowerCase()) ||
+              video.user?.display_name
+                ?.toLowerCase()
+                .includes(searchQuery.toLowerCase()) ||
+              video.region?.toLowerCase().includes(searchQuery.toLowerCase())
           )
         : mappedVideos;
 
       setVideos(filteredVideos);
     } catch (error) {
-      console.error('Error fetching videos:', error);
-      toast.error('Failed to load videos. Please check the console for details.');
+      console.error("Error fetching videos:", error);
+      toast.error(
+        "Failed to load videos. Please check the console for details."
+      );
     } finally {
       setLoading(false);
     }
@@ -130,9 +148,10 @@ export default function VideosPage() {
   useEffect(() => {
     // Set up real-time subscriptions
     const videosSubscription = supabase
-      .channel('sign_videos_changes')
-      .on('postgres_changes', 
-        { event: '*', schema: 'public', table: 'sign_videos' },
+      .channel("sign_videos_changes")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "sign_videos" },
         () => {
           fetchVideos();
         }
@@ -144,50 +163,60 @@ export default function VideosPage() {
     };
   }, []);
 
-  const handleVideoAction = async (videoId: string, action: 'approve' | 'reject') => {
+  const handleVideoAction = async (
+    videoId: string,
+    action: "approve" | "reject"
+  ) => {
     try {
       // First verify that the user has the correct role
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
-        toast.error('You must be logged in to perform this action');
+        toast.error("You must be logged in to perform this action");
         return;
       }
 
       const { data: userData, error: userError } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', user.id)
+        .from("users")
+        .select("role")
+        .eq("id", user.id)
         .single();
 
       if (userError) {
-        console.error('Error fetching user role:', userError);
-        toast.error('Failed to verify user permissions');
+        console.error("Error fetching user role:", userError);
+        toast.error("Failed to verify user permissions");
         return;
       }
 
-      if (!userData || (userData.role !== 'admin' && userData.role !== 'moderator')) {
-        toast.error('You do not have permission to perform this action');
+      if (
+        !userData ||
+        (userData.role !== "admin" && userData.role !== "moderator")
+      ) {
+        toast.error("You do not have permission to perform this action");
         return;
       }
 
       const { error: updateError } = await supabase
-        .from('sign_videos')
-        .update({ 
-          status: action === 'approve' ? 'verified' : 'rejected'
+        .from("sign_videos")
+        .update({
+          status: action === "approve" ? "verified" : "rejected",
         })
-        .eq('id', videoId);
+        .eq("id", videoId);
 
       if (updateError) {
-        console.error('Error updating video status:', updateError);
-        toast.error('Failed to update video status');
+        console.error("Error updating video status:", updateError);
+        toast.error("Failed to update video status");
         return;
       }
 
-      toast.success(`Video ${action === 'approve' ? 'approved' : 'rejected'} successfully`);
+      toast.success(
+        `Video ${action === "approve" ? "approved" : "rejected"} successfully`
+      );
       await fetchVideos();
     } catch (error) {
-      console.error('Error in handleVideoAction:', error);
-      toast.error('An unexpected error occurred');
+      console.error("Error in handleVideoAction:", error);
+      toast.error("An unexpected error occurred");
     }
   };
 
@@ -210,8 +239,10 @@ export default function VideosPage() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">Video Management</h1>
-        
+        <h1 className="text-2xl font-bold text-gray-900 mb-4">
+          Video Management
+        </h1>
+
         {/* Filters and Search */}
         <div className="flex gap-4 mb-6">
           <div className="flex-1">
@@ -233,26 +264,26 @@ export default function VideosPage() {
           </div>
           <div className="flex gap-2">
             <Button
-              variant={statusFilter === 'all' ? 'default' : 'outline'}
-              onClick={() => setStatusFilter('all')}
+              variant={statusFilter === "all" ? "default" : "outline"}
+              onClick={() => setStatusFilter("all")}
             >
               All
             </Button>
             <Button
-              variant={statusFilter === 'processing' ? 'default' : 'outline'}
-              onClick={() => setStatusFilter('processing')}
+              variant={statusFilter === "processing" ? "default" : "outline"}
+              onClick={() => setStatusFilter("processing")}
             >
               Processing
             </Button>
             <Button
-              variant={statusFilter === 'flagged' ? 'default' : 'outline'}
-              onClick={() => setStatusFilter('flagged')}
+              variant={statusFilter === "flagged" ? "default" : "outline"}
+              onClick={() => setStatusFilter("flagged")}
             >
               Flagged
             </Button>
             <Button
-              variant={statusFilter === 'rejected' ? 'default' : 'outline'}
-              onClick={() => setStatusFilter('rejected')}
+              variant={statusFilter === "rejected" ? "default" : "outline"}
+              onClick={() => setStatusFilter("rejected")}
             >
               Rejected
             </Button>
@@ -285,10 +316,18 @@ export default function VideosPage() {
                     <div className="flex-1">
                       <div className="flex items-start justify-between">
                         <div>
-                          <h3 className="font-semibold text-lg">{video.title}</h3>
-                          <p className="text-sm text-gray-600 mt-1">{video.description}</p>
+                          <h3 className="font-semibold text-lg">
+                            {video.title}
+                          </h3>
+                          <p className="text-sm text-gray-600 mt-1">
+                            {video.description}
+                          </p>
                         </div>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(video.status)}`}>
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                            video.status
+                          )}`}
+                        >
                           {video.status}
                         </span>
                       </div>
@@ -296,7 +335,9 @@ export default function VideosPage() {
                       <div className="mt-4 space-y-2">
                         <p className="text-sm">
                           <span className="text-gray-500">Uploader:</span>{" "}
-                          <span className="font-medium">{video.user.display_name}</span>
+                          <span className="font-medium">
+                            {video.user.display_name}
+                          </span>
                         </p>
                         <p className="text-sm">
                           <span className="text-gray-500">Region:</span>{" "}
@@ -315,7 +356,10 @@ export default function VideosPage() {
                             </p>
                             <ul className="mt-1 space-y-1">
                               {video.flags.map((flag, index) => (
-                                <li key={index} className="text-sm text-gray-600">
+                                <li
+                                  key={index}
+                                  className="text-sm text-gray-600"
+                                >
                                   {flag.reason}
                                 </li>
                               ))}
@@ -325,16 +369,20 @@ export default function VideosPage() {
                       </div>
 
                       {/* Action Buttons */}
-                      {video.status === 'processing' && (
+                      {video.status === "processing" && (
                         <div className="mt-4 flex gap-2">
                           <Button
-                            onClick={() => handleVideoAction(video.id, 'approve')}
+                            onClick={() =>
+                              handleVideoAction(video.id, "approve")
+                            }
                             className="bg-green-500 hover:bg-green-600"
                           >
                             Approve
                           </Button>
                           <Button
-                            onClick={() => handleVideoAction(video.id, 'reject')}
+                            onClick={() =>
+                              handleVideoAction(video.id, "reject")
+                            }
                             variant="destructive"
                           >
                             Reject
@@ -351,4 +399,4 @@ export default function VideosPage() {
       </div>
     </div>
   );
-} 
+}

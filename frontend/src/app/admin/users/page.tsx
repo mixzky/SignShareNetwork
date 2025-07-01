@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { Card } from "@/components/ui/card";
@@ -13,7 +15,7 @@ type User = {
   id: string;
   email: string | null;
   display_name: string | null;
-  role: 'user' | 'moderator' | 'admin';
+  role: "user" | "moderator" | "admin";
   banned: boolean | null;
   created_at: string;
   username: string;
@@ -25,41 +27,46 @@ export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [roleFilter, setRoleFilter] = useState<User['role'] | 'all'>('all');
-  const [userRole, setUserRole] = useState<'admin' | 'moderator' | null>(null);
+  const [roleFilter, setRoleFilter] = useState<User["role"] | "all">("all");
+  const [userRole, setUserRole] = useState<"admin" | "moderator" | null>(null);
   const supabase = createClient();
 
   const fetchUsers = async () => {
     try {
       let query = supabase
-        .from('users')
-        .select('id, email, display_name, role, banned, created_at, username, avatar_url, is_disabled')
-        .order('created_at', { ascending: false });
+        .from("users")
+        .select(
+          "id, email, display_name, role, banned, created_at, username, avatar_url, is_disabled"
+        )
+        .order("created_at", { ascending: false });
 
-      if (roleFilter !== 'all') {
-        query = query.eq('role', roleFilter);
+      if (roleFilter !== "all") {
+        query = query.eq("role", roleFilter);
       }
 
       const { data: usersData, error: usersError } = await query;
 
       if (usersError) {
-        console.error('Error fetching users:', usersError);
+        console.error("Error fetching users:", usersError);
         throw usersError;
       }
 
       // Filter users by search query
       const filteredUsers = searchQuery
-        ? (usersData as User[]).filter(user =>
-            user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            user.display_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            user.username.toLowerCase().includes(searchQuery.toLowerCase())
+        ? (usersData as User[]).filter(
+            (user) =>
+              user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              user.display_name
+                ?.toLowerCase()
+                .includes(searchQuery.toLowerCase()) ||
+              user.username.toLowerCase().includes(searchQuery.toLowerCase())
           )
-        : usersData as User[];
+        : (usersData as User[]);
 
       setUsers(filteredUsers);
     } catch (error) {
-      console.error('Error fetching users:', error);
-      toast.error('Failed to load users');
+      console.error("Error fetching users:", error);
+      toast.error("Failed to load users");
     }
   };
 
@@ -68,26 +75,28 @@ export default function UsersPage() {
       setLoading(true);
       try {
         // Get current user's role
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error('Not authenticated');
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (!user) throw new Error("Not authenticated");
 
         const { data: userData, error: userError } = await supabase
-          .from('users')
-          .select('role')
-          .eq('id', user.id)
+          .from("users")
+          .select("role")
+          .eq("id", user.id)
           .single();
 
         if (userError) throw userError;
-        
-        if (userData.role !== 'admin' && userData.role !== 'moderator') {
-          throw new Error('Insufficient permissions');
+
+        if (userData.role !== "admin" && userData.role !== "moderator") {
+          throw new Error("Insufficient permissions");
         }
-        
-        setUserRole(userData.role as 'admin' | 'moderator');
+
+        setUserRole(userData.role as "admin" | "moderator");
         await fetchUsers();
       } catch (error) {
-        console.error('Error fetching data:', error);
-        toast.error('Failed to load users data');
+        console.error("Error fetching data:", error);
+        toast.error("Failed to load users data");
       } finally {
         setLoading(false);
       }
@@ -97,9 +106,10 @@ export default function UsersPage() {
 
     // Set up real-time subscription
     const usersSubscription = supabase
-      .channel('users_changes')
-      .on('postgres_changes',
-        { event: '*', schema: 'public', table: 'users' },
+      .channel("users_changes")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "users" },
         () => {
           fetchUsers();
         }
@@ -118,86 +128,91 @@ export default function UsersPage() {
     }
   }, [roleFilter, searchQuery]);
 
-  const handleUserAction = async (userId: string, action: 'ban' | 'unban' | 'promote_mod' | 'promote_admin' | 'demote') => {
+  const handleUserAction = async (
+    userId: string,
+    action: "ban" | "unban" | "promote_mod" | "promote_admin" | "demote"
+  ) => {
     try {
       // First verify that the current user is an admin
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
-        toast.error('You must be logged in to perform this action');
+        toast.error("You must be logged in to perform this action");
         return;
       }
 
       const { data: userData, error: userError } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', user.id)
+        .from("users")
+        .select("role")
+        .eq("id", user.id)
         .single();
 
-      if (userError || !userData || userData.role !== 'admin') {
-        toast.error('You do not have permission to perform this action');
+      if (userError || !userData || userData.role !== "admin") {
+        toast.error("You do not have permission to perform this action");
         return;
       }
 
       let updateData: Partial<User> = {};
-      let successMessage = '';
-      
+      let successMessage = "";
+
       switch (action) {
-        case 'ban':
-          updateData = { 
+        case "ban":
+          updateData = {
             banned: true,
             is_disabled: true, // Also disable the account
-            role: 'user' // Demote banned users to regular users
+            role: "user", // Demote banned users to regular users
           };
-          successMessage = 'User has been banned';
+          successMessage = "User has been banned";
           break;
-        case 'unban':
-          updateData = { 
+        case "unban":
+          updateData = {
             banned: false,
-            is_disabled: false // Re-enable the account
+            is_disabled: false, // Re-enable the account
           };
-          successMessage = 'User has been unbanned';
+          successMessage = "User has been unbanned";
           break;
-        case 'promote_mod':
-          updateData = { 
-            role: 'moderator',
+        case "promote_mod":
+          updateData = {
+            role: "moderator",
             banned: false,
-            is_disabled: false
+            is_disabled: false,
           };
-          successMessage = 'User has been promoted to moderator';
+          successMessage = "User has been promoted to moderator";
           break;
-        case 'promote_admin':
-          updateData = { 
-            role: 'admin',
+        case "promote_admin":
+          updateData = {
+            role: "admin",
             banned: false,
-            is_disabled: false
+            is_disabled: false,
           };
-          successMessage = 'User has been promoted to administrator';
+          successMessage = "User has been promoted to administrator";
           break;
-        case 'demote':
-          updateData = { 
-            role: 'user'
+        case "demote":
+          updateData = {
+            role: "user",
           };
-          successMessage = 'User has been demoted to regular user';
+          successMessage = "User has been demoted to regular user";
           break;
       }
 
-      console.log('Updating user with data:', { userId, updateData });
+      console.log("Updating user with data:", { userId, updateData });
 
       const { error: updateError } = await supabase
-        .from('users')
+        .from("users")
         .update(updateData)
-        .eq('id', userId);
+        .eq("id", userId);
 
       if (updateError) {
-        console.error('Error updating user:', updateError);
-        toast.error('Failed to update user: ' + updateError.message);
+        console.error("Error updating user:", updateError);
+        toast.error("Failed to update user: " + updateError.message);
         return;
       }
 
       toast.success(successMessage);
     } catch (error) {
-      console.error('Error in handleUserAction:', error);
-      toast.error('An unexpected error occurred');
+      console.error("Error in handleUserAction:", error);
+      toast.error("An unexpected error occurred");
     }
   };
 
@@ -231,11 +246,13 @@ export default function UsersPage() {
     );
   }
 
-  if (!userRole || (userRole !== 'admin' && userRole !== 'moderator')) {
+  if (!userRole || (userRole !== "admin" && userRole !== "moderator")) {
     return (
       <div className="text-center py-12">
         <h2 className="text-2xl font-bold text-gray-900">Access Denied</h2>
-        <p className="mt-2 text-gray-600">You do not have permission to view this page.</p>
+        <p className="mt-2 text-gray-600">
+          You do not have permission to view this page.
+        </p>
       </div>
     );
   }
@@ -243,8 +260,10 @@ export default function UsersPage() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">User Management</h1>
-        
+        <h1 className="text-2xl font-bold text-gray-900 mb-4">
+          User Management
+        </h1>
+
         {/* Filters and Search */}
         <div className="flex gap-4 mb-6">
           <div className="flex-1">
@@ -266,20 +285,20 @@ export default function UsersPage() {
           </div>
           <div className="flex gap-2">
             <Button
-              variant={roleFilter === 'all' ? 'default' : 'outline'}
-              onClick={() => setRoleFilter('all')}
+              variant={roleFilter === "all" ? "default" : "outline"}
+              onClick={() => setRoleFilter("all")}
             >
               All
             </Button>
             <Button
-              variant={roleFilter === 'user' ? 'default' : 'outline'}
-              onClick={() => setRoleFilter('user')}
+              variant={roleFilter === "user" ? "default" : "outline"}
+              onClick={() => setRoleFilter("user")}
             >
               Users
             </Button>
             <Button
-              variant={roleFilter === 'moderator' ? 'default' : 'outline'}
-              onClick={() => setRoleFilter('moderator')}
+              variant={roleFilter === "moderator" ? "default" : "outline"}
+              onClick={() => setRoleFilter("moderator")}
             >
               Moderators
             </Button>
@@ -299,22 +318,26 @@ export default function UsersPage() {
                   <div className="flex-1">
                     <div className="flex items-center gap-4">
                       <div className="flex-1">
-                        <h3 className="font-semibold text-lg">{user.display_name || user.username}</h3>
+                        <h3 className="font-semibold text-lg">
+                          {user.display_name || user.username}
+                        </h3>
                         <p className="text-sm text-gray-600">{user.email}</p>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          user.role === 'admin' 
-                            ? 'bg-purple-100 text-purple-800'
-                            : user.role === 'moderator'
-                            ? 'bg-blue-100 text-blue-800'
-                            : 'bg-gray-100 text-gray-800'
-                        }`}>
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            user.role === "admin"
+                              ? "bg-purple-100 text-purple-800"
+                              : user.role === "moderator"
+                              ? "bg-blue-100 text-blue-800"
+                              : "bg-gray-100 text-gray-800"
+                          }`}
+                        >
                           {user.role}
                         </span>
                         {(user.banned || user.is_disabled) && (
                           <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                            {user.banned ? 'Banned' : 'Disabled'}
+                            {user.banned ? "Banned" : "Disabled"}
                           </span>
                         )}
                       </div>
@@ -325,13 +348,13 @@ export default function UsersPage() {
                   </div>
 
                   {/* Action Buttons */}
-                  {userRole === 'admin' && user.role !== 'admin' && (
+                  {userRole === "admin" && user.role !== "admin" && (
                     <div className="flex gap-2">
                       {!user.banned ? (
                         <Button
                           variant="destructive"
                           size="sm"
-                          onClick={() => handleUserAction(user.id, 'ban')}
+                          onClick={() => handleUserAction(user.id, "ban")}
                         >
                           <UserX className="h-4 w-4 mr-1" />
                           Ban User
@@ -340,18 +363,20 @@ export default function UsersPage() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleUserAction(user.id, 'unban')}
+                          onClick={() => handleUserAction(user.id, "unban")}
                         >
                           <UserCheck className="h-4 w-4 mr-1" />
                           Unban User
                         </Button>
                       )}
 
-                      {user.role === 'user' && (
+                      {user.role === "user" && (
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleUserAction(user.id, 'promote_mod')}
+                          onClick={() =>
+                            handleUserAction(user.id, "promote_mod")
+                          }
                           className="text-blue-600 border-blue-600 hover:bg-blue-50"
                         >
                           <Shield className="h-4 w-4 mr-1" />
@@ -359,12 +384,14 @@ export default function UsersPage() {
                         </Button>
                       )}
 
-                      {user.role === 'moderator' && (
+                      {user.role === "moderator" && (
                         <>
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleUserAction(user.id, 'promote_admin')}
+                            onClick={() =>
+                              handleUserAction(user.id, "promote_admin")
+                            }
                             className="text-purple-600 border-purple-600 hover:bg-purple-50"
                           >
                             <Shield className="h-4 w-4 mr-1" />
@@ -373,7 +400,7 @@ export default function UsersPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleUserAction(user.id, 'demote')}
+                            onClick={() => handleUserAction(user.id, "demote")}
                             className="text-gray-600 border-gray-600 hover:bg-gray-50"
                           >
                             <Shield className="h-4 w-4 mr-1" />
@@ -391,4 +418,4 @@ export default function UsersPage() {
       </div>
     </div>
   );
-} 
+}
