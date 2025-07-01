@@ -48,5 +48,30 @@ test.describe('Admin Insights Dashboard', () => {
     await page.goto('http://localhost:3000/admin', { timeout: 10000 });
     await expect(page).toHaveURL('http://localhost:3000/', { timeout: 10000 });
   });
+
+  test('Ban user, user that got banned can not login', async ({ page }) => {
+    await page.goto('http://localhost:3000/');
+    await page.getByRole('link', { name: 'Login' }).click();
+    await page.getByRole('textbox', { name: 'Email' }).click();
+    await page.getByRole('textbox', { name: 'Email' }).fill('admin');
+    await page.getByRole('textbox', { name: 'Email' }).click();
+    await page.getByRole('textbox', { name: 'Email' }).fill('admin@gmail.com');
+    await page.getByRole('textbox', { name: 'Password' }).click();
+    await page.getByRole('textbox', { name: 'Password' }).fill('12345678');
+    await page.getByRole('button', { name: 'login' }).click();
+    await page.goto('http://localhost:3000/admin');
+    await page.getByText('testtest@example.comuserBan').click();
+    await page.locator('div:nth-child(19) > .flex.items-center > .inline-flex').click();
+    await page.getByText('Banned', { exact: true }).click();
+
+    await page.getByRole('button', { name: 'A admin@gmail.com' }).click({ timeout: 10000 });
+    await page.getByRole('menuitem', { name: 'Sign Out' }).click({ timeout: 10000 });
+    await page.getByRole('link', { name: 'Login' }).click({ timeout: 10000 });
+    await page.getByPlaceholder('Email').fill('//*Banuser email//*', { timeout: 10000 });
+    await page.getByPlaceholder('Password').fill('//*pass*//', { timeout: 10000 });
+    await page.getByRole('button', { name: /login/i }).click({ timeout: 10000 });
+
+    //TODO: Implement frontend to toast error message when user try to login with banned user using import toast from sooner and write test to check
+  });
 });
 
