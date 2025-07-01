@@ -1,7 +1,6 @@
 "use client";
 
 export const dynamic = "force-dynamic";
-
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { Card } from "@/components/ui/card";
@@ -218,192 +217,248 @@ export default function UsersPage() {
 
   if (loading) {
     return (
-      <div className="animate-pulse space-y-4">
-        <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
-        <div className="flex gap-4 mb-6">
-          <div className="flex-1">
-            <div className="h-10 bg-gray-200 rounded"></div>
-          </div>
-          <div className="flex gap-2">
-            <div className="h-10 w-20 bg-gray-200 rounded"></div>
-            <div className="h-10 w-20 bg-gray-200 rounded"></div>
-            <div className="h-10 w-20 bg-gray-200 rounded"></div>
-          </div>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-slate-600 font-medium">Loading users...</p>
         </div>
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="bg-white rounded-lg p-6">
-            <div className="space-y-3">
-              <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-              <div className="flex gap-2">
-                <div className="h-6 w-16 bg-gray-200 rounded"></div>
-                <div className="h-6 w-16 bg-gray-200 rounded"></div>
-              </div>
-            </div>
-          </div>
-        ))}
       </div>
     );
   }
 
   if (!userRole || (userRole !== "admin" && userRole !== "moderator")) {
     return (
-      <div className="text-center py-12">
-        <h2 className="text-2xl font-bold text-gray-900">Access Denied</h2>
-        <p className="mt-2 text-gray-600">
-          You do not have permission to view this page.
-        </p>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center rounded-xl">
+        <div className="text-center bg-white rounded-2xl p-8 shadow-lg border border-red-200">
+          <div className="p-4 bg-red-100 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+            <svg
+              className="w-8 h-8 text-red-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+              />
+            </svg>
+          </div>
+          <h3 className="text-xl font-bold text-red-700 mb-2">Access Denied</h3>
+          <p className="text-red-600">
+            You don't have permission to view this page
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">
-          User Management
-        </h1>
+    <div className="min-h-screen bg-slate-50 rounded-xl">
+      <div className="container mx-auto px-6 py-12">
+        {/* Header */}
+        <div className="mb-12">
+          <div className="flex items-center gap-4 mb-3">
+            <div className="p-3 bg-blue-600 rounded-2xl shadow-lg">
+              <svg
+                className="h-8 w-8 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"
+                />
+              </svg>
+            </div>
+            <h1 className="text-4xl font-bold text-slate-800 leading-tight">
+              User Management
+            </h1>
+          </div>
+          <p className="text-slate-600 text-lg ml-16">
+            Manage users, roles, and permissions
+          </p>
+        </div>
 
         {/* Filters and Search */}
-        <div className="flex gap-4 mb-6">
-          <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-              <Input
-                type="text"
-                placeholder="Search users..."
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  // Debounce search
-                  const timeoutId = setTimeout(() => fetchUsers(), 500);
-                  return () => clearTimeout(timeoutId);
-                }}
-                className="pl-10"
-              />
+        <div className="bg-white rounded-xl shadow-md border border-slate-200 p-4 mb-6 rounded-xl">
+          <div className="flex flex-col md:flex-row gap-3">
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
+                <Input
+                  type="text"
+                  placeholder="Search by name, email, or username..."
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    // Debounce search
+                    const timeoutId = setTimeout(() => fetchUsers(), 500);
+                    return () => clearTimeout(timeoutId);
+                  }}
+                  className="pl-10 h-9 text-sm border-slate-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg"
+                />
+              </div>
             </div>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              variant={roleFilter === "all" ? "default" : "outline"}
-              onClick={() => setRoleFilter("all")}
-            >
-              All
-            </Button>
-            <Button
-              variant={roleFilter === "user" ? "default" : "outline"}
-              onClick={() => setRoleFilter("user")}
-            >
-              Users
-            </Button>
-            <Button
-              variant={roleFilter === "moderator" ? "default" : "outline"}
-              onClick={() => setRoleFilter("moderator")}
-            >
-              Moderators
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant={roleFilter === "all" ? "default" : "outline"}
+                onClick={() => setRoleFilter("all")}
+                className={`h-9 px-4 rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 ${
+                  roleFilter === "all"
+                    ? "bg-blue-600 hover:bg-blue-700 text-white shadow-md"
+                    : "border-slate-300 text-slate-600 hover:bg-slate-50 hover:border-slate-400"
+                }`}
+              >
+                All Users
+              </Button>
+              <Button
+                variant={roleFilter === "user" ? "default" : "outline"}
+                onClick={() => setRoleFilter("user")}
+                className={`h-9 px-4 rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 ${
+                  roleFilter === "user"
+                    ? "bg-blue-600 hover:bg-blue-700 text-white shadow-md"
+                    : "border-slate-300 text-slate-600 hover:bg-slate-50 hover:border-slate-400"
+                }`}
+              >
+                Users
+              </Button>
+              <Button
+                variant={roleFilter === "moderator" ? "default" : "outline"}
+                onClick={() => setRoleFilter("moderator")}
+                className={`h-9 px-4 rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 ${
+                  roleFilter === "moderator"
+                    ? "bg-blue-600 hover:bg-blue-700 text-white shadow-md"
+                    : "border-slate-300 text-slate-600 hover:bg-slate-50 hover:border-slate-400"
+                }`}
+              >
+                Moderators
+              </Button>
+            </div>
           </div>
         </div>
 
         {/* Users Grid */}
-        <div className="grid grid-cols-1 gap-4">
+        <div className="space-y-4">
           {users.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-lg">
-              <p className="text-gray-500">No users found</p>
+            <div className="text-center py-12 bg-white rounded-xl shadow-md border border-slate-200">
+              <div className="p-3 bg-slate-100 rounded-full w-12 h-12 mx-auto mb-3 flex items-center justify-center">
+                <svg
+                  className="w-6 h-6 text-slate-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-base font-semibold text-slate-600 mb-1">
+                No Users Found
+              </h3>
+              <p className="text-sm text-slate-500">
+                Try adjusting your search or filter criteria
+              </p>
             </div>
           ) : (
             users.map((user) => (
-              <Card key={user.id} className="p-6">
+              <Card
+                key={user.id}
+                className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-slate-200 p-4"
+              >
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-4">
                       <div className="flex-1">
-                        <h3 className="font-semibold text-lg">
+                        <h3 className="font-bold text-lg text-slate-800 mb-1">
                           {user.display_name || user.username}
                         </h3>
-                        <p className="text-sm text-gray-600">{user.email}</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            user.role === "admin"
-                              ? "bg-purple-100 text-purple-800"
-                              : user.role === "moderator"
-                              ? "bg-blue-100 text-blue-800"
-                              : "bg-gray-100 text-gray-800"
-                          }`}
-                        >
-                          {user.role}
-                        </span>
-                        {(user.banned || user.is_disabled) && (
-                          <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                            {user.banned ? "Banned" : "Disabled"}
+                        <p className="text-slate-600 text-sm mb-2">
+                          {user.email}
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                              user.role === "admin"
+                                ? "bg-purple-100 text-purple-700 border border-purple-200"
+                                : user.role === "moderator"
+                                ? "bg-blue-100 text-blue-700 border border-blue-200"
+                                : "bg-slate-100 text-slate-700 border border-slate-200"
+                            }`}
+                          >
+                            {user.role.charAt(0).toUpperCase() +
+                              user.role.slice(1)}
                           </span>
-                        )}
+                          {(user.banned || user.is_disabled) && (
+                            <span className="px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-200">
+                              {user.banned ? "Banned" : "Disabled"}
+                            </span>
+                          )}
+                          <span className="text-xs text-slate-500">
+                            Joined {formatDate(user.created_at)}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                    <div className="mt-2 text-sm text-gray-500">
-                      <p>Joined: {formatDate(user.created_at)}</p>
                     </div>
                   </div>
 
                   {/* Action Buttons */}
                   {userRole === "admin" && user.role !== "admin" && (
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 ml-4">
                       {!user.banned ? (
                         <Button
-                          variant="destructive"
-                          size="sm"
                           onClick={() => handleUserAction(user.id, "ban")}
+                          className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 shadow-md hover:shadow-lg"
                         >
-                          <UserX className="h-4 w-4 mr-1" />
-                          Ban User
+                          <UserX className="h-3 w-3 mr-1.5" />
+                          Ban
                         </Button>
                       ) : (
                         <Button
-                          variant="outline"
-                          size="sm"
                           onClick={() => handleUserAction(user.id, "unban")}
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 shadow-md hover:shadow-lg"
                         >
-                          <UserCheck className="h-4 w-4 mr-1" />
-                          Unban User
+                          <UserCheck className="h-3 w-3 mr-1.5" />
+                          Unban
                         </Button>
                       )}
 
                       {user.role === "user" && (
                         <Button
-                          variant="outline"
-                          size="sm"
                           onClick={() =>
                             handleUserAction(user.id, "promote_mod")
                           }
-                          className="text-blue-600 border-blue-600 hover:bg-blue-50"
+                          className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 shadow-md hover:shadow-lg"
                         >
-                          <Shield className="h-4 w-4 mr-1" />
-                          Promote to Mod
+                          <Shield className="h-3 w-3 mr-1.5" />
+                          Make Mod
                         </Button>
                       )}
 
                       {user.role === "moderator" && (
                         <>
                           <Button
-                            variant="outline"
-                            size="sm"
                             onClick={() =>
                               handleUserAction(user.id, "promote_admin")
                             }
-                            className="text-purple-600 border-purple-600 hover:bg-purple-50"
+                            className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 shadow-md hover:shadow-lg"
                           >
-                            <Shield className="h-4 w-4 mr-1" />
-                            Promote to Admin
+                            <Shield className="h-3 w-3 mr-1.5" />
+                            Make Admin
                           </Button>
                           <Button
-                            variant="outline"
-                            size="sm"
                             onClick={() => handleUserAction(user.id, "demote")}
-                            className="text-gray-600 border-gray-600 hover:bg-gray-50"
+                            className="bg-slate-600 hover:bg-slate-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 shadow-md hover:shadow-lg"
                           >
-                            <Shield className="h-4 w-4 mr-1" />
+                            <Shield className="h-3 w-3 mr-1.5" />
                             Remove Mod
                           </Button>
                         </>

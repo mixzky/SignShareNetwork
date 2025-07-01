@@ -32,55 +32,60 @@ export const getUserProfile = async (userId: string) => {
     }
 
     const supabase = getSupabaseClient();
-     
+
     // First check if user exists in auth
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
     if (authError) throw authError;
-     
+
     if (!user) {
-      throw new Error('User not authenticated');
+      throw new Error("User not authenticated");
     }
- 
+
     // Then get the user profile
     const { data, error } = await supabase
       .from("users")
-      .select("id, display_name, avatar_url, bio, role, created_at, banned, is_disabled, username, email")
+      .select(
+        "id, display_name, avatar_url, bio, role, created_at, banned, is_disabled, username, email"
+      )
       .eq("id", userId)
       .single();
- 
+
     if (error) {
-      if (error.code === 'PGRST116') {
+      if (error.code === "PGRST116") {
         // Record not found - create default profile
         const { data: newProfile, error: createError } = await supabase
           .from("users")
           .insert([
-            { 
+            {
               id: userId,
-              display_name: user.email?.split('@')[0] || 'User',
-              role: 'user',
+              display_name: user.email?.split("@")[0] || "User",
+              role: "user",
               banned: false,
               is_disabled: false,
-              username: user.email?.split('@')[0] || 'user_' + Date.now(),
-              email: user.email
-            }
+              username: user.email?.split("@")[0] || "user_" + Date.now(),
+              email: user.email,
+            },
           ])
           .select()
           .single();
 
         if (createError) throw createError;
-        
+
         // Update cache with new profile
         profileCache.set(userId, { data: newProfile, timestamp: Date.now() });
         return newProfile;
       }
       throw error;
     }
- 
+
     // Update cache
     profileCache.set(userId, { data, timestamp: Date.now() });
     return data;
   } catch (error) {
-    console.error('Error in getUserProfile:', error);
+    console.error("Error in getUserProfile:", error);
     throw error;
   }
 };
@@ -379,22 +384,22 @@ export function getPublicVideoUrl(storagePath: string): string {
  */
 export function getStatusColor(status: string): string {
   switch (status) {
-    case 'verified':
-      return 'bg-green-100 text-green-800';
-    case 'resolved':
-      return 'bg-green-100 text-green-800';
-    case 'rejected':
-      return 'bg-red-100 text-red-800';
-    case 'flagged':
-      return 'bg-yellow-100 text-yellow-800';
-    case 'pending':
-      return 'bg-yellow-100 text-yellow-800';
-    case 'processing':
-      return 'bg-blue-100 text-blue-800';
-    case 'dismissed':
-      return 'bg-gray-100 text-gray-800';
+    case "verified":
+      return "bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200";
+    case "resolved":
+      return "bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200";
+    case "rejected":
+      return "bg-gradient-to-r from-red-100 to-pink-100 text-red-800 border border-red-200";
+    case "flagged":
+      return "bg-gradient-to-r from-yellow-100 to-orange-100 text-yellow-800 border border-yellow-200";
+    case "pending":
+      return "bg-gradient-to-r from-yellow-100 to-orange-100 text-yellow-800 border border-yellow-200";
+    case "processing":
+      return "bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 border border-blue-200";
+    case "dismissed":
+      return "bg-gradient-to-r from-gray-100 to-slate-100 text-gray-800 border border-gray-200";
     default:
-      return 'bg-gray-100 text-gray-800';
+      return "bg-gradient-to-r from-gray-100 to-slate-100 text-gray-800 border border-gray-200";
   }
 }
 
@@ -402,8 +407,8 @@ export function getStatusColor(status: string): string {
  * Format a date string or Date object to a readable string (e.g., 2024-06-01 → 6/1/2024)
  */
 export function formatDate(date: string | Date): string {
-  if (!date) return '';
-  const d = typeof date === 'string' ? new Date(date) : date;
-  if (isNaN(d.getTime())) return '';
+  if (!date) return "";
+  const d = typeof date === "string" ? new Date(date) : date;
+  if (isNaN(d.getTime())) return "";
   return d.toLocaleDateString();
 }

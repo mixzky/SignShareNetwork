@@ -222,169 +222,344 @@ export default function VideosPage() {
 
   if (loading) {
     return (
-      <div className="animate-pulse">
-        <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
-        <div className="space-y-4">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="bg-white rounded-lg p-6">
-              <div className="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
-              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+      <div className="min-h-screen bg-slate-50 p-4">
+        <div className="animate-pulse">
+          <div className="h-8 bg-slate-200 rounded-xl w-1/3 mb-6"></div>
+          <div className="bg-white rounded-xl p-4 mb-6 border border-slate-200">
+            <div className="h-5 bg-slate-200 rounded-lg w-1/4 mb-4"></div>
+            <div className="flex gap-4">
+              <div className="h-9 bg-slate-200 rounded-lg flex-1"></div>
+              <div className="flex gap-2">
+                {[...Array(4)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-9 w-16 bg-slate-200 rounded-lg"
+                  ></div>
+                ))}
+              </div>
             </div>
-          ))}
+          </div>
+          <div className="space-y-3">
+            {[...Array(3)].map((_, i) => (
+              <div
+                key={i}
+                className="bg-white rounded-xl p-4 border border-slate-200"
+              >
+                <div className="flex gap-4">
+                  <div className="w-48 h-28 bg-slate-200 rounded-lg"></div>
+                  <div className="flex-1 space-y-2">
+                    <div className="h-5 bg-slate-200 rounded-lg w-3/4"></div>
+                    <div className="h-4 bg-slate-200 rounded-lg w-full"></div>
+                    <div className="h-4 bg-slate-200 rounded-lg w-2/3"></div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">
-          Video Management
-        </h1>
+    <div className="min-h-screen bg-slate-50">
+      <div className="container mx-auto px-4 py-6">
+        {/* Header Section */}
+        <div className="mb-6">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-blue-600 rounded-xl shadow-sm">
+              <svg
+                className="w-5 h-5 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+                />
+              </svg>
+            </div>
+            <h1 className="text-2xl font-bold text-slate-800">
+              Video Management
+            </h1>
+          </div>
+          <p className="text-slate-600 text-sm ml-10">
+            Review and manage video submissions
+          </p>
+        </div>
 
         {/* Filters and Search */}
-        <div className="flex gap-4 mb-6">
-          <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-              <Input
-                type="text"
-                placeholder="Search videos..."
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  // Debounce search
-                  const timeoutId = setTimeout(() => fetchVideos(), 500);
-                  return () => clearTimeout(timeoutId);
-                }}
-                className="pl-10"
-              />
+        <div className="bg-white rounded-xl p-4 mb-6 shadow-sm border border-slate-200">
+          <div className="flex flex-col lg:flex-row gap-4">
+            <div className="flex-1">
+              <label className="block text-xs font-medium text-slate-700 mb-1">
+                Search Videos
+              </label>
+              <div className="relative group">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4 group-focus-within:text-blue-500 transition-colors" />
+                <Input
+                  type="text"
+                  placeholder="Search by title, description, uploader, or region..."
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    // Debounce search
+                    const timeoutId = setTimeout(() => fetchVideos(), 500);
+                    return () => clearTimeout(timeoutId);
+                  }}
+                  className="pl-10 h-9 border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
+                />
+              </div>
             </div>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              variant={statusFilter === "all" ? "default" : "outline"}
-              onClick={() => setStatusFilter("all")}
-            >
-              All
-            </Button>
-            <Button
-              variant={statusFilter === "processing" ? "default" : "outline"}
-              onClick={() => setStatusFilter("processing")}
-            >
-              Processing
-            </Button>
-            <Button
-              variant={statusFilter === "flagged" ? "default" : "outline"}
-              onClick={() => setStatusFilter("flagged")}
-            >
-              Flagged
-            </Button>
-            <Button
-              variant={statusFilter === "rejected" ? "default" : "outline"}
-              onClick={() => setStatusFilter("rejected")}
-            >
-              Rejected
-            </Button>
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1">
+                Filter by Status
+              </label>
+              <div className="grid grid-cols-2 lg:flex lg:flex-wrap gap-2">
+                <Button
+                  variant={statusFilter === "all" ? "default" : "outline"}
+                  onClick={() => setStatusFilter("all")}
+                  className={`h-9 px-3 rounded-lg font-medium transition-all duration-200 text-xs cursor-pointer ${
+                    statusFilter === "all"
+                      ? "bg-blue-600 text-white shadow-sm"
+                      : "border-slate-200 text-slate-600 hover:border-blue-300 hover:text-blue-600"
+                  }`}
+                >
+                  All Videos
+                </Button>
+                <Button
+                  variant={
+                    statusFilter === "processing" ? "default" : "outline"
+                  }
+                  onClick={() => setStatusFilter("processing")}
+                  className={`h-9 px-3 rounded-lg font-medium transition-all duration-200 text-xs cursor-pointer ${
+                    statusFilter === "processing"
+                      ? "bg-amber-600 text-white shadow-sm"
+                      : "border-slate-200 text-slate-600 hover:border-amber-300 hover:text-amber-600"
+                  }`}
+                >
+                  Processing
+                </Button>
+                <Button
+                  variant={statusFilter === "flagged" ? "default" : "outline"}
+                  onClick={() => setStatusFilter("flagged")}
+                  className={`h-9 px-3 rounded-lg font-medium transition-all duration-200 text-xs cursor-pointer ${
+                    statusFilter === "flagged"
+                      ? "bg-red-600 text-white shadow-sm"
+                      : "border-slate-200 text-slate-600 hover:border-red-300 hover:text-red-600"
+                  }`}
+                >
+                  Flagged
+                </Button>
+                <Button
+                  variant={statusFilter === "rejected" ? "default" : "outline"}
+                  onClick={() => setStatusFilter("rejected")}
+                  className={`h-9 px-3 rounded-lg font-medium transition-all duration-200 text-xs cursor-pointer ${
+                    statusFilter === "rejected"
+                      ? "bg-slate-600 text-white shadow-sm"
+                      : "border-slate-200 text-slate-600 hover:border-slate-300 hover:text-slate-600"
+                  }`}
+                >
+                  Rejected
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Videos Grid */}
-        <div className="grid grid-cols-1 gap-6">
+        <div className="space-y-3">
           {videos.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-lg">
-              <p className="text-gray-500">No videos found</p>
+            <div className="text-center py-12 bg-white rounded-xl border-2 border-dashed border-slate-300 shadow-sm">
+              <div className="p-3 bg-slate-100 rounded-full w-12 h-12 mx-auto mb-3 flex items-center justify-center">
+                <svg
+                  className="w-6 h-6 text-slate-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-slate-700 mb-1">
+                No Videos Found
+              </h3>
+              <p className="text-slate-500 text-sm">
+                Try adjusting your search or filter criteria
+              </p>
             </div>
           ) : (
             videos.map((video) => (
-              <Card key={video.id}>
-                <CardContent className="p-6">
-                  <div className="flex gap-6">
+              <Card
+                key={video.id}
+                className="bg-white border border-slate-200 shadow-sm hover:shadow-md transition-all duration-200 rounded-xl overflow-hidden"
+              >
+                <CardContent className="p-4">
+                  <div className="flex flex-col lg:flex-row gap-4">
                     {/* Video Preview */}
-                    <div className="w-64 h-36 bg-black rounded-lg overflow-hidden flex-shrink-0">
-                      {videoStates[video.id]?.url && (
+                    <div className="w-full lg:w-48 h-28 bg-slate-900 rounded-lg overflow-hidden flex-shrink-0 shadow-sm">
+                      {videoStates[video.id]?.url ? (
                         <video
                           src={videoStates[video.id].url}
                           className="w-full h-full object-cover"
                           controls
+                          preload="metadata"
                         />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <svg
+                            className="w-6 h-6 text-slate-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1.586a1 1 0 01.707.293L16 15M9 10V9a2 2 0 012-2h2a2 2 0 012 2v1M9 10h6"
+                            />
+                          </svg>
+                        </div>
                       )}
                     </div>
 
                     {/* Video Details */}
-                    <div className="flex-1">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h3 className="font-semibold text-lg">
+                    <div className="flex-1 space-y-3">
+                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+                        <div className="flex-1">
+                          <h3 className="font-bold text-base text-slate-800 mb-1 leading-tight">
                             {video.title}
                           </h3>
-                          <p className="text-sm text-gray-600 mt-1">
+                          <p className="text-slate-600 text-sm leading-relaxed line-clamp-2">
                             {video.description}
                           </p>
                         </div>
                         <span
-                          className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                          className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap self-start ${getStatusColor(
                             video.status
                           )}`}
                         >
-                          {video.status}
+                          {video.status.charAt(0).toUpperCase() +
+                            video.status.slice(1)}
                         </span>
                       </div>
 
-                      <div className="mt-4 space-y-2">
-                        <p className="text-sm">
-                          <span className="text-gray-500">Uploader:</span>{" "}
-                          <span className="font-medium">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <div className="bg-blue-50 p-2 rounded-lg border border-blue-100">
+                          <p className="text-xs font-medium text-blue-600 mb-1">
+                            Uploader
+                          </p>
+                          <p className="font-semibold text-slate-800 truncate text-xs">
                             {video.user.display_name}
-                          </span>
-                        </p>
-                        <p className="text-sm">
-                          <span className="text-gray-500">Region:</span>{" "}
-                          <span className="font-medium">{video.region}</span>
-                        </p>
-                        <p className="text-sm">
-                          <span className="text-gray-500">Uploaded:</span>{" "}
-                          <span className="font-medium">
+                          </p>
+                        </div>
+                        <div className="bg-emerald-50 p-2 rounded-lg border border-emerald-100">
+                          <p className="text-xs font-medium text-emerald-600 mb-1">
+                            Region
+                          </p>
+                          <p className="font-semibold text-slate-800 text-xs">
+                            {video.region}
+                          </p>
+                        </div>
+                        <div className="bg-purple-50 p-2 rounded-lg border border-purple-100">
+                          <p className="text-xs font-medium text-purple-600 mb-1">
+                            Uploaded
+                          </p>
+                          <p className="font-semibold text-slate-800 text-xs">
                             {formatDate(video.created_at)}
-                          </span>
-                        </p>
-                        {video.flags && video.flags.length > 0 && (
-                          <div className="mt-2">
-                            <p className="text-sm font-medium text-red-600">
-                              {video.flags.length} flag(s)
-                            </p>
-                            <ul className="mt-1 space-y-1">
-                              {video.flags.map((flag, index) => (
-                                <li
-                                  key={index}
-                                  className="text-sm text-gray-600"
-                                >
-                                  {flag.reason}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
+                          </p>
+                        </div>
                       </div>
+
+                      {video.flags && video.flags.length > 0 && (
+                        <div className="bg-red-50 p-3 rounded-lg border border-red-200">
+                          <div className="flex items-center gap-2 mb-2">
+                            <svg
+                              className="w-4 h-4 text-red-500"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+                              />
+                            </svg>
+                            <p className="font-medium text-red-700 text-xs">
+                              {video.flags.length} Flag
+                              {video.flags.length > 1 ? "s" : ""} Reported
+                            </p>
+                          </div>
+                          <ul className="space-y-1">
+                            {video.flags.map((flag, index) => (
+                              <li
+                                key={index}
+                                className="flex items-start gap-2"
+                              >
+                                <span className="w-1 h-1 bg-red-400 rounded-full mt-1.5 flex-shrink-0"></span>
+                                <span className="text-red-700 text-xs">
+                                  {flag.reason}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
 
                       {/* Action Buttons */}
                       {video.status === "processing" && (
-                        <div className="mt-4 flex gap-2">
+                        <div className="flex flex-col sm:flex-row gap-2 pt-2 border-t border-slate-200">
                           <Button
                             onClick={() =>
                               handleVideoAction(video.id, "approve")
                             }
-                            className="bg-green-500 hover:bg-green-600"
+                            className="flex-1 h-8 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg shadow-sm transition-all duration-200 text-xs cursor-pointer"
                           >
+                            <svg
+                              className="w-3 h-3 mr-1"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M5 13l4 4L19 7"
+                              />
+                            </svg>
                             Approve
                           </Button>
                           <Button
                             onClick={() =>
                               handleVideoAction(video.id, "reject")
                             }
-                            variant="destructive"
+                            className="flex-1 h-8 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg shadow-sm transition-all duration-200 text-xs cursor-pointer"
                           >
+                            <svg
+                              className="w-3 h-3 mr-1"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M6 18L18 6M6 6l12 12"
+                              />
+                            </svg>
                             Reject
                           </Button>
                         </div>
