@@ -69,7 +69,8 @@ export async function signIn(formData: FormData) {
 
   if (userData?.banned || userData?.is_disabled) {
     return {
-      status: "Your account has been disabled. Please contact support for more information.",
+      status:
+        "Your account has been disabled. Please contact support for more information.",
       user: null,
     };
   }
@@ -86,19 +87,23 @@ export async function signIn(formData: FormData) {
 
   const user = data.user;
 
+  // Check if user exists in the database
   const { data: existingUser, error: fetchError } = await supabase
-    .from("Users")
+    .from("users") // Changed from "Users" to "users" for consistency
     .select("*")
     .eq("email", credentials?.email)
     .limit(1)
     .single();
 
-  if (!existingUser) {
-    const { error: insertError } = await supabase.from("User").insert({
+  if (!existingUser && !fetchError) {
+    // Only insert if user doesn't exist and there's no error
+    const { error: insertError } = await supabase.from("users").insert({
+      // Changed from "User" to "users"
       email: data?.user.email,
       username: data?.user?.user_metadata?.username,
     });
     if (insertError) {
+      console.error("Error inserting user:", insertError);
       return {
         status: insertError?.message,
         user: null,

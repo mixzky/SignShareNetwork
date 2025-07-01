@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import AuthButton from "./AuthButton";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "@/actions/auth";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { toast } from "sonner";
 
 const LoginForm = () => {
@@ -16,12 +16,12 @@ const LoginForm = () => {
 
   useEffect(() => {
     const errorMessage = searchParams.get("error");
-    console.log('Error message from URL:', errorMessage);
-    
+    console.log("Error message from URL:", errorMessage);
+
     if (errorMessage) {
-      console.log('Showing error toast:', errorMessage);
+      console.log("Showing error toast:", errorMessage);
       toast.error(errorMessage);
-      
+
       // Clear the error from URL without navigating
       const url = new URL(window.location.href);
       url.searchParams.delete("error");
@@ -33,31 +33,37 @@ const LoginForm = () => {
     event.preventDefault();
     setLoading(true);
     setError(null);
-    
+
     try {
       const formData = new FormData(event.currentTarget);
-      console.log('Attempting login for email:', formData.get("email"));
-      
+      console.log("Attempting login for email:", formData.get("email"));
+
       const result = await signIn(formData);
-      console.log('Login result:', result);
-      
+      console.log("Login result:", result);
+      console.log("Result status type:", typeof result.status);
+      console.log("Result status value:", JSON.stringify(result.status));
+
       if (result.status === "success") {
+        console.log("Login successful, redirecting...");
         router.push("/");
       } else {
+        console.log("Login failed with status:", result.status);
         setError(result.status);
         toast.error(result.status || "An error occurred during login");
         // Clear password field on error
         if (formRef.current) {
-          const passwordInput = formRef.current.querySelector('input[name="password"]') as HTMLInputElement;
+          const passwordInput = formRef.current.querySelector(
+            'input[name="password"]'
+          ) as HTMLInputElement;
           if (passwordInput) {
-            passwordInput.value = '';
+            passwordInput.value = "";
           }
         }
       }
     } catch (err) {
-      console.error('Login error:', err);
-      toast.error('An unexpected error occurred');
-      setError('An unexpected error occurred');
+      console.error("Login error:", err);
+      toast.error("An unexpected error occurred");
+      setError("An unexpected error occurred");
     }
 
     setLoading(false);
@@ -68,49 +74,76 @@ const LoginForm = () => {
   };
 
   return (
-    <div>
-      <form ref={formRef} onSubmit={handleSubmit} className="w-full flex flex-col gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-200">
+    <div className="w-full max-w-md mx-auto">
+      <form
+        ref={formRef}
+        onSubmit={handleSubmit}
+        className="w-full flex flex-col gap-5"
+      >
+        {/* Email Field */}
+        <div className="space-y-2">
+          <label
+            htmlFor="Email"
+            className="block text-sm font-medium text-slate-700 dark:text-slate-200"
+          >
+            <Mail className="inline w-4 h-4 mr-2" />
             Email
           </label>
           <input
             type="email"
-            placeholder="Email"
+            placeholder="Enter your email address"
             id="Email"
             name="email"
-            className="mt-1 w-full px-4 p-2 h-10 rounded-md border border-gray-200 bg-white text-sm text-gray-700"
+            className="w-full px-4 py-3 rounded-lg border border-slate-300 bg-white text-slate-700 text-sm hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
           />
         </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-200">
+
+        {/* Password Field */}
+        <div className="space-y-2">
+          <label
+            htmlFor="password"
+            className="block text-sm font-medium text-slate-700 dark:text-slate-200"
+          >
+            <Lock className="inline w-4 h-4 mr-2" />
             Password
           </label>
           <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
-              placeholder="Password"
+              placeholder="Enter your password"
               name="password"
               id="password"
-              className="mt-1 w-full px-4 p-2 h-10 rounded-md border border-gray-200 bg-white text-sm text-gray-700"
+              className="w-full px-4 py-3 pr-12 rounded-lg border border-slate-300 bg-white text-slate-700 text-sm hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
             />
             <button
               type="button"
               onClick={togglePassword}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500 hover:text-slate-700 focus:outline-none focus:text-slate-700"
+              aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? (
-                <EyeOff className="h-5 w-5" />
+                <EyeOff className="w-5 h-5" />
               ) : (
-                <Eye className="h-5 w-5" />
+                <Eye className="w-5 h-5" />
               )}
             </button>
           </div>
         </div>
-        <div className="mt-4">
+
+        {/* Submit Button */}
+        <div className="mt-6">
           <AuthButton type="login" loading={loading} />
         </div>
-        {error && <p className="text-red-500">{error}</p>}
+
+        {/* Error Message */}
+        {error && (
+          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-red-700 text-sm flex items-center">
+              <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+              {error}
+            </p>
+          </div>
+        )}
       </form>
     </div>
   );
