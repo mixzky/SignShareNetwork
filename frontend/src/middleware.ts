@@ -50,43 +50,54 @@ export async function middleware(request: NextRequest) {
 
   if (user) {
     // If a user object is returned, it means the session is authentic and verified by Supabase Auth server.
+    console.log('Authenticated user:', user.email);
     const { data: fetchedUserData, error: userProfileError } = await supabase
       .from("users")
-      // IMPORTANT: Always select 'id' if you plan to use it from userData, and other fields you need
       .select("id, banned, is_disabled, role, display_name, username, email")
-      .eq("id", user.id) // Use the 'id' from the authentic 'user' object
+      .eq("id", user.id)
       .single();
 
+    console.log('Fetched user data:', fetchedUserData);
+
     if (userProfileError) {
-      console.error(
-        "Error fetching user profile from database:",
-        userProfileError
-      );
-      // Depending on the error, you might want to sign out or redirect
-      // For now, let's just log and continue, but this might need stronger handling
-      // await supabase.auth.signOut();
-      // const redirectUrl = new URL('/login', request.url);
-      // redirectUrl.searchParams.set('error', 'Could not retrieve user profile. Please try again.');
-      // return NextResponse.redirect(redirectUrl);
+      console.error("Error fetching user profile:", userProfileError);
     } else {
       userData = fetchedUserData;
     }
 
     // Check if user is banned or disabled (using the securely fetched userData)
-    if (userData?.banned || userData?.is_disabled) {
+    if (userData?.banned === true || userData?.is_disabled === true) {
+      console.log('User is banned or disabled. Signing out and redirecting...');
       await supabase.auth.signOut();
-      const redirectUrl = new URL("/login", request.url);
-      redirectUrl.searchParams.set(
+      
+      // Force a new response instead of modifying the existing one
+      const response = NextResponse.redirect(new URL("/login", request.nextUrl.origin));
+      response.cookies.set({
+        name: 'sb-access-token',
+        value: '',
+        path: '/',
+        maxAge: 0
+      });
+      response.cookies.set({
+        name: 'sb-refresh-token',
+        value: '',
+        path: '/',
+        maxAge: 0
+      });
+      
+      // Add the error message
+      const loginUrl = new URL("/login", request.nextUrl.origin);
+      loginUrl.searchParams.set(
         "error",
         "Your account has been disabled. Please contact support for more information."
       );
-      return NextResponse.redirect(redirectUrl);
+      console.log('Redirecting to:', loginUrl.toString());
+      return NextResponse.redirect(loginUrl);
     }
 
     // If user doesn't have a profile yet in your 'users' table, create one.
-    // This check uses `userData` which would be null if no profile was found.
-    // Ensure that if a user logs in via Supabase Auth, they get an entry in your 'users' table.
     if (!userData) {
+      console.log('No user data found, creating profile for:', user.email);
       try {
         await supabase.from("users").insert([
           {

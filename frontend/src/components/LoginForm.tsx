@@ -1,27 +1,63 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import AuthButton from "./AuthButton";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "@/actions/auth";
 import { Eye, EyeOff } from "lucide-react";
+import { toast } from "sonner";
 
 const LoginForm = () => {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState(false);
+  const searchParams = useSearchParams();
+  const formRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    const errorMessage = searchParams.get("error");
+    console.log('Error message from URL:', errorMessage);
+    
+    if (errorMessage) {
+      console.log('Showing error toast:', errorMessage);
+      toast.error(errorMessage);
+      
+      // Clear the error from URL without navigating
+      const url = new URL(window.location.href);
+      url.searchParams.delete("error");
+      window.history.replaceState({}, "", url.toString());
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true);
     setError(null);
-    const formData = new FormData(event.currentTarget);
-    const result = await signIn(formData);
     
-    if(result.status === "success") {
-      router.push("/");
-    } else {
-      setError(result.status);
+    try {
+      const formData = new FormData(event.currentTarget);
+      console.log('Attempting login for email:', formData.get("email"));
+      
+      const result = await signIn(formData);
+      console.log('Login result:', result);
+      
+      if (result.status === "success") {
+        router.push("/");
+      } else {
+        setError(result.status);
+        toast.error(result.status || "An error occurred during login");
+        // Clear password field on error
+        if (formRef.current) {
+          const passwordInput = formRef.current.querySelector('input[name="password"]') as HTMLInputElement;
+          if (passwordInput) {
+            passwordInput.value = '';
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+      toast.error('An unexpected error occurred');
+      setError('An unexpected error occurred');
     }
 
     setLoading(false);
@@ -33,7 +69,7 @@ const LoginForm = () => {
 
   return (
     <div>
-      <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4">
+      <form ref={formRef} onSubmit={handleSubmit} className="w-full flex flex-col gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-200">
             Email

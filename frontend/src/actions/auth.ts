@@ -60,6 +60,21 @@ export async function signIn(formData: FormData) {
     password: formData.get("password") as string,
   };
 
+  // First check if user is banned
+  const { data: userData, error: userError } = await supabase
+    .from("users")
+    .select("banned, is_disabled")
+    .eq("email", credentials.email)
+    .single();
+
+  if (userData?.banned || userData?.is_disabled) {
+    return {
+      status: "Your account has been disabled. Please contact support for more information.",
+      user: null,
+    };
+  }
+
+  // If not banned, proceed with login
   const { error, data } = await supabase.auth.signInWithPassword(credentials);
 
   if (error) {
