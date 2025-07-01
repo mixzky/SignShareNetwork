@@ -1,52 +1,189 @@
 import { test, expect } from "@playwright/test";
 
-test("user can register, login, and logout", async ({ page }) => {
-  const email = `testuser_${Date.now()}@example.com`;
-  const password = "password123";
-  const username = `testuser_${Date.now()}`;
+test.describe('Authentication Flow', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto("http://localhost:3000");
+  });
 
-  // Go to the registration page
-  await page.goto("http://localhost:3000/register");
+  test.describe('Registration', () => {
+    test("successful registration", async ({ page }) => {
+      const email = `testuser_${Date.now()}@example.com`;
+      const password = "password123";
+      const username = `testuser_${Date.now()}`;
 
-  // Fill in registration form
-  await page.getByPlaceholder("Username").fill(username);
-  await page.getByPlaceholder("Email").fill(email);
-  await page.getByPlaceholder("Password").fill(password);
+      await page.goto("http://localhost:3000/register");
+      await page.getByPlaceholder("Username").fill(username);
+      await page.getByPlaceholder("Email").fill(email);
+      await page.getByPlaceholder("Password").fill(password);
+      await page.getByRole("button", { name: /sign up/i }).click();
+      await expect(page).toHaveURL("http://localhost:3000/");
+      await expect(page.getByText(/welcome/i)).toBeVisible();
+    });
 
-  // Click the Sign up button
-  await page.getByRole("button", { name: /sign up/i }).click();
+    test("registration validation errors", async ({ page }) => {
+      await page.goto("http://localhost:3000/register");
+      
+      // Empty form submission
+      await page.getByRole("button", { name: /sign up/i }).click();
+      await expect(page.getByText(/username is required/i)).toBeVisible();
+      await expect(page.getByText(/email is required/i)).toBeVisible();
+      await expect(page.getByText(/password is required/i)).toBeVisible();
 
-  // Expect to be redirected to the homepage
-  await expect(page).toHaveURL("http://localhost:3000/");
+      // Invalid email format
+      await page.getByPlaceholder("Email").fill("invalid-email");
+      await page.getByRole("button", { name: /sign up/i }).click();
+      await expect(page.getByText(/invalid email format/i)).toBeVisible();
 
-  // Open user menu (click avatar/profile button)
-  await page.locator('div[role="button"], .rounded-full').first().click();
-  // Wait for the sign out button to be visible
-  await page.getByText(/sign out/i).waitFor({ state: "visible" });
-  // Click sign out
-  await page.getByText(/sign out/i).click();
+      // Password too short
+      await page.getByPlaceholder("Password").fill("123");
+      await page.getByRole("button", { name: /sign up/i }).click();
+      await expect(page.getByText(/password must be at least/i)).toBeVisible();
 
-  // Confirm still on homepage and Login button is visible in TopMenu
-  await expect(page).toHaveURL("http://localhost:3000/");
-  await expect(page.getByRole("link", { name: /login/i })).toBeVisible();
+      // Username too short
+      await page.getByPlaceholder("Username").fill("a");
+      await page.getByRole("button", { name: /sign up/i }).click();
+      await expect(page.getByText(/username must be at least/i)).toBeVisible();
+    });
 
-  // Go to login page before logging in again
-  await page.goto("http://localhost:3000/login");
+    test("duplicate email registration", async ({ page }) => {
+      const email = "existing@example.com";
+      await page.goto("http://localhost:3000/register");
+      await page.getByPlaceholder("Username").fill("newuser");
+      await page.getByPlaceholder("Email").fill(email);
+      await page.getByPlaceholder("Password").fill("password123");
+      await page.getByRole("button", { name: /sign up/i }).click();
+      await expect(page.getByText(/email already exists/i)).toBeVisible();
+    });
+  });
 
-  // Log in with the same credentials
-  await page.getByPlaceholder("Email").fill(email);
-  await page.getByPlaceholder("Password").fill(password);
-  await page.getByRole("button", { name: /login/i }).click();
-  await expect(page).toHaveURL("http://localhost:3000/");
+  test.describe('Login', () => {
+    test("successful login", async ({ page }) => {
+      await page.goto("http://localhost:3000/login");
+      await page.getByPlaceholder("Email").fill("testuser@example.com");
+      await page.getByPlaceholder("Password").fill("password123");
+      await page.getByRole("button", { name: /login/i }).click();
+      await expect(page).toHaveURL("http://localhost:3000/");
+      await expect(page.getByText(/welcome back/i)).toBeVisible();
+    });
 
-  // Open user menu again
-  await page.locator('div[role="button"], .rounded-full').first().click();
+    test("login validation errors", async ({ page }) => {
+      await page.goto("http://localhost:3000/login");
+      
+      // Empty form submission
+      await page.getByRole("button", { name: /login/i }).click();
+      await expect(page.getByText(/email is required/i)).toBeVisible();
+      await expect(page.getByText(/password is required/i)).toBeVisible();
 
-  // Log out again
-  await page.getByText(/sign out/i).waitFor({ state: "visible" });
-  await page.getByText(/sign out/i).click();
-  await expect(page).toHaveURL("http://localhost:3000/");
-  await expect(page.getByRole("link", { name: /login/i })).toBeVisible();
+      // Invalid credentials
+      await page.getByPlaceholder("Email").fill("wrong@example.com");
+      await page.getByPlaceholder("Password").fill("wrongpass");
+      await page.getByRole("button", { name: /login/i }).click();
+      await expect(page.getByText(/invalid credentials/i)).toBeVisible();
+    });
+
+    test("banned user cannot login", async ({ page }) => {
+      await page.goto("http://localhost:3000/login");
+      await page.getByPlaceholder("Email").fill("banned@example.com");
+      await page.getByPlaceholder("Password").fill("password123");
+      await page.getByRole("button", { name: /login/i }).click();
+      await expect(page.getByText(/account has been disabled/i)).toBeVisible();
+      await expect(page).toHaveURL("http://localhost:3000/login");
+    });
+
+    test("rate limiting", async ({ page }) => {
+      await page.goto("http://localhost:3000/login");
+      
+      // Multiple failed attempts
+      for (let i = 0; i < 5; i++) {
+        await page.getByPlaceholder("Email").fill("test@example.com");
+        await page.getByPlaceholder("Password").fill("wrongpass");
+        await page.getByRole("button", { name: /login/i }).click();
+      }
+      
+      await expect(page.getByText(/too many attempts/i)).toBeVisible();
+    });
+  });
+
+  test.describe('Password Reset', () => {
+    test("successful password reset request", async ({ page }) => {
+      await page.goto("http://localhost:3000/forgot-password");
+      await page.getByRole("textbox", { name: "Email" }).fill("test@example.com");
+      await page.getByRole("button", { name: "Reset Password" }).click();
+      await expect(page.getByText(/check your email/i)).toBeVisible();
+    });
+
+    test("password reset validation", async ({ page }) => {
+      await page.goto("http://localhost:3000/forgot-password");
+      
+      // Empty email
+      await page.getByRole("button", { name: "Reset Password" }).click();
+      await expect(page.getByText(/email is required/i)).toBeVisible();
+
+      // Invalid email
+      await page.getByRole("textbox", { name: "Email" }).fill("invalid-email");
+      await page.getByRole("button", { name: "Reset Password" }).click();
+      await expect(page.getByText(/invalid email format/i)).toBeVisible();
+
+      // Non-existent email
+      await page.getByRole("textbox", { name: "Email" }).fill("nonexistent@example.com");
+      await page.getByRole("button", { name: "Reset Password" }).click();
+      await expect(page.getByText(/no account found/i)).toBeVisible();
+    });
+  });
+
+  test.describe('OAuth', () => {
+    test("Google login flow", async ({ page }) => {
+      await page.goto("http://localhost:3000/login");
+      await page.getByText("Login with Google").click();
+      await expect(page.url()).toContain("accounts.google.com");
+    });
+
+    test("OAuth error handling", async ({ page }) => {
+      // Simulate OAuth error
+      await page.goto("http://localhost:3000/auth/callback?error=access_denied");
+      await expect(page.getByText(/authentication failed/i)).toBeVisible();
+    });
+  });
+
+  test.describe('Session Management', () => {
+    test("session persistence", async ({ page }) => {
+      // Login
+      await page.goto("http://localhost:3000/login");
+      await page.getByPlaceholder("Email").fill("test@example.com");
+      await page.getByPlaceholder("Password").fill("password123");
+      await page.getByRole("button", { name: /login/i }).click();
+
+      // Verify session persists after reload
+      await page.reload();
+      await expect(page.getByRole("button", { name: /sign out/i })).toBeVisible();
+    });
+
+    test("session expiry", async ({ page }) => {
+      // Login
+      await page.goto("http://localhost:3000/login");
+      await page.getByPlaceholder("Email").fill("test@example.com");
+      await page.getByPlaceholder("Password").fill("password123");
+      await page.getByRole("button", { name: /login/i }).click();
+
+      // Simulate session expiry
+      await page.evaluate(() => window.localStorage.clear());
+      await page.reload();
+      await expect(page.getByText(/session expired/i)).toBeVisible();
+    });
+
+    test("successful logout", async ({ page }) => {
+      // Login first
+      await page.goto("http://localhost:3000/login");
+      await page.getByPlaceholder("Email").fill("test@example.com");
+      await page.getByPlaceholder("Password").fill("password123");
+      await page.getByRole("button", { name: /login/i }).click();
+
+      // Logout
+      await page.getByRole("button", { name: /sign out/i }).click();
+      await expect(page).toHaveURL("http://localhost:3000/");
+      await expect(page.getByRole("link", { name: /login/i })).toBeVisible();
+    });
+  });
 });
 
 //Test User can SignIn Login with Google and Test User can Reset Password
