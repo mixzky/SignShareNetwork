@@ -49,16 +49,14 @@ interface SearchResult {
   };
 }
 
-export default async function CountryPage({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ id: string }>;
-  searchParams?: { tag?: string; search?: string };
-}) {
+export default async function CountryPage({ params, searchParams }: any) {
   const supabase = await createClient();
-  const resolvedParams = await params;
-  const resolvedSearchParamsObj = await searchParams;
+  const resolvedParams =
+    typeof params.then === "function" ? await params : params;
+  const resolvedSearchParamsObj =
+    typeof searchParams?.then === "function"
+      ? await searchParams
+      : searchParams;
 
   const resolvedTagParams = resolvedSearchParamsObj?.tag;
   const resolvedSearchParams = resolvedSearchParamsObj?.search;

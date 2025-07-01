@@ -250,7 +250,16 @@ export default function CountryContent({ id }: CountryContentProps) {
       </div>
 
       {/* Upload Dialog */}
-      <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+      <Dialog
+        open={isUploadDialogOpen}
+        onOpenChange={(open) => {
+          setIsUploadDialogOpen(open);
+          if (!open) {
+            // Dialog is being closed — clear the video
+            setVideoFile(null);
+          }
+        }}
+      >
         <DialogContent>
           <DialogTitle>Upload Sign Language Video</DialogTitle>
           <DialogDescription>
