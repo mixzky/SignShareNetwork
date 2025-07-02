@@ -298,9 +298,8 @@ export default function UsersPage() {
                   value={searchQuery}
                   onChange={(e) => {
                     setSearchQuery(e.target.value);
-                    // Debounce search
-                    const timeoutId = setTimeout(() => fetchUsers(), 500);
-                    return () => clearTimeout(timeoutId);
+                    // Trigger search immediately for paste events
+                    fetchUsers();
                   }}
                   className="pl-10 h-9 text-sm border-slate-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg"
                 />
