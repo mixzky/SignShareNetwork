@@ -299,6 +299,8 @@ export default function UsersPage() {
                   onChange={(e) => {
                     setSearchQuery(e.target.value);
                     // Trigger search immediately for paste events
+
+                    //Remove debounce 
                     fetchUsers();
                   }}
                   className="pl-10 h-9 text-sm border-slate-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg"

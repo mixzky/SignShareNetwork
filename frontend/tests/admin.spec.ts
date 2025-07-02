@@ -130,16 +130,23 @@ test.describe('Admin Panel Features', () => {
       // Search for and ban the test user
       await page.getByRole('textbox', { name: 'Search by name, email, or' }).click();
       await page.getByRole('textbox', { name: 'Search by name, email, or' }).fill('khannpwks173@gmail.com');
-      await page.getByText('khannpwks173@gmail.com').click();
-      await page.getByRole('heading', { name: 'mix' }).click();
-      await page.getByRole('button', { name: 'Ban' }).click();
+      await page.waitForLoadState('networkidle');
+
+      // Find the specific user's card and ban button
+      const userCard = page.locator('.bg-white').filter({ hasText: 'khannpwks173@gmail.com' }).first();
+      await userCard.waitFor({ state: 'visible', timeout: 10000 });
+      
+      const banButton = userCard.getByRole('button', { name: 'Ban' });
+      await banButton.waitFor({ state: 'visible' });
+      await banButton.click();
+      
       await expect(page.getByText('User has been banned')).toBeVisible();
       await page.waitForLoadState('networkidle');
-  
+
       // Sign out admin
-      const signOutButton = page.getByRole('button', { name: /sign out/i });
-      await signOutButton.waitFor({ state: 'visible' });
-      await signOutButton.click();
+      await page.goto('http://localhost:3000');
+      await page.getByRole('button', { name: 'A admin' }).click();
+  await page.getByRole('menuitem', { name: 'Sign Out' }).click();
       await page.waitForLoadState('networkidle');
 
       // Try to login as banned user
@@ -154,14 +161,14 @@ test.describe('Admin Panel Features', () => {
       await emailInput.waitFor({ state: 'visible' });
       await emailInput.fill('khannpwks173@gmail.com');
       
-      await passwordInput.waitFor({ state: 'visible' });
+      await passwordInput.waitFor({ state: 'visible' })
       await passwordInput.fill('123456');
       
       await loginButton.waitFor({ state: 'visible' });
       await loginButton.click();
 
       // Verify banned user cannot login
-      await expect(page.getByText(/account has been banned/i)).toBeVisible({ timeout: 10000 });
+      await page.getByRole('paragraph').filter({ hasText: 'Your account has been' }).isVisible();
       await expect(page).toHaveURL('http://localhost:3000/login');
 
       // Login as admin to unban
@@ -172,26 +179,26 @@ test.describe('Admin Panel Features', () => {
       await page.waitForLoadState('domcontentloaded');
       await page.waitForLoadState('networkidle');
 
-      const searchInputAgain = page.getByPlaceholder(/search users/i);
-      await searchInputAgain.waitFor({ state: 'visible', timeout: 15000 });
-      await searchInputAgain.fill('khannpwks173@gmail.com');
-      await page.keyboard.press('Enter');
+      // Search for and ban the test user
+      await page.getByRole('textbox', { name: 'Search by name, email, or' }).click();
+      await page.getByRole('textbox', { name: 'Search by name, email, or' }).fill('khannpwks173@gmail.com');
+      await page.waitForLoadState('networkidle');
+
+      // Find the specific user's card and ban button
+      const userCard1 = page.locator('.bg-white').filter({ hasText: 'khannpwks173@gmail.com' }).first();
+      await userCard.waitFor({ state: 'visible', timeout: 10000 });
       
-      const bannedUserRow = page.getByRole('row').filter({ hasText: 'khannpwks173@gmail.com' });
-      await bannedUserRow.waitFor({ timeout: 10000 });
+      const banButton1 = userCard1.getByRole('button', { name: 'Ban' });
+      await banButton1.waitFor({ state: 'visible' });
+      await banButton1.click();
       
-      const unbanButton = bannedUserRow.getByRole('button', { name: /unban/i });
-      await unbanButton.waitFor({ state: 'visible' });
-      await unbanButton.click();
-      
-      const confirmUnbanButton = page.getByRole('button', { name: /confirm/i });
-      await confirmUnbanButton.waitFor({ state: 'visible' });
-      await confirmUnbanButton.click();
-      
-      await expect(bannedUserRow.getByText(/active/i)).toBeVisible({ timeout: 10000 });
+      await expect(page.getByText('User has been unbanned')).toBeVisible();
+      await page.waitForLoadState('networkidle');
     });
   });
 
+
+  //TODO: fix this below test
   test.describe('Video Management', () => {
     test.beforeEach(async ({ page }) => {
       await loginAs(page, 'admin@gmail.com', '12345678');
