@@ -1,21 +1,23 @@
-# Use official Node.js LTS image
 FROM node:20-alpine
 
-# Set working directory
 WORKDIR /app
 
-# Install dependencies based on the preferred lock file
 COPY package.json package-lock.json* ./
+
 RUN npm install
 
-# Copy the rest of your application code
 COPY . .
 
-# Build the Next.js app
+# รับ build args
+ARG NEXT_PUBLIC_SUPABASE_URL
+ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+# เซ็ต environment vars ให้ขั้นตอน build
+ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
+ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
+
 RUN npm run build
 
-# Expose Next.js default port
 EXPOSE 3000
 
-# Start the Next.js production server
 CMD ["npm", "start"]

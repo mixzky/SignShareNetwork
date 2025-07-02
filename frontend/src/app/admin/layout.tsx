@@ -1,10 +1,18 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
-import { LayoutDashboard, Video, Users, Flag, ChevronRight } from "lucide-react";
+import {
+  LayoutDashboard,
+  Video,
+  Users,
+  Flag,
+  ChevronRight,
+} from "lucide-react";
 
 export default function AdminLayout({
   children,
@@ -20,33 +28,35 @@ export default function AdminLayout({
   useEffect(() => {
     const checkAccess = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
         if (!user) {
-          router.push('/login');
+          router.push("/login");
           return;
         }
 
         const { data: userData, error } = await supabase
-          .from('users')
-          .select('role')
-          .eq('id', user.id)
+          .from("users")
+          .select("role")
+          .eq("id", user.id)
           .single();
 
         if (error || !userData) {
-          console.error('Error fetching user role:', error);
-          router.push('/');
+          console.error("Error fetching user role:", error);
+          router.push("/");
           return;
         }
 
-        if (userData.role !== 'admin' && userData.role !== 'moderator') {
-          router.push('/');
+        if (userData.role !== "admin" && userData.role !== "moderator") {
+          router.push("/");
           return;
         }
 
         setUserRole(userData.role);
       } catch (error) {
-        console.error('Error checking access:', error);
-        router.push('/');
+        console.error("Error checking access:", error);
+        router.push("/");
       } finally {
         setLoading(false);
       }
@@ -57,35 +67,35 @@ export default function AdminLayout({
 
   const navigation = [
     {
-      name: 'Insights',
-      href: '/admin/insights',
+      name: "Insights",
+      href: "/admin/insights",
       icon: LayoutDashboard,
-      allowedRoles: ['admin']
+      allowedRoles: ["admin"],
     },
     {
-      name: 'Dashboard',
-      href: '/admin',
+      name: "Dashboard",
+      href: "/admin",
       icon: LayoutDashboard,
-      allowedRoles: ['admin', 'moderator']
+      allowedRoles: ["admin", "moderator"],
     },
     {
-      name: 'Videos',
-      href: '/admin/videos',
+      name: "Videos",
+      href: "/admin/videos",
       icon: Video,
-      allowedRoles: ['admin', 'moderator']
+      allowedRoles: ["admin", "moderator"],
     },
     {
-      name: 'Users',
-      href: '/admin/users',
+      name: "Users",
+      href: "/admin/users",
       icon: Users,
-      allowedRoles: ['admin']
+      allowedRoles: ["admin"],
     },
     {
-      name: 'Flags',
-      href: '/admin/flags',
+      name: "Flags",
+      href: "/admin/flags",
       icon: Flag,
-      allowedRoles: ['admin', 'moderator']
-    }
+      allowedRoles: ["admin", "moderator"],
+    },
   ];
 
   if (loading) {
@@ -116,13 +126,15 @@ export default function AdminLayout({
                   href={item.href}
                   className={`flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     isActive
-                      ? 'bg-blue-50 text-blue-700'
-                      : 'text-gray-700 hover:bg-gray-50'
+                      ? "bg-blue-50 text-blue-700"
+                      : "text-gray-700 hover:bg-gray-50"
                   }`}
                 >
-                  <item.icon className={`mr-3 h-5 w-5 ${
-                    isActive ? 'text-blue-700' : 'text-gray-400'
-                  }`} />
+                  <item.icon
+                    className={`mr-3 h-5 w-5 ${
+                      isActive ? "text-blue-700" : "text-gray-400"
+                    }`}
+                  />
                   {item.name}
                   {isActive && (
                     <ChevronRight className="ml-auto h-4 w-4 text-blue-700" />
@@ -136,10 +148,8 @@ export default function AdminLayout({
 
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
-        <div className="py-6 px-8">
-          {children}
-        </div>
+        <div className="py-6 px-8">{children}</div>
       </div>
     </div>
   );
-} 
+}

@@ -7,6 +7,8 @@ import CountryTopMenu from "@/components/CountryTopMenu";
 import LeftMenu from "@/components/LeftMenu";
 import { Database } from "@/types/database";
 
+export const dynamic = "force-dynamic";
+
 type RawVideoData =
   Database["public"]["Functions"]["get_videos_by_region"]["Returns"][0];
 
