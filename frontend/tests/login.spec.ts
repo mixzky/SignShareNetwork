@@ -160,7 +160,7 @@ test.describe("Authentication Flow", () => {
   test.describe("Password Reset", () => {
     test("password reset form loads", async ({ page }) => {
       await page.goto("http://localhost:3000/forgot-password");
-      await expect(page.getByText("Email")).toBeVisible();
+      await expect(page.locator('label[for="Email"]')).toBeVisible();
       await expect(
         page.getByPlaceholder("Enter your email address")
       ).toBeVisible();

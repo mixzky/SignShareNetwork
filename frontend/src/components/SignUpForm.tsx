@@ -106,7 +106,7 @@ const SignUpForm = () => {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto">
+    <div className="w-full max-w-md mx-auto ">
       <form onSubmit={handleSubmit} className="w-full flex flex-col gap-5">
         {/* Username Field */}
         <div className="space-y-2">
