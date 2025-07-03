@@ -194,19 +194,96 @@ test.describe("User Dashboard", () => {
       const deleteButton = page.getByRole('button', { name: 'Delete' });
       await expect(deleteButton).toBeVisible();
       
-      // Set up dialog handler for delete confirmation
+      // Set up dialog handler to accept deletion
       page.on('dialog', async dialog => {
         expect(dialog.message()).toBe('Are you sure you want to delete this video?');
-        await dialog.dismiss(); // Dismiss the dialog to not actually delete
+        await dialog.accept(); // Accept the dialog to confirm deletion
       });
       
-      // Click delete button to trigger confirmation dialog
+      // Click delete button and confirm deletion
       await deleteButton.click();
+      
+      // Wait for success message
+      await expect(page.getByText('Successfully deleted!')).toBeVisible();
+      
+      // Verify modal closes after deletion
+      await expect(page.locator('.fixed.inset-0')).not.toBeVisible();
+      
+      // Verify video is no longer in the list
+      await expect(page.getByRole('heading', { name: 'Test Upload Video' })).not.toBeVisible();
+    }
+  });
+
+  test("can dismiss video deletion", async ({ page }) => {
+    // Find and click on a video title if it exists
+    const videoTitle = page.getByRole('heading', { name: 'Test Upload Video' }).first();
+    if (await videoTitle.isVisible()) {
+      await videoTitle.click();
+      
+      // Wait for the modal and video management form to be visible
+      await expect(page.locator('.fixed.inset-0')).toBeVisible();
+      
+      // Test delete functionality
+      const deleteButton = page.getByRole('button', { name: 'Delete' });
+      await expect(deleteButton).toBeVisible();
+      
+      // Set up dialog handler to dismiss deletion
+      page.on('dialog', async dialog => {
+        expect(dialog.message()).toBe('Are you sure you want to delete this video?');
+        await dialog.dismiss(); // Cancel deletion
+      });
+      
+      // Click delete button
+      await deleteButton.click();
+      
+      // Verify modal is still open
+      await expect(page.locator('.fixed.inset-0')).toBeVisible();
+      
+      // Verify video is still in the list
+      await expect(videoTitle).toBeVisible();
       
       // Close the modal
       const closeButton = page.getByRole('button', { name: 'Close' });
       await closeButton.click();
+    }
+  });
+
+  test("can delete video", async ({ page }) => {
+    // Find and click on a video title if it exists
+    const videoTitle = page.getByRole('heading', { name: 'Test Upload Video' }).first();
+    if (await videoTitle.isVisible()) {
+      // Store the count of videos before deletion
+      const initialCount = await page.getByRole('heading', { name: 'Test Upload Video' }).count();
+      
+      await videoTitle.click();
+      
+      // Wait for the modal and video management form to be visible
+      await expect(page.locator('.fixed.inset-0')).toBeVisible();
+      
+      // Test delete functionality
+      const deleteButton = page.getByRole('button', { name: 'Delete' });
+      await expect(deleteButton).toBeVisible();
+      
+      // Set up dialog handler to accept deletion
+      page.on('dialog', async dialog => {
+        expect(dialog.message()).toBe('Are you sure you want to delete this video?');
+        await dialog.accept(); // Confirm deletion
+      });
+      
+      // Click delete button and confirm deletion
+      await deleteButton.click();
+      
+      // Wait for success message
+      await expect(page.getByText('Successfully deleted!')).toBeVisible();
+      
+      // Verify modal closes after deletion
       await expect(page.locator('.fixed.inset-0')).not.toBeVisible();
+      
+      // Wait for the list to update and verify one video was removed
+      await expect(async () => {
+        const currentCount = await page.getByRole('heading', { name: 'Test Upload Video' }).count();
+        expect(currentCount).toBe(initialCount - 1);
+      }).toPass();
     }
   });
 
