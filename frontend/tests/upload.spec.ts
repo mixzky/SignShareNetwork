@@ -167,27 +167,34 @@ test.describe("User Dashboard", () => {
     if (await videoTitle.isVisible()) {
       await videoTitle.click();
       
+      // Wait for the modal and video management form to be visible
+      await expect(page.locator('.fixed.inset-0')).toBeVisible();
+      
       // Edit title
-      const titleInput = page.getByRole('textbox', { name: 'Enter video title' });
+      const titleInput = page.getByPlaceholder('Enter video title');
+      await expect(titleInput).toBeVisible();
       await titleInput.click();
-      await titleInput.press('ControlOrMeta+a');
       await titleInput.fill('Updated Test Title');
       
       // Edit description
       const descInput = page.getByPlaceholder('Enter video description');
+      await expect(descInput).toBeVisible();
       await descInput.click();
       await descInput.fill('Updated test description');
       
-      // Click save button and wait for success message
-      const saveButton = page.getByRole('button', { name: /Save/ });
+      // Save changes
+      const saveButton = page.getByRole('button', { name: 'Save' });
+      await expect(saveButton).toBeVisible();
       await saveButton.click();
+      
+      // Wait for success message
       await expect(page.getByText('Successfully edited!')).toBeVisible();
       
-      // Verify delete button exists and confirm dialog works
-      const deleteButton = page.getByRole('button', { name: /Delete/ });
+      // Test delete functionality
+      const deleteButton = page.getByRole('button', { name: 'Delete' });
       await expect(deleteButton).toBeVisible();
       
-      // Set up dialog handler
+      // Set up dialog handler for delete confirmation
       page.on('dialog', async dialog => {
         expect(dialog.message()).toBe('Are you sure you want to delete this video?');
         await dialog.dismiss(); // Dismiss the dialog to not actually delete
@@ -195,6 +202,11 @@ test.describe("User Dashboard", () => {
       
       // Click delete button to trigger confirmation dialog
       await deleteButton.click();
+      
+      // Close the modal
+      const closeButton = page.getByRole('button', { name: 'Close' });
+      await closeButton.click();
+      await expect(page.locator('.fixed.inset-0')).not.toBeVisible();
     }
   });
 
