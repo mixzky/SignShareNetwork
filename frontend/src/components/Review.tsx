@@ -16,6 +16,7 @@ import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardOutlinedIcon from "@mui/icons-material/ArrowUpwardOutlined";
 import ArrowDownwardOutlinedIcon from "@mui/icons-material/ArrowDownwardOutlined";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
+import { toast } from "sonner";
 
 type UserProfile = {
   avatar_url: string | null;
@@ -138,6 +139,7 @@ export default function Review({ videoId }: { videoId: string }) {
           .eq("id", userReviewId);
         if (error) throw error;
         setSuccess("Review updated successfully.");
+        toast.success("Review updated successfully!");
         setShowUpdated(true);
         setTimeout(() => setShowUpdated(false), 3000);
         setIsEditing(false);
@@ -152,6 +154,7 @@ export default function Review({ videoId }: { videoId: string }) {
         ]);
         if (error) throw error;
         setSuccess("Review submitted successfully.");
+        toast.success("Review submitted successfully!");
       }
       const data = await getReviewsByVideoId(videoId);
       setReviews(
@@ -203,6 +206,7 @@ export default function Review({ videoId }: { videoId: string }) {
       setRating(0);
       setComment("");
       setSuccess("Review deleted.");
+      toast.success("Review deleted successfully!");
     } catch (err: any) {
       setError(err.message || "Failed to delete review.");
     }

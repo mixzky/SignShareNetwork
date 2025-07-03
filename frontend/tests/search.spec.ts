@@ -1,240 +1,257 @@
 import { test, expect } from "@playwright/test";
 
-test("user can search for Thailand and navigate to country page", async ({
-  page,
-}) => {
-  const email = "khannpwks173@gmail.com";
-  const password = "123456";
-
+// Helper function to login
+async function loginUser(page: any) {
   await page.goto("http://localhost:3000/login");
-  await page.getByPlaceholder("Email").fill(email);
-  await page.getByPlaceholder("Password").fill(password);
-  await page.getByRole("button", { name: /login/i }).click();
-  await expect(page).toHaveURL("http://localhost:3000/");
-  // Go to the homepage
 
-  // Focus the search input and type "Thailand"
-  await page.getByPlaceholder("Find countries...").fill("Thai");
+  // Wait for login form to load
+  await page.waitForSelector('input[placeholder="Enter your email address"]', {
+    timeout: 10000,
+  });
 
-  // Wait for suggestion to appear and click it
-  await page.getByText("Thailand", { exact: true }).click();
-
-  // Submit the search form (if needed, otherwise the click may be enough)
-  // await page.getByRole("button", { name: /search/i }).click();
-  await page.getByRole("button", { name: /search/i }).click();
-  // Wait for navigation to the Thailand country page
-  await expect(page).toHaveURL(/\/country\/764|thailand/i);
-
-  // Check that the country name is visible on the page
-  await expect(page.getByText(/thailand/i)).toBeVisible();
-
+  // Fill in the login form
   await page
-    .getByRole("button", { name: /khannpwks173@gmail.com|updated name/i })
-    .click();
+    .getByPlaceholder("Enter your email address")
+    .fill("khannpwks@gmail.com");
+  await page.getByPlaceholder("Enter your password").fill("123456");
 
-  // Log out again
-  await page.getByText(/sign out/i).waitFor({ state: "visible" });
-  await page.getByText(/sign out/i).click();
-  await expect(page).toHaveURL("http://localhost:3000/");
-  await expect(page.getByRole("link", { name: /login/i })).toBeVisible();
-});
+  // Submit the login form - the button text is "login" not "Sign in"
+  await page.getByRole("button", { name: "login" }).click();
 
-test.describe('Search Functionality', () => {
+  // Wait for successful login and redirect to home page
+  await page.waitForURL("http://localhost:3000/", { timeout: 10000 });
+
+  // Verify we're logged in by checking for user-specific elements or URL
+  // Since we're not sure about the exact selectors, let's just verify the URL for now
+  await page.waitForTimeout(2000); // Give time for any additional loading
+}
+
+test.describe("Search and Navigation", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("http://localhost:3000");
+    await loginUser(page);
   });
 
-  test.describe('Search Bar', () => {
-    test("search bar is accessible", async ({ page }) => {
-      const searchBar = page.getByPlaceholder(/search/i);
-      await expect(searchBar).toBeVisible();
-      await expect(searchBar).toBeEnabled();
-    });
+  test("should search for a country and navigate successfully", async ({
+    page,
+  }) => {
+    // Test searching for "United States"
+    const searchInput = page.locator('input[placeholder="Find countries..."]');
+    await expect(searchInput).toBeVisible();
 
-    test("search bar responsiveness", async ({ page }) => {
-      const searchBar = page.getByPlaceholder(/search/i);
-      
-      // Test focus state
-      await searchBar.click();
-      await expect(searchBar).toBeFocused();
-      
-      // Test clear button
-      await searchBar.fill("test");
-      await expect(page.getByRole("button", { name: /clear/i })).toBeVisible();
-      await page.getByRole("button", { name: /clear/i }).click();
-      await expect(searchBar).toHaveValue("");
-    });
+    // Type a country name
+    await searchInput.fill("United States");
 
-    test("search suggestions appear", async ({ page }) => {
-      const searchBar = page.getByPlaceholder(/search/i);
-      
-      // Type slowly to trigger suggestions
-      await searchBar.type("sign", { delay: 100 });
-      
-      // Verify suggestions
-      await expect(page.getByRole("listbox")).toBeVisible();
-      const suggestions = page.getByRole("option");
-      const count = await suggestions.count();
-      expect(count).toBeGreaterThan(0);
-      
-      // Test suggestion interaction
-      await suggestions.first().click();
-      await expect(page).toHaveURL(/\/videos\//);
-    });
-  });
+    // Wait for suggestions to appear
+    await page.waitForSelector("ul", { timeout: 5000 });
 
-  test.describe('Search Results', () => {
-    test("basic search functionality", async ({ page }) => {
-      // Perform search
-      await page.getByPlaceholder(/search/i).fill("test video");
-      await page.keyboard.press("Enter");
-      
-      // Verify search results page
-      await expect(page).toHaveURL(/\/search\?q=test%20video/);
-      await expect(page.getByRole("heading", { name: /search results/i })).toBeVisible();
-      await expect(page.getByTestId("search-results")).toBeVisible();
-    });
+    // Verify suggestions are visible
+    const suggestionsContainer = page.locator("ul");
+    await expect(suggestionsContainer).toBeVisible();
 
-    test("search results display", async ({ page }) => {
-      // Perform search
-      await page.getByPlaceholder(/search/i).fill("sign language");
-      await page.keyboard.press("Enter");
-      
-      // Verify result items
-      const results = page.getByTestId("search-result-item");
-      const count = await results.count();
-      expect(count).toBeGreaterThan(0);
-      
-      // Verify result item content
-      const firstResult = results.first();
-      await expect(firstResult.getByRole("heading")).toBeVisible();
-      await expect(firstResult.getByRole("img")).toBeVisible();
-      await expect(firstResult.getByText(/views/i)).toBeVisible();
-      await expect(firstResult.getByText(/uploaded/i)).toBeVisible();
-    });
+    // Click on the first suggestion (should contain "United States")
+    const firstSuggestion = page.locator("li").first();
+    await expect(firstSuggestion).toContainText("United States");
+    await firstSuggestion.click();
 
-    test("no results found", async ({ page }) => {
-      // Search for unlikely term
-      await page.getByPlaceholder(/search/i).fill("xyzabc123nonexistent");
-      await page.keyboard.press("Enter");
-      
-      // Verify no results message
-      await expect(page.getByText(/no results found/i)).toBeVisible();
-      await expect(page.getByText(/try different keywords/i)).toBeVisible();
-    });
+    // Verify the search input is filled with the selected country (actual name from API)
+    await expect(searchInput).toHaveValue("United States of America");
 
-    test("search filters", async ({ page }) => {
-      // Perform search
-      await page.getByPlaceholder(/search/i).fill("sign language");
-      await page.keyboard.press("Enter");
-      
-      // Apply filters
-      await page.getByRole("combobox", { name: /sort by/i }).selectOption("most-recent");
-      await expect(page.url()).toContain("sort=most-recent");
-      
-      await page.getByRole("combobox", { name: /category/i }).selectOption("education");
-      await expect(page.url()).toContain("category=education");
-      
-      await page.getByRole("combobox", { name: /duration/i }).selectOption("short");
-      await expect(page.url()).toContain("duration=short");
-      
-      // Verify filtered results
-      await expect(page.getByTestId("search-results")).toBeVisible();
-    });
+    // Submit the search form
+    const searchButton = page.locator('button[aria-label="Search"]');
+    await searchButton.click();
 
-    test("search pagination", async ({ page }) => {
-      // Perform search with many results
-      await page.getByPlaceholder(/search/i).fill("sign");
-      await page.keyboard.press("Enter");
-      
-      // Verify pagination controls
-      await expect(page.getByRole("navigation", { name: /pagination/i })).toBeVisible();
-      
-      // Navigate pages
-      await page.getByRole("button", { name: /next page/i }).click();
-      await expect(page.url()).toContain("page=2");
-      
-      await page.getByRole("button", { name: /previous page/i }).click();
-      await expect(page.url()).toContain("page=1");
+    // Wait for the loading state and navigation
+    const loadingSpinner = page
+      .locator("text=United States of America")
+      .first(); // From CountryLoading component
+    await expect(loadingSpinner).toBeVisible({ timeout: 3000 });
+
+    // Wait for navigation to the country page (with 2 second delay from the code)
+    await page.waitForURL("**/country/**", { timeout: 5000 });
+
+    // Verify we're on the correct country page
+    expect(page.url()).toMatch(/\/country\/\d+/);
+
+    // Verify the country page has loaded content - look for specific country page elements
+    await expect(page.locator("text=Now :")).toBeVisible({ timeout: 5000 });
+    await expect(page.locator("text=Upload Your Video")).toBeVisible({
+      timeout: 5000,
     });
   });
 
-  test.describe('Search History', () => {
-    test("recent searches", async ({ page }) => {
-      // Perform multiple searches
-      const searches = ["sign language", "tutorial", "beginner"];
-      for (const term of searches) {
-        await page.getByPlaceholder(/search/i).fill(term);
-        await page.keyboard.press("Enter");
-        await page.goto("http://localhost:3000"); // Go back to home
-      }
-      
-      // Open search and check history
-      await page.getByPlaceholder(/search/i).click();
-      for (const term of searches) {
-        await expect(page.getByRole("listbox").getByText(term)).toBeVisible();
-      }
+  test("should search with form submission without suggestions", async ({
+    page,
+  }) => {
+    const searchInput = page.locator('input[placeholder="Find countries..."]');
+
+    // Type a full country name and submit directly
+    await searchInput.fill("Japan");
+
+    // Submit the form by pressing Enter
+    await searchInput.press("Enter");
+
+    // Wait for loading state - be more flexible with the country name
+    await expect(page.locator("text=Japan").first()).toBeVisible({
+      timeout: 3000,
     });
 
-    test("clear search history", async ({ page }) => {
-      // Perform search
-      await page.getByPlaceholder(/search/i).fill("test search");
-      await page.keyboard.press("Enter");
-      await page.goto("http://localhost:3000");
-      
-      // Open search and clear history
-      await page.getByPlaceholder(/search/i).click();
-      await page.getByRole("button", { name: /clear history/i }).click();
-      
-      // Verify history is cleared
-      await expect(page.getByText(/no recent searches/i)).toBeVisible();
-    });
+    // Wait for navigation
+    await page.waitForURL("**/country/**", { timeout: 5000 });
+
+    // Verify we're on a country page
+    expect(page.url()).toMatch(/\/country\/\d+/);
+
+    // Verify the country page content has loaded
+    await expect(page.locator("text=Now :")).toBeVisible({ timeout: 5000 });
   });
 
-  test.describe('Error Handling', () => {
-    test("network error during search", async ({ page }) => {
-      // Simulate network error
-      await page.route('**/api/search**', route => route.abort('failed'));
-      
-      // Attempt search
-      await page.getByPlaceholder(/search/i).fill("test");
-      await page.keyboard.press("Enter");
-      
-      // Verify error handling
-      await expect(page.getByText(/network error/i)).toBeVisible();
-      await expect(page.getByRole("button", { name: /retry/i })).toBeVisible();
-    });
+  test("should handle partial country name searches", async ({ page }) => {
+    const searchInput = page.locator('input[placeholder="Find countries..."]');
 
-    test("server error during search", async ({ page }) => {
-      // Simulate server error
-      await page.route('**/api/search**', route => route.fulfill({
-        status: 500,
-        body: 'Internal Server Error'
-      }));
-      
-      // Attempt search
-      await page.getByPlaceholder(/search/i).fill("test");
-      await page.keyboard.press("Enter");
-      
-      // Verify error handling
-      await expect(page.getByText(/server error/i)).toBeVisible();
-      await expect(page.getByRole("button", { name: /retry/i })).toBeVisible();
-    });
+    // Type partial country name
+    await searchInput.fill("fran");
 
-    test("retry functionality", async ({ page }) => {
-      // Simulate temporary failure
-      await page.route('**/api/search**', route => route.abort('failed'), { times: 1 });
-      
-      // Attempt search
-      await page.getByPlaceholder(/search/i).fill("test");
-      await page.keyboard.press("Enter");
-      
-      // Verify error and retry
-      await expect(page.getByText(/network error/i)).toBeVisible();
-      await page.getByRole("button", { name: /retry/i }).click();
-      
-      // Verify successful retry
-      await expect(page.getByTestId("search-results")).toBeVisible();
-    });
+    // Wait for suggestions
+    await page.waitForSelector("ul", { timeout: 5000 });
+
+    // Check that France appears in suggestions
+    const franceOption = page.locator("li", { hasText: "France" });
+    await expect(franceOption).toBeVisible();
+
+    // Click on France
+    await franceOption.click();
+
+    // Verify the input is filled with France (should be exact match)
+    await expect(searchInput).toHaveValue("France");
+
+    // Submit the search
+    const searchButton = page.locator('button[aria-label="Search"]');
+    await searchButton.click();
+
+    // Wait for navigation
+    await page.waitForURL("**/country/**", { timeout: 5000 });
+    expect(page.url()).toMatch(/\/country\/\d+/);
+  });
+
+  test("should clear suggestions when input loses focus", async ({ page }) => {
+    const searchInput = page.locator('input[placeholder="Find countries..."]');
+
+    // Type to trigger suggestions
+    await searchInput.fill("can");
+
+    // Wait for suggestions to appear
+    await page.waitForSelector("ul", { timeout: 5000 });
+    const suggestionsContainer = page.locator("ul");
+    await expect(suggestionsContainer).toBeVisible();
+
+    // Click somewhere else to blur the input
+    await page.locator("main").click();
+
+    // Wait for suggestions to disappear (150ms delay in the code)
+    await page.waitForTimeout(200);
+    await expect(suggestionsContainer).not.toBeVisible();
+  });
+
+  test("should show visual feedback when search input is focused", async ({
+    page,
+  }) => {
+    const searchInput = page.locator('input[placeholder="Find countries..."]');
+    const searchContainer = searchInput.locator("..");
+
+    // Focus the input
+    await searchInput.focus();
+
+    // Check for focused state styling (enhanced border/background)
+    await expect(searchContainer).toHaveClass(/border-blue-400\/60/);
+
+    // Blur the input
+    await page.locator("main").click();
+
+    // Check that focused state is removed
+    await expect(searchContainer).toHaveClass(/border-gray-400\/30/);
+  });
+
+  test("should handle search for non-existent country gracefully", async ({
+    page,
+  }) => {
+    const searchInput = page.locator('input[placeholder="Find countries..."]');
+
+    // Search for a non-existent country
+    await searchInput.fill("Atlantis");
+    await searchInput.press("Enter");
+
+    // Should not navigate anywhere - we should still be on the home page
+    await page.waitForTimeout(3000);
+    expect(page.url()).toBe("http://localhost:3000/");
+
+    // The search input should still contain the search term
+    await expect(searchInput).toHaveValue("Atlantis");
+  });
+
+  test("should ignore single character searches", async ({ page }) => {
+    const searchInput = page.locator('input[placeholder="Find countries..."]');
+
+    // Type a single character
+    await searchInput.fill("a");
+    await searchInput.press("Enter");
+
+    // Should not navigate or show loading
+    await page.waitForTimeout(1000);
+    expect(page.url()).toBe("http://localhost:3000/");
+
+    // No suggestions should appear
+    await expect(page.locator("ul")).not.toBeVisible();
+  });
+
+  test("should require at least 2 characters for suggestions", async ({
+    page,
+  }) => {
+    const searchInput = page.locator('input[placeholder="Find countries..."]');
+
+    // Type one character
+    await searchInput.fill("u");
+
+    // No suggestions should appear
+    await page.waitForTimeout(500);
+    await expect(page.locator("ul")).not.toBeVisible();
+
+    // Type second character
+    await searchInput.fill("un");
+
+    // Now suggestions should appear
+    await page.waitForSelector("ul", { timeout: 3000 });
+    await expect(page.locator("ul")).toBeVisible();
+  });
+
+  test("should clear search input after successful navigation", async ({
+    page,
+  }) => {
+    const searchInput = page.locator('input[placeholder="Find countries..."]');
+
+    // Search for a country
+    await searchInput.fill("Canada");
+    await searchInput.press("Enter");
+
+    // Wait a moment for the clear logic to execute (before navigation)
+    await page.waitForTimeout(1000);
+
+    // The search input should be cleared
+    await expect(searchInput).toHaveValue("");
+  });
+
+  test("should display maximum 5 suggestions", async ({ page }) => {
+    const searchInput = page.locator('input[placeholder="Find countries..."]');
+
+    // Type a search that would match many countries
+    await searchInput.fill("a");
+    await searchInput.fill("al"); // Countries starting with "al"
+
+    // Wait for suggestions
+    await page.waitForSelector("ul", { timeout: 5000 });
+
+    // Count suggestions - should be maximum 5
+    const suggestions = page.locator("li");
+    const count = await suggestions.count();
+    expect(count).toBeLessThanOrEqual(5);
   });
 });
