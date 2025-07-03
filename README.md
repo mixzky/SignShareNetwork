@@ -1,87 +1,146 @@
-A fullstack sign language video sharing platform — empowering accessible communication through user-contributed sign clips, AI-powered tagging, and community collaboration.
+# SignShareNetwork
 
-  Tech Stack
-	•	AI: Vertex AI Gemini Pro (Google Cloud)
-	•	Backend: Supabase (PostgreSQL, Auth, Storage, Edge Functions)
-	•	Frontend: Next.js (App Router) + TypeScript
-	•	UI: Tailwind CSS + Shadcn/UI + Radix
-    •   Validation: Zod + React Hook Form
-	•	Deployment: ??? (Frontend), Supabase (Backend)
+A fullstack sign language video sharing platform that empowers accessible communication through user-contributed sign clips, AI-powered tagging, and community collaboration.
 
-Features
+## 🌟 Features
 
- Authentication & Profile
-	•	Google login via Supabase Auth
-	•	Custom users table: username, display_name, avatar, role
-	•	Edit profile with avatar upload to Supabase Storage
+### Authentication & Profile Management
+- Google OAuth integration via Supabase Auth
+- Custom user profiles with username, display name, and avatar
+- Profile editing with avatar upload support
+- Role-based access control
 
- Sign Video Upload
-	•	Upload sign-language videos (mp4/webm)
-	•	Input: title, description, language, region
-	•	Videos stored in Supabase Storage
-	•	Metadata saved to sign_videos table
+### Video Management
+- Upload sign language videos (mp4/webm format)
+- Rich metadata support: title, description, language, region
+- Secure video storage using Supabase Storage
+- Video metadata management in PostgreSQL
 
- AI-Powered Features (via Vertex AI)
-	•	Automatic tag generation using Gemini
-	•	Search intent parser (natural-language → keyword)
-	•	Review summarization from community comments
+### AI-Powered Features
+- Automatic tag generation using Google's Vertex AI Gemini Pro
+- Natural language search intent parsing
+- Embedding video 
+- Smart content recommendations
 
- Sign Dictionary
-	•	Public search/filter of verified sign clips
-	•	Search by keyword, language, tag, or region
+### Interactive Globe Interface
+- 3D interactive globe visualization
+- Country-based navigation
+- Smooth animations and transitions
+- Responsive design with mobile support
 
- Reviews & Moderation
-	•	Submit 1–5 star ratings and text reviews
-	•	Moderators can flag, verify, or remove videos
-	•	Status field: pending, verified, flagged
+### Sign Dictionary
+- Public search/filter functionality for verified sign clips
+- Multi-criteria search: keywords, language, tags, region
+- Advanced filtering and sorting options
 
-⸻
+### Community & Moderation
+- rating system
+- Text reviews and comments
+- Moderation tools for content management
+- Video status tracking (pending, verified, rejected, flagged)
 
-Local Development
+## 🛠️ Tech Stack
 
-1. Clone & Install
-git clone https://github.com/your-username/signshare-network.git
-cd signshare-network
-pnpm install
-2. Setup Environment Variables
+### Frontend
+- **Framework**: Next.js (App Router) with TypeScript
+- **UI Components**: 
+  - Tailwind CSS for styling
+  - Shadcn/UI components
+  - Radix UI primitives
+- **3D Visualization**: Three.js with Globe.gl
+- **Form Handling**: 
+  - React Hook Form
+  - Zod validation
 
-Create a .env.local file:
+### Backend
+- **Platform**: Supabase
+  - PostgreSQL database
+  - Authentication
+  - Storage
+  - Edge Functions
+- **AI Integration**: Vertex AI Gemini Pro (Google Cloud)
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js (v18 or higher)
+- pnpm (recommended) or npm
+- Supabase account
+- Google Cloud account (for AI features)
+
+### Installation
+
+1. Clone the repository
+\`\`\`bash
+git clone https://github.com/mixzky/SignShareNetwork.git
+cd SignShareNetwork
+\`\`\`
+
+2. Install dependencies
+\`\`\`bash
+npm install
+\`\`\`
+
+3. Set up environment variables
+Create a \`.env.local\` file in the project root:
+
+\`\`\`env
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-public-anon-key
+\`\`\`
 
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-SUPABASE_STORAGE_BUCKET=sign-videos
-
-GCP_PROJECT_ID=your-google-project-id
-VERTEX_REGION=us-central1
-VERTEX_MODEL=gemini-1.5-pro
-VERTEX_API_KEY=your-api-key
-
-3. Run Dev Server
+4. Start the development server
+\`\`\`bash
 npm run dev
+\`\`\`
 
-Supabase Tables (Quick Overview)
-	•	users: id, username, display_name, avatar_url, role
-	•	sign_videos: id, user_id, video_url, title, tags[], status
-	•	reviews: id, video_id, user_id, rating, comment
-	•	flags: id, video_id, reason, resolved_by
+Visit [http://localhost:3000](http://localhost:3000) to see the application.
 
-You can use the provided schema.sql to set up tables quickly.
+## 📁 Project Structure
 
-⸻
+\`\`\`
+signshare/
+├── frontend/
+│   ├── src/
+│   │   ├── app/           # Next.js pages and routes
+│   │   ├── components/    # React components
+│   │   ├── lib/          # Utility functions and helpers
+│   │   ├── types/        # TypeScript type definitions
+│   │   └── utils/        # Shared utilities
+│   ├── public/           # Static assets
+│   └── tests/           # E2E and integration tests
+└── supabase/
+    └── functions/       # Supabase Edge Functions (optional if you want store edge function in the local)
+\`\`\`
 
-Security Notes
-	•	Use RLS (Row-Level Security) to protect access to sign_videos and users
-	•	Keep your Vertex API key server-side only (via Edge Function or API route)
-	•	Protect uploads and moderation routes with user roles
+## 🧪 Testing
 
-⸻
+The project includes comprehensive testing:
 
-AI Prompt Examples
-	•	Auto-tagging:
-Suggest 3 relevant tags for this sign video titled “thank you (formal)”
-	•	Review summary:
-Summarize the following 5 reviews into 1 sentence.
-	•	Search intent:
-Extract keyword and language from:
-“What’s the sign for love in Thai Sign Language?”
+\`\`\`bash
+# Run unit tests
+npm run tests
+
+# Run tests in watch mode
+npm test:watch
+
+# Generate coverage report
+npm test:coverage
+
+\`\`\`
+
+## 🔐 Security
+
+- All authentication is handled through Supabase Auth
+- Secure storage of sensitive information using environment variables
+- Role-based access control for admin features
+- Input validation and sanitization
+- Secure file upload handling
+
+## 🙏 Acknowledgments
+
+- [Next.js](https://nextjs.org/) for the React framework
+- [Supabase](https://supabase.com/) for the backend infrastructure
+- [Globe.gl](https://globe.gl/) for 3D globe visualization
+- [Shadcn/UI](https://ui.shadcn.com/) for UI components
+- [Google Cloud](https://cloud.google.com/) for AI capabilities 
