@@ -122,7 +122,7 @@ export default function VideoManagement({
   }
 
   return (
-    <div className="flex flex-col gap-4 relative max-h-[70vh] overflow-hidden p-4">
+    <div className="flex flex-col gap-4 relative h-[80vh] overflow-y-auto p-4">
       {/* Video section - fixed at top */}
       <div className="sticky top-0 z-10 bg-white pb-4">
         <video
