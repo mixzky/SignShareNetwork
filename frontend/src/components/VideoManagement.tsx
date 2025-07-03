@@ -122,63 +122,66 @@ export default function VideoManagement({
   }
 
   return (
-    <div className="flex flex-col gap-6 relative max-h-[80vh] overflow-hidden">
+    <div className="flex flex-col gap-4 relative h-[80vh] overflow-y-auto p-4">
       {/* Video section - fixed at top */}
-      <div className="sticky top-0 z-10 bg-white pb-6">
+      <div className="sticky top-0 z-10 bg-white pb-4">
         <video
           src={getPublicVideoUrl(video?.video_url || "")}
           controls
-          className="w-full h-56 rounded-xl border border-[#e0e3ea] bg-[#f8fafc] shadow"
+          className="w-full h-40 rounded-lg border border-[#e0e3ea] bg-[#f8fafc] shadow-md"
         />
       </div>
 
       {/* Scrollable content */}
-      <div className="flex-1 overflow-y-auto pr-2">
-        <div className="flex flex-col gap-6">
-          <div className="bg-[#f8fafc] rounded-xl p-4 border border-[#e0e3ea]">
-            <label className="block text-sm font-semibold mb-1">Title</label>
+      <div className="flex-1 overflow-y-auto pr-3">
+        <div className="flex flex-col gap-4">
+          <div className="bg-[#f8fafc] rounded-lg p-4 border border-[#e0e3ea]">
+            <label className="block text-sm font-semibold mb-2">Title</label>
             <input
               type="text"
               value={editTitle}
               onChange={(e) => setEditTitle(e.target.value)}
-              className="border border-[#e0e3ea] rounded px-3 py-2 w-full font-semibold focus:ring-2 focus:ring-[#2563eb] focus:border-[#2563eb] transition bg-white"
+              className="border border-[#e0e3ea] rounded px-3 py-2 w-full font-semibold focus:ring-2 focus:ring-[#2563eb] focus:border-[#2563eb] transition bg-white text-sm"
               placeholder="Enter video title"
             />
           </div>
-          <div className="bg-[#f8fafc] rounded-xl p-4 border border-[#e0e3ea]">
-            <label className="block text-sm font-semibold mb-1">Description</label>
+          <div className="bg-[#f8fafc] rounded-lg p-4 border border-[#e0e3ea]">
+            <label className="block text-sm font-semibold mb-2">
+              Description
+            </label>
             <textarea
               value={editDescription}
               onChange={(e) => setEditDescription(e.target.value)}
-              className="border border-[#e0e3ea] rounded px-3 py-2 w-full focus:ring-2 focus:ring-[#2563eb] focus:border-[#2563eb] transition bg-white"
+              className="border border-[#e0e3ea] rounded px-3 py-2 w-full focus:ring-2 focus:ring-[#2563eb] focus:border-[#2563eb] transition bg-white text-sm"
               rows={3}
               placeholder="Enter video description"
             />
           </div>
-          <div className="bg-[#f8fafc] rounded-xl p-4 border border-[#e0e3ea]">
-            <label className="block text-sm font-semibold mb-1">Tags</label>
+          <div className="bg-[#f8fafc] rounded-lg p-4 border border-[#e0e3ea]">
+            <label className="block text-sm font-semibold mb-2">Tags</label>
             <div className="flex flex-wrap gap-2">
               {editTags.map((tag) => (
                 <span
                   key={tag}
-                  className="bg-[#fff3cd] text-[#b48a4a] px-2 py-0.5 rounded-full text-xs font-semibold tracking-wide shadow-sm cursor-pointer hover:scale-105 hover:shadow-md transition-transform duration-150"
+                  className="bg-[#fff3cd] text-[#b48a4a] px-2 py-1 rounded-full text-xs font-semibold tracking-wide shadow-sm cursor-pointer hover:scale-105 hover:shadow-md transition-transform duration-150"
                   onClick={() => handleRemoveTag(tag)}
                   title="Remove tag"
                   tabIndex={0}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") handleRemoveTag(tag);
+                    if (e.key === "Enter" || e.key === " ")
+                      handleRemoveTag(tag);
                   }}
                   aria-label={`Remove tag ${tag}`}
                 >
                   #{tag}{" "}
-                  <span className="ml-1 text-base align-middle">&times;</span>
+                  <span className="ml-1 text-sm align-middle">&times;</span>
                 </span>
               ))}
               {editTags.length === 0 && (
-                <span className="text-gray-400 text-xs">No tags</span>
+                <span className="text-gray-400 text-xs py-1">No tags</span>
               )}
             </div>
-            <div className="text-xs text-gray-400 mt-1">
+            <div className="text-xs text-gray-400 mt-2">
               Click or press Enter/Space on a tag to remove it.
             </div>
           </div>
@@ -189,9 +192,9 @@ export default function VideoManagement({
       <div className="sticky bottom-0 z-10 bg-white pt-4 border-t border-[#e0e3ea]">
         <div className="flex gap-3 justify-end items-center">
           {successMsg && (
-            <div className="flex items-center gap-2 text-green-700 bg-green-100 border border-green-300 rounded-lg px-4 py-2 text-base font-semibold shadow-sm animate-fade-in">
+            <div className="flex items-center gap-2 text-green-700 bg-green-100 border border-green-300 rounded px-4 py-2 text-sm font-semibold shadow-sm animate-fade-in">
               <svg
-                className="w-5 h-5 text-green-600"
+                className="w-4 h-4 text-green-600"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth={2}
@@ -209,7 +212,7 @@ export default function VideoManagement({
           <button
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center gap-2 px-6 py-2 rounded-lg bg-gradient-to-r from-[#2563eb] to-[#3b82f6] text-white font-bold shadow-md hover:from-[#1749b1] hover:to-[#2563eb] focus:outline-none focus:ring-2 focus:ring-[#2563eb] transition disabled:opacity-60"
+            className="flex items-center gap-2 px-6 py-2 rounded bg-gradient-to-r from-[#2563eb] to-[#3b82f6] text-white font-bold shadow-md hover:from-[#1749b1] hover:to-[#2563eb] focus:outline-none focus:ring-2 focus:ring-[#2563eb] transition disabled:opacity-60 text-sm"
           >
             {saving ? (
               <>
@@ -253,7 +256,7 @@ export default function VideoManagement({
           <button
             onClick={handleDelete}
             disabled={deleting}
-            className="flex items-center gap-2 px-6 py-2 rounded-lg bg-gradient-to-r from-[#ffeaea] to-[#ffd6d6] text-[#ff6b6b] font-bold shadow-md hover:from-[#ffd6d6] hover:to-[#ffeaea] focus:outline-none focus:ring-2 focus:ring-[#ff6b6b] transition disabled:opacity-60"
+            className="flex items-center gap-2 px-6 py-2 rounded bg-gradient-to-r from-[#ffeaea] to-[#ffd6d6] text-[#ff6b6b] font-bold shadow-md hover:from-[#ffd6d6] hover:to-[#ffeaea] focus:outline-none focus:ring-2 focus:ring-[#ff6b6b] transition disabled:opacity-60 text-sm"
           >
             {deleting ? (
               <>

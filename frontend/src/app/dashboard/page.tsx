@@ -1,11 +1,12 @@
+"use client";
 import TopMenu from "@/components/TopMenu";
 import UserFeed from "@/components/UserFeed";
 import UserStats from "@/components/UserStats";
 import UserVideoList from "@/components/UserVideoList";
 import React from "react";
-import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined"; // Add this import at the top
+import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 
-export default async function DashboardPage() {
+export default function DashboardPage() {
   return (
     <main className="flex flex-col min-h-screen bg-[#F0F2F5]">
       {/* Top Menu */}
