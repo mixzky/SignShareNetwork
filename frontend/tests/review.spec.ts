@@ -4,8 +4,8 @@ test.describe("Video Review System", () => {
   // Setup: Login before each test
   test.beforeEach(async ({ page }) => {
     await page.goto("http://localhost:3000/login");
-    await page.getByPlaceholder("Email").fill("khannpwks@gmail.com");
-    await page.getByPlaceholder("Password").fill("123456");
+    await page.getByPlaceholder("Email").fill("hahahoho@test.com");
+    await page.getByPlaceholder("Password").fill("123456aA");
     await page.getByRole("button", { name: /login/i }).click();
     await expect(page).toHaveURL("http://localhost:3000/");
 

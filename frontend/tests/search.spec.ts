@@ -12,8 +12,8 @@ async function loginUser(page: any) {
   // Fill in the login form
   await page
     .getByPlaceholder("Enter your email address")
-    .fill("khannpwks@gmail.com");
-  await page.getByPlaceholder("Enter your password").fill("123456");
+    .fill("hahahoho@test.com");
+  await page.getByPlaceholder("Enter your password").fill("123456aA");
 
   // Submit the login form - the button text is "login" not "Sign in"
   await page.getByRole("button", { name: "login" }).click();

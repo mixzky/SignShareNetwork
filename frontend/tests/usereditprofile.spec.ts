@@ -2,8 +2,8 @@ import { test, expect } from "@playwright/test";
 import path from "path";
 
 test.describe("User Profile Management", () => {
-  const testEmail = "khannpwks@gmail.com";
-  const testPassword = "123456";
+  const testEmail = "hahahoho@test.com";
+  const testPassword = "123456aA";
 
   // Setup: Login before each test
   test.beforeEach(async ({ page }) => {
