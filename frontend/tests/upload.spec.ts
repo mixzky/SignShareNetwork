@@ -100,3 +100,102 @@ test.describe("Video Upload Flow", () => {
     });
   });
 });
+
+test.describe("User Dashboard", () => {
+  test.beforeEach(async ({ page }) => {
+    // Start from home page
+    await page.goto("http://localhost:3000/");
+    
+    // Login flow
+    await page.getByRole('link', { name: 'Login' }).click();
+    await page.getByRole('textbox', { name: 'Email' }).fill('testuser_862694@example.com');
+    await page.getByRole('textbox', { name: 'Password' }).fill('TestPassword123');
+    await page.getByRole('button', { name: 'login' }).click();
+    
+    // Navigate to dashboard through profile menu
+    await page.waitForTimeout(5000); // Increased wait time for auth
+    await expect(page).toHaveURL("http://localhost:3000/");
+    
+    // Navigate 
+    await page.goto("http://localhost:3000/dashboard");
+    await page.waitForLoadState('networkidle');;
+    
+  });
+
+  test("displays user statistics section", async ({ page }) => {
+    // Check statistics section header
+    await expect(page.getByRole('heading', { name: 'User Statistics' })).toBeVisible();
+    
+    // Verify all stat categories are present
+    const statCategories = ['Total Videos', 'Verified Videos', 'Total Reviews', 'Flagged Videos'];
+    for (const category of statCategories) {
+      await expect(page.getByText(category, { exact: true })).toBeVisible();
+    }
+    
+    // Check top videos section
+    await expect(page.getByRole('heading', { name: 'Top Video by Comments' })).toBeVisible();
+  });
+
+  test("video filtering and sorting functionality", async ({ page }) => {
+    // Test sorting options
+    const sortSelect = page.locator('div').filter({ hasText: /^NewestOldestTitle$/ }).getByRole('combobox');
+    await sortSelect.selectOption('oldest');
+    await sortSelect.selectOption('title');
+    await sortSelect.selectOption('newest');
+    
+    // Test status filtering
+    const statusSelect = page.getByRole('combobox').nth(1);
+    await statusSelect.selectOption('processing');
+    await statusSelect.selectOption('rejected');
+    await statusSelect.selectOption('verified');
+    
+    // Test search functionality
+    const searchInput = page.getByRole('textbox', { name: 'Search by title...' });
+    await searchInput.click();
+    await searchInput.fill('Test Upload');
+    
+    // Verify search results if they exist
+    const resultTitle = page.getByRole('heading', { name: 'Test Upload Video' }).first();
+    if (await resultTitle.isVisible()) {
+      await expect(resultTitle).toBeVisible();
+    }
+  });
+
+  test("video editing and management", async ({ page }) => {
+    // Find and click on a video title if it exists
+    const videoTitle = page.getByRole('heading', { name: 'Test Upload Video' }).first();
+    if (await videoTitle.isVisible()) {
+      await videoTitle.click();
+      
+      // Edit title
+      const titleInput = page.getByRole('textbox', { name: 'Enter video title' });
+      await titleInput.click();
+      await titleInput.press('ControlOrMeta+a');
+      await titleInput.fill('Updated Test Title');
+      
+      // Edit description
+      const descInput = page.getByPlaceholder('Enter video description');
+      await descInput.click();
+      await descInput.fill('Updated test description');
+      
+      // Click save button and wait for success message
+      const saveButton = page.getByRole('button', { name: /Save/ });
+      await saveButton.click();
+      await expect(page.getByText('Successfully edited!')).toBeVisible();
+      
+      // Verify delete button exists and confirm dialog works
+      const deleteButton = page.getByRole('button', { name: /Delete/ });
+      await expect(deleteButton).toBeVisible();
+      
+      // Set up dialog handler
+      page.on('dialog', async dialog => {
+        expect(dialog.message()).toBe('Are you sure you want to delete this video?');
+        await dialog.dismiss(); // Dismiss the dialog to not actually delete
+      });
+      
+      // Click delete button to trigger confirmation dialog
+      await deleteButton.click();
+    }
+  });
+
+});

@@ -12,7 +12,6 @@ type UserProfile = {
   display_name: string | null;
   bio: string | null;
 };
-
 export default function UserProfileButton() {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
