@@ -19,19 +19,53 @@ interface GlobeComponentProps {
 
 const GlobeComponent = forwardRef((props: GlobeComponentProps, ref) => {
   const globeEl = useRef<HTMLDivElement>(null);
-  const globeInstance = useRef<{
-    pointOfView: (
-      params: { lat: number; lng: number; altitude: number },
-      duration?: number
-    ) => void;
-  } | null>(null);
+  const globeInstance = useRef<any>(null);
   const countryColors = useRef(new Map());
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
 
-  // Generate pastel color function
+  // Refs for cleanup tracking
+  const timeoutsRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
+  const intervalsRef = useRef<Set<ReturnType<typeof setInterval>>>(new Set());
+  const animationFramesRef = useRef<Set<number>>(new Set());
+  const eventListenersRef = useRef<
+    Array<{ target: any; event: string; handler: any }>
+  >([]);
+  const isMountedRef = useRef(true);
+
+  // Helper to add tracked timeout
+  const addTimeout = (callback: () => void, delay: number) => {
+    const timeoutId = setTimeout(() => {
+      timeoutsRef.current.delete(timeoutId);
+      if (isMountedRef.current) {
+        callback();
+      }
+    }, delay);
+    timeoutsRef.current.add(timeoutId);
+    return timeoutId;
+  };
+
+  // Helper to add tracked event listener
+  const addEventListenerTracked = (
+    target: any,
+    event: string,
+    handler: any
+  ) => {
+    target.addEventListener(event, handler);
+    eventListenersRef.current.push({ target, event, handler });
+  };
+
+  // Generate pastel color function with cache size limit
   const generatePastelColor = (countryId: string) => {
     if (!countryColors.current.has(countryId)) {
+      // Limit cache size to prevent memory accumulation
+      if (countryColors.current.size > 200) {
+        // Clear oldest entries when cache gets too large
+        const entries = Array.from(countryColors.current.entries());
+        const toDelete = entries.slice(0, 50); // Remove oldest 50 entries
+        toDelete.forEach(([key]) => countryColors.current.delete(key));
+      }
+
       const hue = Math.floor(Math.random() * 360);
       const color = `hsla(${hue}, 70%, 80%, 0.8)`;
       const sideColor = `hsla(${hue}, 70%, 70%, 0.5)`;
@@ -54,21 +88,29 @@ const GlobeComponent = forwardRef((props: GlobeComponentProps, ref) => {
   }));
 
   useEffect(() => {
+    isMountedRef.current = true;
+
     const loadGlobe = async () => {
+      if (!isMountedRef.current) return;
+
       try {
         const Globe = (await import("globe.gl")).default;
+
+        if (!isMountedRef.current) return;
 
         const res = await fetch(
           "https://unpkg.com/world-atlas/countries-110m.json"
         );
         const worldData = await res.json();
 
+        if (!isMountedRef.current) return;
+
         const countries = topojson.feature(
           worldData,
           worldData.objects.countries
         ) as unknown as FeatureCollection<Geometry>;
 
-        if (globeEl.current) {
+        if (globeEl.current && isMountedRef.current) {
           const globe = new Globe(globeEl.current)
             // Use transparent background
             .backgroundColor("rgba(0, 0, 0, 0)")
@@ -126,7 +168,7 @@ const GlobeComponent = forwardRef((props: GlobeComponentProps, ref) => {
                   { lat: centroid[1], lng: centroid[0], altitude: 0.5 },
                   2000
                 );
-                setTimeout(() => {
+                addTimeout(() => {
                   router.push(`/country/${polygon.id}`);
                 }, 2000);
               }
@@ -173,7 +215,7 @@ const GlobeComponent = forwardRef((props: GlobeComponentProps, ref) => {
 
           // Event listener for zoom with debouncing
           let zoomTimeout: ReturnType<typeof setTimeout> | null = null;
-          globe.controls().addEventListener("change", () => {
+          const handleZoomChange = () => {
             const cameraPosition = globe.camera().position;
             const cameraDistance = new THREE.Vector3()
               .copy(cameraPosition)
@@ -181,13 +223,18 @@ const GlobeComponent = forwardRef((props: GlobeComponentProps, ref) => {
             currentZoomDistance = cameraDistance;
 
             // Clear previous timeout
-            if (zoomTimeout) clearTimeout(zoomTimeout);
+            if (zoomTimeout) {
+              clearTimeout(zoomTimeout);
+              timeoutsRef.current.delete(zoomTimeout);
+            }
 
             // Set new timeout for handling label visibility
-            zoomTimeout = setTimeout(() => {
+            zoomTimeout = addTimeout(() => {
               updateLabelVisibility();
             }, 100);
-          });
+          };
+
+          addEventListenerTracked(globe.controls(), "change", handleZoomChange);
 
           // Create stars efficiently
           const createStars = () => {
@@ -201,10 +248,10 @@ const GlobeComponent = forwardRef((props: GlobeComponentProps, ref) => {
               sizeAttenuation: true,
             });
 
-            // Generate fewer stars
+            // Generate fewer stars for better performance
             const starsVertices = [];
-            for (let i = 0; i < 1500; i++) {
-              // Reduced from 3000
+            for (let i = 0; i < 800; i++) {
+              // Reduced from 1500
               const radius = 500;
               const theta = 2 * Math.PI * Math.random();
               const phi = Math.acos(2 * Math.random() - 1);
@@ -224,8 +271,8 @@ const GlobeComponent = forwardRef((props: GlobeComponentProps, ref) => {
             globe.scene().add(starField);
 
             // Add fewer colored stars
-            for (let i = 0; i < 30; i++) {
-              // Reduced from 100
+            for (let i = 0; i < 15; i++) {
+              // Reduced from 30
               const starColor = new THREE.Color();
               starColor.setHSL(Math.random(), 0.3, 0.8);
 
@@ -258,22 +305,27 @@ const GlobeComponent = forwardRef((props: GlobeComponentProps, ref) => {
               globe.scene().add(bigStar);
             }
 
-            // Less frequent twinkling
+            // Simplified twinkling to reduce performance impact
             const addTwinkle = () => {
+              if (!isMountedRef.current) return;
+
+              // Only update a small subset of stars very infrequently
+              let count = 0;
               globe.scene().traverse((object) => {
                 if (
                   object instanceof THREE.Points &&
                   object !== starField &&
-                  Math.random() > 0.7
+                  count < 2 && // Limit updates to only 2 stars
+                  Math.random() > 0.9 // Even more selective
                 ) {
-                  // Only update some stars
                   const material = object.material as THREE.PointsMaterial;
                   material.opacity = 0.5 + Math.random() * 0.5;
                   material.size = Math.random() * 1.5 + 0.5;
+                  count++;
                 }
               });
 
-              setTimeout(addTwinkle, 2000 + Math.random() * 1000); // Less frequent updates
+              addTimeout(addTwinkle, 5000 + Math.random() * 3000); // Much less frequent updates
             };
 
             addTwinkle();
@@ -305,39 +357,163 @@ const GlobeComponent = forwardRef((props: GlobeComponentProps, ref) => {
 
           // Reduce auto-rotation interruptions
           let interactionTimeout: ReturnType<typeof setTimeout> | null = null;
-          globe.controls().addEventListener("start", () => {
+          const handleControlsStart = () => {
             globe.controls().autoRotate = false;
-          });
+          };
 
-          globe.controls().addEventListener("end", () => {
+          const handleControlsEnd = () => {
             // Clear previous timeout
-            if (interactionTimeout) clearTimeout(interactionTimeout);
+            if (interactionTimeout) {
+              clearTimeout(interactionTimeout);
+              timeoutsRef.current.delete(interactionTimeout);
+            }
 
             // Set new timeout
-            interactionTimeout = setTimeout(() => {
-              globe.controls().autoRotate = true;
+            interactionTimeout = addTimeout(() => {
+              if (isMountedRef.current) {
+                globe.controls().autoRotate = true;
+              }
             }, 3000);
-          });
+          };
+
+          addEventListenerTracked(
+            globe.controls(),
+            "start",
+            handleControlsStart
+          );
+          addEventListenerTracked(globe.controls(), "end", handleControlsEnd);
 
           // Initial label visibility check
           updateLabelVisibility();
 
-          // Optimize renderer
-          globe.renderer().setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Cap pixel ratio
+          // Optimize renderer with better settings for performance
+          globe
+            .renderer()
+            .setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); // Lower pixel ratio
           globe.renderer().setClearColor(new THREE.Color(0x000000), 1);
+          globe.renderer().shadowMap.enabled = false; // Disable shadows for better performance
 
           // Store globe instance in ref so it can be accessed via forwarded ref
           globeInstance.current = globe;
 
-          setIsLoading(false);
+          if (isMountedRef.current) {
+            setIsLoading(false);
+          }
         }
       } catch (error) {
         console.error("Error loading globe:", error);
-        setIsLoading(false);
+        if (isMountedRef.current) {
+          setIsLoading(false);
+        }
       }
     };
 
     loadGlobe();
+
+    // Cleanup function
+    return () => {
+      isMountedRef.current = false;
+
+      // Clear all timeouts
+      timeoutsRef.current.forEach((timeoutId) => clearTimeout(timeoutId));
+      timeoutsRef.current.clear();
+
+      // Clear all intervals
+      intervalsRef.current.forEach((intervalId) => clearInterval(intervalId));
+      intervalsRef.current.clear();
+
+      // Clear all animation frames
+      animationFramesRef.current.forEach((frameId) =>
+        cancelAnimationFrame(frameId)
+      );
+      animationFramesRef.current.clear();
+
+      // Remove all event listeners
+      eventListenersRef.current.forEach(({ target, event, handler }) => {
+        try {
+          target.removeEventListener(event, handler);
+        } catch (error) {
+          console.warn("Error removing event listener:", error);
+        }
+      });
+      eventListenersRef.current = [];
+
+      // Cleanup globe instance and THREE.js resources
+      if (globeInstance.current) {
+        const globe = globeInstance.current;
+
+        try {
+          // Stop any animations and clear animation loops
+          if (globe.controls) {
+            globe.controls().autoRotate = false;
+            globe.controls().enabled = false;
+          }
+
+          // Stop the globe's animation loop
+          if (globe.renderer() && globe.renderer().setAnimationLoop) {
+            globe.renderer().setAnimationLoop(null);
+          }
+
+          // Get scene and renderer for cleanup
+          const scene = globe.scene();
+          const renderer = globe.renderer();
+
+          // Dispose of all geometries and materials
+          scene.traverse((object: any) => {
+            if (object.geometry) {
+              object.geometry.dispose();
+            }
+            if (object.material) {
+              if (Array.isArray(object.material)) {
+                object.material.forEach((material: any) => {
+                  if (material.map) material.map.dispose();
+                  if (material.normalMap) material.normalMap.dispose();
+                  if (material.bumpMap) material.bumpMap.dispose();
+                  material.dispose();
+                });
+              } else {
+                if (object.material.map) object.material.map.dispose();
+                if (object.material.normalMap)
+                  object.material.normalMap.dispose();
+                if (object.material.bumpMap) object.material.bumpMap.dispose();
+                object.material.dispose();
+              }
+            }
+          });
+
+          // Clear the scene
+          while (scene.children.length > 0) {
+            scene.remove(scene.children[0]);
+          }
+
+          // Dispose renderer and clear canvas
+          renderer.dispose();
+          renderer.forceContextLoss();
+          renderer.domElement.remove();
+
+          // Force garbage collection of WebGL context
+          const gl = renderer.getContext();
+          if (gl) {
+            const loseContext = gl.getExtension("WEBGL_lose_context");
+            if (loseContext) {
+              loseContext.loseContext();
+            }
+          }
+
+          // Clear the DOM element
+          if (globeEl.current) {
+            globeEl.current.innerHTML = "";
+          }
+        } catch (error) {
+          console.warn("Error during globe cleanup:", error);
+        }
+
+        globeInstance.current = null;
+      }
+
+      // Clear color cache
+      countryColors.current.clear();
+    };
   }, []);
 
   return (

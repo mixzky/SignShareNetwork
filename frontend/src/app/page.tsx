@@ -1,7 +1,7 @@
 "use client";
 import GlobeComponent from "@/components/GlobeComponent";
 import TopMenu from "@/components/TopMenu";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import CountryLoading from "@/components/CountryLoading";
 import { BiSearch } from "react-icons/bi";
 import * as d3 from "d3-geo";
@@ -24,6 +24,17 @@ export default function Home() {
     GeoJSON.Feature<GeoJSON.Geometry, GeoJSON.GeoJsonProperties>[]
   >([]);
   const [countryNow, setCountryNow] = useState<string>("");
+
+  // Track timeouts for cleanup
+  const activeTimeouts = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      activeTimeouts.current.forEach((timeoutId) => clearTimeout(timeoutId));
+      activeTimeouts.current.clear();
+    };
+  }, []);
 
   // Function to load countries data if not already loaded
   const loadCountriesData = async () => {
@@ -125,46 +136,57 @@ export default function Home() {
       // Clear search after successful navigation
       setSearchQuery("");
       setSuggestions([]);
-      setTimeout(() => {
+      const timeoutId = setTimeout(() => {
+        activeTimeouts.current.delete(timeoutId);
         router.push(`/country/${countryNavi}`);
       }, 2000);
+      activeTimeouts.current.add(timeoutId);
     } else {
       console.log("Country not found");
       // You could add a visual indicator here that the country wasn't found
     }
   }
 
-  // Suggestion logic
-  const handleInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchQuery(value);
+  // Suggestion logic - memoized for performance
+  const handleInputChange = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      setSearchQuery(value);
 
-    if (value.trim().length >= 2) {
-      const countriesData = await loadCountriesData();
-      const searchLower = value.toLowerCase();
-      const matches = countriesData
-        .map((country: any) => country.properties.name)
-        .filter((name: string) => name.toLowerCase().includes(searchLower))
-        .slice(0, 5);
-      setSuggestions(matches);
-    } else {
-      setSuggestions([]);
-    }
-  };
+      if (value.trim().length >= 2) {
+        const countriesData = await loadCountriesData();
+        const searchLower = value.toLowerCase();
+        const matches = countriesData
+          .map((country: any) => country.properties.name)
+          .filter((name: string) => name.toLowerCase().includes(searchLower))
+          .slice(0, 5);
+        setSuggestions(matches);
+      } else {
+        setSuggestions([]);
+      }
+    },
+    []
+  );
 
-  const handleSuggestionClick = (name: string) => {
+  const handleSuggestionClick = useCallback((name: string) => {
     setSearchQuery(name);
     setSuggestions([]);
-  };
+  }, []);
 
-  const handlePolygonClick = (country: any) => {
-    setCountryNow(country.properties?.name || "");
-    setIsLoading(true);
-    // Optionally, animate globe or do other logic here
-    setTimeout(() => {
-      router.push(`/country/${country.id}`);
-    }, 2000); // Wait for animation if needed
-  };
+  // Memoize handlers to prevent unnecessary re-renders, but NOT the globe component
+  const handlePolygonClick = useCallback(
+    (country: any) => {
+      setCountryNow(country.properties?.name || "");
+      setIsLoading(true);
+      // Optionally, animate globe or do other logic here
+      const timeoutId = setTimeout(() => {
+        activeTimeouts.current.delete(timeoutId);
+        router.push(`/country/${country.id}`);
+      }, 2000); // Wait for animation if needed
+      activeTimeouts.current.add(timeoutId);
+    },
+    [router]
+  );
 
   return (
     <main className="bg-[#0a0e18] h-screen overflow-hidden fixed inset-0">
@@ -186,7 +208,11 @@ export default function Home() {
               onFocus={() => setIsSearchFocused(true)}
               onBlur={() => {
                 setIsSearchFocused(false);
-                setTimeout(() => setSuggestions([]), 150);
+                const timeoutId = setTimeout(() => {
+                  activeTimeouts.current.delete(timeoutId);
+                  setSuggestions([]);
+                }, 150);
+                activeTimeouts.current.add(timeoutId);
               }}
               placeholder="Find countries..."
               className="bg-transparent outline-none px-4 py-2 w-full transition-all duration-300 placeholder-blue-200/50 text-blue-100 text-sm"
