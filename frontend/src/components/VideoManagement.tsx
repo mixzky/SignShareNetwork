@@ -159,35 +159,28 @@ export default function VideoManagement({
           </div>
           <div className="bg-[#f8fafc] rounded-lg p-4 border border-[#e0e3ea]">
             <label className="block text-sm font-semibold mb-2">Tags</label>
-            <div className="max-h-24 overflow-y-auto">
-              <div className="flex flex-wrap gap-2">
-                {editTags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="bg-[#fff3cd] text-[#b48a4a] px-2 py-1 rounded-full text-xs font-semibold tracking-wide shadow-sm cursor-pointer hover:scale-105 hover:shadow-md transition-transform duration-150"
-                    onClick={() => handleRemoveTag(tag)}
-                    title="Remove tag"
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ")
-                        handleRemoveTag(tag);
-                    }}
-                    aria-label={`Remove tag ${tag}`}
-                  >
-                    #{tag}{" "}
-                    <span className="ml-1 text-sm align-middle">&times;</span>
-                  </span>
-                ))}
-                {editTags.length === 0 && (
-                  <span className="text-gray-400 text-xs py-1">No tags</span>
-                )}
-              </div>
+            <div className="flex flex-wrap gap-2">
+              {editTags.map((tag) => (
+                <span
+                  key={tag}
+                  className="bg-[#fff3cd] text-[#b48a4a] px-2 py-1 rounded-full text-xs font-semibold tracking-wide shadow-sm cursor-pointer hover:scale-105 hover:shadow-md transition-transform duration-150"
+                  onClick={() => handleRemoveTag(tag)}
+                  title="Remove tag"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ")
+                      handleRemoveTag(tag);
+                  }}
+                  aria-label={`Remove tag ${tag}`}
+                >
+                  #{tag}{" "}
+                  <span className="ml-1 text-sm align-middle">&times;</span>
+                </span>
+              ))}
+              {editTags.length === 0 && (
+                <span className="text-gray-400 text-xs py-1">No tags</span>
+              )}
             </div>
-            {editTags.length > 8 && (
-              <div className="text-xs text-gray-500 mt-1 italic">
-                {editTags.length} tags • Scroll to view all
-              </div>
-            )}
             <div className="text-xs text-gray-400 mt-2">
               Click or press Enter/Space on a tag to remove it.
             </div>
