@@ -20,4 +20,6 @@ RUN npm run build
 
 EXPOSE 3000
 
+RUN echo "PORT is $PORT"
+
 CMD ["npm", "start"]
