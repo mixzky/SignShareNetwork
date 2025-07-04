@@ -71,9 +71,9 @@
 
 ### Video Requirements
 
-- **Format**: `+++`
-- **Quality**: HD (1080p) or higher preferred
-- **Duration**: `+++`
+- **Format**: MP4 or WebM
+- **Quality**: HD (1080p) or higher preferred, Maximum file size: 50MB
+- **Duration**: No strict duration limit recommended 15-30 second
 - **Content**: Sign language related content
 
 ### Upload Process
