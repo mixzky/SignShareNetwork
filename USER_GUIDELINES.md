@@ -193,7 +193,6 @@ The platform includes a comprehensive community review system that allows users 
 
 - **Add Review**: Write your thoughts in the comment box below the voting buttons
 - **Quick Submit**: Press Enter to submit your comment (Shift+Enter for new line)
-- **Character Requirement**: Comments are required when submitting a review
 
 ### 3. **Managing Your Reviews**
 
@@ -211,45 +210,6 @@ The platform includes a comprehensive community review system that allows users 
 - **Load More**: Initially shows 3 comments, click "Show more comments" to see additional reviews
 
 ### 5. **Review Guidelines**
-
-- **Constructive Feedback**: Focus on helpful, educational comments
-- **Respectful Language**: Maintain a positive and supportive community environment
-- **Quality Focus**: Comment on video clarity, educational value, and sign language accuracy
-- **Cultural Sensitivity**: Respect different sign language variations and cultural expressions
-
-### Video Reviews
-
-The platform includes a comprehensive community review system that allows users to provide feedback on videos through upvotes, downvotes, and comments:
-
-#### 1. **Voting on Videos**
-
-- **Upvote**: Click the green upward arrow to show you liked the video
-- **Downvote**: Click the red downward arrow if you didn't find the video helpful
-- **Vote Count**: See the total number of upvotes and downvotes for each video
-- **Change Your Vote**: Click the same button again to remove your vote, or click the opposite to change it
-
-#### 2. **Writing Comments**
-
-- **Add Review**: Write your thoughts in the comment box below the voting buttons
-- **Quick Submit**: Press Enter to submit your comment (Shift+Enter for new line)
-- **Character Requirement**: Comments are required when submitting a review
-
-#### 3. **Managing Your Reviews**
-
-- **Edit Reviews**: If you've already reviewed a video, you can edit your comment and change your vote
-- **Delete Reviews**: Remove your review entirely using the delete button
-- **Review Status**: See "Editing your review" indicator when modifying existing reviews
-- **Success Feedback**: Get confirmation when your review is submitted, updated, or deleted
-
-#### 4. **Review Display Features**
-
-- **Vote Totals**: See total upvotes and downvotes displayed next to the voting buttons
-- **Comment Count**: View total number of reviews/comments on each video
-- **User Profiles**: See reviewer names and profile pictures with each comment
-- **Vote Indicators**: See upvote/downvote arrows next to usernames showing how they voted
-- **Load More**: Initially shows 3 comments, click "Show more comments" to see additional reviews
-
-#### 5. **Review Guidelines**
 
 - **Constructive Feedback**: Focus on helpful, educational comments
 - **Respectful Language**: Maintain a positive and supportive community environment
@@ -290,7 +250,6 @@ Track all recent actions and notifications about your content:
 - **Edit Title**: Update your video's title
 - **Edit Description**: Modify the video description
 - **Manage Tags**: Remove tags by clicking on them
-- **View Reviews**: See all reviews and ratings for your videos
 - **Delete Video**: Permanently remove videos you no longer want
 
 #### 3. **Tag Management**
