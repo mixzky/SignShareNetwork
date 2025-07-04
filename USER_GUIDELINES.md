@@ -12,12 +12,14 @@
 2. [Account Management](#account-management)
 3. [Uploading Videos](#uploading-videos)
 4. [Video Management](#video-management)
-5. [Dashboard Features](#dashboard-features)
-6. [Search and Discovery](#search-and-discovery)
-7. [Community Guidelines](#community-guidelines)
-8. [Troubleshooting](#troubleshooting)
-9. [Privacy and Security](#privacy-and-security)
-10. [Contact Support](#contact-support)
+5. [Video Reviews](#video-reviews)
+6. [Dashboard Features](#dashboard-features)
+7. [Search and Discovery](#search-and-discovery)
+8. [Community Guidelines](#community-guidelines)
+9. [Troubleshooting](#troubleshooting)
+10. [Privacy and Security](#privacy-and-security)
+11. [Contact Support](#contact-support)
+12. [Tips for Success](#tips-for-success)
 
 ---
 
@@ -71,9 +73,9 @@
 
 ### Video Requirements
 
-- **Format**: `+++`
-- **Quality**: HD (1080p) or higher preferred
-- **Duration**: `+++`
+- **Format**: MP4 or WebM
+- **Quality**: HD (1080p) or higher preferred, Maximum file size: 50MB
+- **Duration**: No strict duration limit recommended 15-30 second
 - **Content**: Sign language related content
 
 ### Upload Process
@@ -129,6 +131,7 @@ Each video displays the following information:
 
 - View count and engagement statistics
 - Upload date
+- Review count and ratings
 
 ### Searching and Filtering Videos
 
@@ -175,6 +178,86 @@ Each video displays the following information:
 
 ---
 
+## Video Reviews
+
+The platform includes a comprehensive community review system that allows users to provide feedback on videos through upvotes, downvotes, and comments:
+
+### 1. **Voting on Videos**
+
+- **Upvote**: Click the green upward arrow to show you liked the video
+- **Downvote**: Click the red downward arrow if you didn't find the video helpful
+- **Vote Count**: See the total number of upvotes and downvotes for each video
+- **Change Your Vote**: Click the same button again to remove your vote, or click the opposite to change it
+
+### 2. **Writing Comments**
+
+- **Add Review**: Write your thoughts in the comment box below the voting buttons
+- **Quick Submit**: Press Enter to submit your comment (Shift+Enter for new line)
+- **Character Requirement**: Comments are required when submitting a review
+
+### 3. **Managing Your Reviews**
+
+- **Edit Reviews**: If you've already reviewed a video, you can edit your comment and change your vote
+- **Delete Reviews**: Remove your review entirely using the delete button
+- **Review Status**: See "Editing your review" indicator when modifying existing reviews
+- **Success Feedback**: Get confirmation when your review is submitted, updated, or deleted
+
+### 4. **Review Display Features**
+
+- **Vote Totals**: See total upvotes and downvotes displayed next to the voting buttons
+- **Comment Count**: View total number of reviews/comments on each video
+- **User Profiles**: See reviewer names and profile pictures with each comment
+- **Vote Indicators**: See upvote/downvote arrows next to usernames showing how they voted
+- **Load More**: Initially shows 3 comments, click "Show more comments" to see additional reviews
+
+### 5. **Review Guidelines**
+
+- **Constructive Feedback**: Focus on helpful, educational comments
+- **Respectful Language**: Maintain a positive and supportive community environment
+- **Quality Focus**: Comment on video clarity, educational value, and sign language accuracy
+- **Cultural Sensitivity**: Respect different sign language variations and cultural expressions
+
+### Video Reviews
+
+The platform includes a comprehensive community review system that allows users to provide feedback on videos through upvotes, downvotes, and comments:
+
+#### 1. **Voting on Videos**
+
+- **Upvote**: Click the green upward arrow to show you liked the video
+- **Downvote**: Click the red downward arrow if you didn't find the video helpful
+- **Vote Count**: See the total number of upvotes and downvotes for each video
+- **Change Your Vote**: Click the same button again to remove your vote, or click the opposite to change it
+
+#### 2. **Writing Comments**
+
+- **Add Review**: Write your thoughts in the comment box below the voting buttons
+- **Quick Submit**: Press Enter to submit your comment (Shift+Enter for new line)
+- **Character Requirement**: Comments are required when submitting a review
+
+#### 3. **Managing Your Reviews**
+
+- **Edit Reviews**: If you've already reviewed a video, you can edit your comment and change your vote
+- **Delete Reviews**: Remove your review entirely using the delete button
+- **Review Status**: See "Editing your review" indicator when modifying existing reviews
+- **Success Feedback**: Get confirmation when your review is submitted, updated, or deleted
+
+#### 4. **Review Display Features**
+
+- **Vote Totals**: See total upvotes and downvotes displayed next to the voting buttons
+- **Comment Count**: View total number of reviews/comments on each video
+- **User Profiles**: See reviewer names and profile pictures with each comment
+- **Vote Indicators**: See upvote/downvote arrows next to usernames showing how they voted
+- **Load More**: Initially shows 3 comments, click "Show more comments" to see additional reviews
+
+#### 5. **Review Guidelines**
+
+- **Constructive Feedback**: Focus on helpful, educational comments
+- **Respectful Language**: Maintain a positive and supportive community environment
+- **Quality Focus**: Comment on video clarity, educational value, and sign language accuracy
+- **Cultural Sensitivity**: Respect different sign language variations and cultural expressions
+
+---
+
 ## Dashboard Features
 
 ### Overview Section
@@ -186,7 +269,7 @@ Your dashboard provides a comprehensive view of your account activity and conten
 - **Total Videos**: Complete count of all your uploaded content
 - **Verified Videos**: Number of videos that have passed moderation
 - **Flagged Videos**: Count of videos currently under review
-- **Top Video by Comment**: Videos awaiting moderation approval
+- **Video Activity**: Track engagement and performance metrics
 
 #### Activity Feed
 
@@ -207,6 +290,7 @@ Track all recent actions and notifications about your content:
 - **Edit Title**: Update your video's title
 - **Edit Description**: Modify the video description
 - **Manage Tags**: Remove tags by clicking on them
+- **View Reviews**: See all reviews and ratings for your videos
 - **Delete Video**: Permanently remove videos you no longer want
 
 #### 3. **Tag Management**
@@ -221,20 +305,26 @@ Track all recent actions and notifications about your content:
 
 ### Finding Content
 
-#### 1. **Search Bar**: Use the search function to find specific videos or topics
+#### 1. **Global Search**
 
-#### 2. **Browse by Tags**: Click on tags to find related content
+- **Search Bar**: Use the search function to find specific videos or topics
+- **Keyword Search**: Enter terms related to sign language, topics, or creators
 
-#### 3. **Country/Region Search**: Browse content by geographic location
+#### 2. **Browse by Categories**
+
+- **Browse by Tags**: Click on tags to find related content
+- **Topic Exploration**: Discover content organized by themes and subjects
+
+#### 3. **Geographic Discovery**
 
 - **Interactive Globe**: Click on any country on the homepage globe to explore videos from that region
-- **Search Bar**: Type a country name in the search bar to find content from specific locations
-- **Regional Discovery**: Discover sign language variations and cultural content from different countries
+- **Country Search**: Type a country name in the search bar to find content from specific locations
+- **Regional Content**: Discover sign language variations and cultural content from different countries
 
-### Content Discovery
+### Content Discovery Features
 
-- **Trending Tags**: See what's popular in the community
-- **Recent Uploads**: Check out the latest content
+- **Trending Content**: See what's popular in the community
+- **Recent Uploads**: Check out the latest content from creators
 - **Geographic Exploration**: Use the interactive globe to discover sign language content from around the world
 
 ---
@@ -245,99 +335,119 @@ Track all recent actions and notifications about your content:
 
 #### 1. **Appropriate Content**
 
-- Keep content **family-friendly**
+- Keep content **family-friendly** and accessible to all ages
 - Focus on **educational or entertaining** sign language content
-- Respect **cultural diversity** in sign language
+- Respect **cultural diversity** in sign language expressions and communities
 
 #### 2. **Prohibited Content**
 
-- No **hate speech** or discriminatory content
+- No **hate speech** or discriminatory content of any kind
 - No **spam** or misleading information
-- No content that violates **copyright laws**
+- No content that violates **copyright laws** or intellectual property rights
 - No **inappropriate or offensive** material
 
 #### 3. **Quality Standards**
 
-- Ensure **good video quality** when possible
-- Provide **accurate descriptions** and tags
-- Use **clear signing** that's easy to follow
+- Ensure **good video quality** when possible for clear communication
+- Provide **accurate descriptions** and relevant tags
+- Use **clear signing** that's easy to follow and understand
 
-### Community Interaction
+### Community Interaction Guidelines
 
-- **Be Respectful**: Treat all users with kindness and respect
-- **Be Helpful**: Share knowledge and support learning
-- **Report Issues**: Flag inappropriate content or behavior
-- **Stay Positive**: Contribute to a welcoming environment
+- **Be Respectful**: Treat all users with kindness, patience, and respect
+- **Be Helpful**: Share knowledge and support learning in the community
+- **Report Issues**: Flag inappropriate content or behavior when encountered
+- **Stay Positive**: Contribute to a welcoming and inclusive environment
+- **Support Learning**: Encourage questions and provide constructive feedback
 
 ---
 
 ## Troubleshooting
 
-### Common Issues
+### Common Issues & Solutions
 
-#### 1. **Login Problems**
+#### 1. **Login & Authentication Problems**
 
-- Verify your **email and password**
-- Use "**Forgot Password**" if needed
-- Clear **browser cache and cookies**
-- Try a **different browser**
+- **Verify Credentials**: Double-check your **email and password**
+- **Password Reset**: Use "**Forgot Password**" if needed
+- **Browser Issues**: Clear **browser cache and cookies**
+- **Alternative Browser**: Try a **different browser** or incognito mode
 
-#### 2. **Upload Issues**
+#### 2. **Video Upload Issues**
 
-- Check your **internet connection**
-- Ensure **video file format** is supported
-- Verify **file size** isn't too large
-- Try **refreshing the page**
+- **Connection**: Check your **internet connection** stability
+- **File Format**: Ensure **video file format** is supported (MP4, WebM, MOV)
+- **File Size**: Verify **file size** isn't exceeding platform limits
+- **Page Refresh**: Try **refreshing the page** and attempting upload again
 
-#### 3. **Video Playback**
+#### 3. **Video Playback Problems**
 
-- Ensure your browser supports **video playback**
-- Check your **internet connection**
-- Try **refreshing the page**
-- **Update your browser**
+- **Browser Support**: Ensure your browser supports **video playback**
+- **Connection Speed**: Check your **internet connection** speed
+- **Page Refresh**: Try **refreshing the page**
+- **Browser Update**: **Update your browser** to the latest version
 
-#### 4. **Profile Issues**
+#### 4. **Profile & Account Issues**
 
-- Make sure all **required fields** are filled
-- Check that **usernames meet requirements**
-- Verify **email format** is correct
+- **Required Fields**: Make sure all **required fields** are completed
+- **Username Requirements**: Check that **usernames meet platform requirements**
+- **Email Format**: Verify **email format** is correct and valid
+- **Profile Picture**: Ensure uploaded images meet size and format requirements
 
-### Browser Compatibility
+### Technical Requirements
 
-- **Recommended**: Chrome, Firefox, Safari, Edge (latest versions)
-- **JavaScript**: Must be enabled
-- **Cookies**: Must be enabled for login functionality
+#### Browser Compatibility
+
+- **Recommended Browsers**: Chrome, Firefox, Safari, Edge (latest versions)
+- **JavaScript**: Must be enabled for full functionality
+- **Cookies**: Must be enabled for login and session management
+- **Pop-up Blockers**: May need to disable for certain features
+
+#### System Requirements
+
+- **Internet Connection**: Stable broadband connection recommended
+- **Device Storage**: Sufficient space for video uploads
+- **Camera/Microphone**: Required for video recording features
 
 ---
 
 ## Privacy and Security
 
-### Data Protection
+### Data Protection Measures
 
-- Your **personal information** is protected
-- Videos are stored **securely**
-- **Email addresses** are kept private
-- You control your **content visibility**
+- Your **personal information** is protected with industry-standard security measures
+- Videos are stored **securely** on protected servers
+- **Email addresses** are kept private and not shared with third parties
+- You maintain full control over your **content visibility** and sharing settings
 
 ### Security Best Practices
 
-#### 1. **Strong Passwords**
+#### 1. **Password Security**
 
-- Use **unique passwords** for your account
-- Include **uppercase, lowercase, numbers, and symbols**
-- Don't **share your login credentials**
+- Use **unique, strong passwords** for your account
+- Include **uppercase, lowercase, numbers, and special characters**
+- **Never share** your login credentials with others
+- Consider using a **password manager** for added security
 
-#### 2. **Account Security**
+#### 2. **Account Protection**
 
-- **Log out** when using shared computers
-- **Report suspicious activity** immediately
-- Keep your **email address updated**
+- **Log out** when using shared or public computers
+- **Report suspicious activity** to support immediately
+- Keep your **contact information updated**
+- Monitor your account for any **unauthorized access**
 
-### Content Control
+#### 3. **Safe Browsing**
 
-- **Public Videos**: Visible to all users
-- **Delete Anytime**: Remove your content when you want
-- **Edit Information**: Update video details as needed
+- Use **secure internet connections** when possible
+- Be cautious of **phishing attempts** or suspicious emails
+- **Verify URLs** before entering login information
+
+### Content & Privacy Controls
+
+- **Public Videos**: All uploaded content is visible to platform users
+- **Content Management**: **Delete or edit** your content anytime
+- **Profile Information**: Control what information is publicly displayed
+- **Communication Settings**: Manage how other users can contact you
 
 ---
 
@@ -345,64 +455,117 @@ Track all recent actions and notifications about your content:
 
 ### Getting Help
 
-#### 1. **Documentation**: Check this user guide first
+#### 1. **Self-Service Resources**
 
-#### 2. **Support Email**: Contact our support team
+- **User Guidelines**: Check this comprehensive guide first
+- **FAQ Section**: Browse frequently asked questions
+- **Troubleshooting Guide**: Follow step-by-step solutions for common issues
 
-### Reporting Issues
+#### 2. **Direct Support**
 
-- **Bug Reports**: Help us improve by reporting technical issues
-- **Content Reports**: Flag inappropriate content
-- **Feature Requests**: Suggest new features or improvements
+- **Support Email**: Contact our dedicated support team
+- **Bug Reports**: Submit detailed technical issue reports
+- **Feature Requests**: Suggest improvements and new features
 
-### Response Times
+### Reporting Guidelines
 
-- **Technical Issues**: 24-48 hours
-- **Content Reports**: Within 24 hours
+#### Content & Behavior Reports
+
+- **Inappropriate Content**: Flag videos that violate community guidelines
+- **User Behavior**: Report harassment, spam, or other policy violations
+- **Copyright Issues**: Report unauthorized use of copyrighted material
+
+#### Technical Issues
+
+- **Bug Reports**: Include detailed steps to reproduce the issue
+- **Browser Information**: Specify your browser and version
+- **Error Messages**: Copy any error messages you encounter
+- **Screenshots**: Attach relevant screenshots when helpful
+
+### Support Response Times
+
+- **Critical Issues**: Within 24 hours
+- **Content Reports**: Within 24-48 hours
 - **General Inquiries**: 2-3 business days
+- **Feature Requests**: Acknowledged within 1 week
+
+> **Tip**: For faster resolution, provide as much detail as possible when contacting support, including your username, the specific issue, and any error messages.
 
 ---
 
 ## Tips for Success
 
-### Creating Great Content
+### Creating Engaging Content
 
-#### 1. **Good Lighting**: Ensure your signing is clearly visible
+#### 1. **Video Production Quality**
 
-#### 2. **Stable Camera**: Use a tripod or stable surface
+- **Good Lighting**: Ensure your signing is clearly visible with adequate lighting
+- **Stable Camera**: Use a tripod or stable surface to avoid shaky footage
+- **Clear Background**: Choose simple, non-distracting backgrounds
+- **Appropriate Speed**: Sign at a comfortable, followable pace for your audience
 
-#### 3. **Clear Background**: Avoid distracting backgrounds
+#### 2. **Content Planning**
 
-#### 4. **Appropriate Speed**: Sign at a comfortable, followable pace
+- **Define Your Purpose**: Clearly establish what you want to teach or share
+- **Structure Your Content**: Organize lessons or information logically
+- **Practice First**: Rehearse your signing before recording
+- **Keep It Focused**: Stay on topic to maintain viewer engagement
 
-### Growing Your Audience
+### Building Your Community
 
-#### 1. **Consistent Uploads**: Regular content keeps viewers engaged
+#### 1. **Consistent Engagement**
 
-#### 2. **Descriptive Titles**: Help people find your content
+- **Regular Uploads**: Maintain a consistent posting schedule
+- **Community Interaction**: Respond to comments and engage with other creators
+- **Collaborative Content**: Consider collaborations with other sign language users
 
-#### 3. **Relevant Tags**: Use tags that describe your content
+#### 2. **Content Optimization**
 
-#### 4. **Community Engagement**: Interact with other creators
+- **Descriptive Titles**: Create clear, searchable titles that describe your content
+- **Relevant Tags**: Use specific tags that accurately describe your video content
+- **Detailed Descriptions**: Provide context and additional information in descriptions
+- **Appropriate Thumbnails**: Choose clear, representative thumbnails
 
-### Best Practices
+### Platform Best Practices
 
-- **Regular Updates**: Keep your profile and content current
-- **Quality over Quantity**: Focus on creating valuable content
-- **Community Participation**: Engage with other users' content
-- **Continuous Learning**: Stay updated with platform features
+#### 1. **Profile Management**
+
+- **Complete Profile**: Fill out all profile sections with relevant information
+- **Professional Presentation**: Use clear profile pictures and informative bios
+- **Regular Updates**: Keep your content and profile information current
+
+#### 2. **Community Participation**
+
+- **Quality Feedback**: Provide constructive reviews and comments on others' content
+- **Knowledge Sharing**: Share expertise and help answer questions in the community
+- **Positive Engagement**: Foster a supportive environment for all users
+- **Continuous Learning**: Stay updated with new platform features and sign language developments
+
+### Growth Strategies
+
+- **Cross-Platform Promotion**: Share your SignShareNetwork content on other social media
+- **Niche Focus**: Develop expertise in specific sign language topics or regions
+- **Educational Value**: Prioritize content that teaches or informs viewers
+- **Community Building**: Foster relationships with your audience and fellow creators
 
 ---
 
 ## Version History
 
 - **v1.0** - Initial user guidelines
-- **Last Updated**: July 4, 2025
+- **v1.1** - Added comprehensive video review system documentation
+- **Last Updated**: July 2025
 
 ---
 
-_Thank you for being part of the SignShareNetwork community! Together, we're building a platform that makes sign language more accessible and connects people worldwide._ 🌍🤟
+## Conclusion
+
+Thank you for being part of the **SignShareNetwork** community! Together, we're building a platform that makes sign language more accessible and connects people worldwide.
+
+Our platform thrives on the diversity and creativity of our users. Whether you're sharing educational content, cultural expressions, or personal stories through sign language, your contributions help build a more inclusive and connected global community.
 
 ---
 
-**Need more help?** Don't hesitate to reach out to our support team or check our FAQ section for additional assistance.
+**Need additional assistance?**
+
+Don't hesitate to reach out to our support team or explore our FAQ section for additional help. We're here to ensure you have the best possible experience on SignShareNetwork.
