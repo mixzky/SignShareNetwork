@@ -4,7 +4,8 @@ import { createClient } from "../../../utils/supabase/server";
 import { toast } from "sonner";
 
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url);
+  const { searchParams } = new URL(request.url);
+  const origin = request.headers.get("origin") || `https://${request.headers.get("host")}`;
   const code = searchParams.get("code");
   // if "next" is in param, use it as the redirect URL
   let next = searchParams.get("next") ?? "/";
