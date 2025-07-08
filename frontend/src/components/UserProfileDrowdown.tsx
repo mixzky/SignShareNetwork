@@ -48,18 +48,30 @@ export default function UserProfileDropdown({
   };
 
   return (
-    <Menu as="div" className="relative inline-block text-left ">
+    <Menu as="div" className="relative inline-block text-left">
       <div>
-        <Menu.Button className="flex items-center gap-2 text-md opacity-80 hover:opacity-100 transition-opacity cursor-pointer">
-          <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+        <Menu.Button 
+          className="flex items-center gap-2 text-md opacity-80 hover:opacity-100 transition-opacity cursor-pointer"
+          aria-label="Open user menu"
+          aria-haspopup="true"
+        >
+          <div 
+            className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden"
+            role="img"
+            aria-label={profile?.avatar_url ? `Profile picture of ${profile.display_name || user.email}` : "Default profile picture"}
+          >
             {profile?.avatar_url ? (
               <img
                 src={profile.avatar_url}
-                alt={profile.display_name || user.email}
+                alt=""
                 className="w-full h-full object-cover"
+                aria-hidden="true"
               />
             ) : (
-              <span className="text-sm text-gray-600">
+              <span 
+                className="text-sm text-gray-600"
+                aria-hidden="true"
+              >
                 {profile?.display_name?.[0]?.toUpperCase() ||
                   user.email?.[0]?.toUpperCase()}
               </span>
@@ -78,8 +90,12 @@ export default function UserProfileDropdown({
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
       >
-        <Menu.Items className="absolute right-[-50px]  mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-          <div className="px-1 py-1">
+        <Menu.Items 
+          className="absolute right-[-50px] mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+          aria-orientation="vertical"
+          aria-labelledby="user-menu-button"
+        >
+          <div className="px-1 py-1" role="none">
             <Menu.Item>
               {({ active }: MenuItemProps) => (
                 <Link
@@ -87,6 +103,8 @@ export default function UserProfileDropdown({
                   className={`${
                     active ? "bg-gray-100" : ""
                   } group flex w-full items-center rounded-md px-2 py-2 text-sm text-gray-900`}
+                  role="menuitem"
+                  aria-label="View your profile"
                 >
                   View Profile
                 </Link>
@@ -100,13 +118,15 @@ export default function UserProfileDropdown({
                   className={`${
                     active ? "bg-gray-100" : ""
                   } group flex w-full items-center rounded-md px-2 py-2 text-sm text-gray-900`}
+                  role="menuitem"
+                  aria-label="Go to your dashboard"
                 >
                   Dashboard
                 </Link>
               )}
             </Menu.Item>
           </div>
-          <div className="px-1 py-1">
+          <div className="px-1 py-1" role="none">
             <Menu.Item>
               {({ active }: MenuItemProps) => (
                 <button
@@ -114,6 +134,8 @@ export default function UserProfileDropdown({
                   className={`${
                     active ? "bg-gray-100" : ""
                   } group flex w-full items-center rounded-md px-2 py-2 text-sm text-red-600 cursor-pointer`}
+                  role="menuitem"
+                  aria-label="Sign out of your account"
                 >
                   Sign Out
                 </button>

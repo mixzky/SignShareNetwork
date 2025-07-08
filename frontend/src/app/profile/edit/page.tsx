@@ -123,50 +123,78 @@ export default function EditProfilePage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+      <div 
+        className="flex items-center justify-center min-h-screen"
+        role="status"
+        aria-label="Loading profile editor"
+      >
+        <div 
+          className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"
+          aria-hidden="true"
+        />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F0F2F5] relative overflow-hidden">
+    <div 
+      className="min-h-screen bg-[#F0F2F5] relative overflow-hidden"
+      role="main"
+    >
       {/* TopMenu fixed */}
-      <div className="fixed top-0 left-0 w-full z-50 bg-[#0a0e18] h-24 flex items-center">
+      <div 
+        className="fixed top-0 left-0 w-full z-50 bg-[#0a0e18] h-24 flex items-center"
+        role="banner"
+      >
         <TopMenu />
       </div>
-      <div className="w-full flex justify-center items-center bg-[#ffffff] h-16 mt-24 shadow z-40 relative">
+      <div 
+        className="w-full flex justify-center items-center bg-[#ffffff] h-16 mt-24 shadow z-40 relative"
+        role="heading"
+        aria-level={1}
+      >
         <span className="flex items-center gap-3 text-black text-2xl font-bold tracking-wide">
-          {/* Edit Profile icon */}
-          <Pencil className="w-8 h-8 text-[#2563eb]" />
+          <Pencil className="w-8 h-8 text-[#2563eb]" aria-hidden="true" />
           Edit Profile
         </span>
       </div>
       {/* Center the card vertically and horizontally */}
-      <div className="flex items-center justify-center  mt-20 ">
+      <div className="flex items-center justify-center mt-20">
         <Card className="w-full max-w-2xl">
           <CardHeader>
             <CardTitle>Edit Profile</CardTitle>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <form 
+              onSubmit={handleSubmit(onSubmit)} 
+              className="space-y-6"
+              aria-label="Edit profile form"
+            >
               <div className="space-y-4">
-                <div className="flex items-center gap-4">
+                <div 
+                  className="flex items-center gap-4"
+                  role="group"
+                  aria-labelledby="avatar-label"
+                >
                   <div className="relative w-24 h-24">
                     {avatarUrl ? (
                       <img
                         src={avatarUrl}
-                        alt="Profile"
+                        alt="Your profile picture"
                         className="w-full h-full rounded-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full rounded-full bg-gray-200 flex items-center justify-center">
-                        <span className="text-2xl text-gray-500">?</span>
+                      <div 
+                        className="w-full h-full rounded-full bg-gray-200 flex items-center justify-center"
+                        role="img"
+                        aria-label="Profile picture placeholder"
+                      >
+                        <span className="text-2xl text-gray-500" aria-hidden="true">?</span>
                       </div>
                     )}
                   </div>
                   <div>
-                    <Label htmlFor="avatar">Profile Picture</Label>
+                    <Label id="avatar-label" htmlFor="avatar">Profile Picture</Label>
                     <Input
                       id="avatar"
                       type="file"
@@ -174,49 +202,74 @@ export default function EditProfilePage() {
                       onChange={handleAvatarChange}
                       disabled={uploading}
                       className="mt-1 cursor-pointer"
+                      aria-describedby="avatar-status"
                     />
                     {uploading && (
-                      <p className="text-sm text-gray-500 mt-1">Uploading...</p>
+                      <p 
+                        id="avatar-status" 
+                        className="text-sm text-gray-500 mt-1"
+                        role="status"
+                        aria-live="polite"
+                      >
+                        Uploading...
+                      </p>
                     )}
                   </div>
                 </div>
 
-                <div>
-                  <Label htmlFor="display_name">Display Name</Label>
+                <div role="group" aria-labelledby="name-label">
+                  <Label id="name-label" htmlFor="display_name">Display Name</Label>
                   <Input
                     id="display_name"
                     {...register("display_name")}
                     className="mt-1"
+                    aria-describedby={errors.display_name ? "name-error" : undefined}
+                    aria-invalid={errors.display_name ? "true" : "false"}
                   />
                   {errors.display_name && (
-                    <p className="text-sm text-red-500 mt-1">
+                    <p 
+                      id="name-error" 
+                      className="text-sm text-red-500 mt-1"
+                      role="alert"
+                    >
                       {errors.display_name.message}
                     </p>
                   )}
                 </div>
 
-                <div>
-                  <Label htmlFor="bio">Bio</Label>
+                <div role="group" aria-labelledby="bio-label">
+                  <Label id="bio-label" htmlFor="bio">Bio</Label>
                   <Textarea
                     id="bio"
                     {...register("bio")}
                     className="mt-1"
                     rows={4}
+                    aria-describedby={errors.bio ? "bio-error" : undefined}
+                    aria-invalid={errors.bio ? "true" : "false"}
                   />
                   {errors.bio && (
-                    <p className="text-sm text-red-500 mt-1">
+                    <p 
+                      id="bio-error" 
+                      className="text-sm text-red-500 mt-1"
+                      role="alert"
+                    >
                       {errors.bio.message}
                     </p>
                   )}
                 </div>
               </div>
 
-              <div className="flex justify-end gap-4">
+              <div 
+                className="flex justify-end gap-4"
+                role="group"
+                aria-label="Form actions"
+              >
                 <Button
                   type="button"
                   variant="outline"
                   className="cursor-pointer"
                   onClick={() => router.push("/profile")}
+                  aria-label="Cancel editing profile"
                 >
                   Cancel
                 </Button>
@@ -224,6 +277,7 @@ export default function EditProfilePage() {
                   type="submit"
                   disabled={isSubmitting}
                   className="cursor-pointer"
+                  aria-label={isSubmitting ? "Saving changes..." : "Save profile changes"}
                 >
                   {isSubmitting ? "Saving..." : "Save Changes"}
                 </Button>
@@ -232,8 +286,16 @@ export default function EditProfilePage() {
           </CardContent>
         </Card>
       </div>
-      <div className="absolute top-[-60px] left-[-60px] w-72 h-72 bg-blue-200 rounded-full opacity-30 animate-pulse"></div>
-      <div className="absolute bottom-[-80px] right-[-80px] w-96 h-96 bg-pink-200 rounded-full opacity-20 animate-pulse"></div>
+
+      {/* Animated blobs - decorative elements */}
+      <div 
+        className="absolute top-[-60px] left-[-60px] w-72 h-72 bg-blue-200 rounded-full opacity-30 animate-pulse"
+        aria-hidden="true"
+      ></div>
+      <div 
+        className="absolute bottom-[-80px] right-[-80px] w-96 h-96 bg-pink-200 rounded-full opacity-20 animate-pulse"
+        aria-hidden="true"
+      ></div>
     </div>
   );
 }

@@ -189,11 +189,24 @@ export default function Home() {
   );
 
   return (
-    <main className="bg-[#0a0e18] h-screen overflow-hidden fixed inset-0">
+    <main 
+      className="bg-[#0a0e18] h-screen overflow-hidden fixed inset-0"
+      role="main"
+      aria-label="World map for sign language exploration"
+    >
       <TopMenu />
       {/* Enhanced search form below TopMenu */}
-      <div className="flex justify-center pt-24 pb-4 relative z-40">
-        <form onSubmit={handleSearch} className="relative w-72">
+      <div 
+        className="flex justify-center pt-24 pb-4 relative z-40"
+        role="search"
+        aria-label="Search countries"
+      >
+        <form 
+          onSubmit={handleSearch} 
+          className="relative w-72"
+          role="search"
+          aria-label="Country search form"
+        >
           <div
             className={`flex items-center border transition-all duration-300 rounded-full overflow-hidden shadow-lg ${
               isSearchFocused
@@ -202,7 +215,7 @@ export default function Home() {
             }`}
           >
             <input
-              type="text"
+              type="search"
               value={searchQuery}
               onChange={handleInputChange}
               onFocus={() => setIsSearchFocused(true)}
@@ -217,6 +230,10 @@ export default function Home() {
               placeholder="Find countries..."
               className="bg-transparent outline-none px-4 py-2 w-full transition-all duration-300 placeholder-blue-200/50 text-blue-100 text-sm"
               style={{ textShadow: "0 1px 2px rgba(0, 0, 0, 0.7)" }}
+              aria-label="Search for a country"
+              aria-expanded={suggestions.length > 0}
+              aria-controls="search-suggestions"
+              aria-describedby="search-description"
             />
             <button
               type="submit"
@@ -225,19 +242,30 @@ export default function Home() {
                   ? "text-blue-300 bg-blue-400/20 p-1.5"
                   : "text-blue-200/70 p-1"
               }`}
-              aria-label="Search"
+              aria-label="Search for country"
             >
-              <BiSearch size={18} />
+              <BiSearch size={18} aria-hidden="true" />
             </button>
           </div>
+          {/* Hidden description for screen readers */}
+          <span id="search-description" className="sr-only">
+            Type a country name to search and navigate to its sign language resources
+          </span>
           {/* Suggestions dropdown */}
           {suggestions.length > 0 && (
-            <ul className="absolute left-0 right-0 mt-2 bg-[#181e2a]/80 border border-blue-400/30 rounded-xl shadow-lg z-50">
+            <ul 
+              id="search-suggestions"
+              className="absolute left-0 right-0 mt-2 bg-[#181e2a]/80 border border-blue-400/30 rounded-xl shadow-lg z-50"
+              role="listbox"
+              aria-label="Country suggestions"
+            >
               {suggestions.map((name) => (
                 <li
                   key={name}
                   className="px-4 py-2 cursor-pointer hover:bg-blue-400/20 text-blue-100"
                   onMouseDown={() => handleSuggestionClick(name)}
+                  role="option"
+                  aria-selected={searchQuery === name}
                 >
                   {name}
                 </li>
@@ -246,19 +274,48 @@ export default function Home() {
           )}
           {/* Enhanced glow effect when focused */}
           {isSearchFocused && (
-            <div className="absolute inset-0 -z-10 rounded-full blur-md bg-blue-500/15"></div>
+            <div 
+              className="absolute inset-0 -z-10 rounded-full blur-md bg-blue-500/15"
+              aria-hidden="true"
+            ></div>
           )}
-
-          {/* Permanent subtle glow for better visibility even when not focused */}
-          <div className="absolute inset-0 -z-20 rounded-full blur-lg bg-blue-500/5"></div>
         </form>
       </div>
-      <div className="absolute inset-0 -z-10">
-        <GlobeComponent ref={globeRef} onPolygonClick={handlePolygonClick} />
+
+      {/* Globe Component */}
+      <div 
+        className="absolute inset-0 z-30"
+        role="region"
+        aria-label="Interactive world map"
+      >
+        <GlobeComponent
+          ref={globeRef}
+          onPolygonClick={handlePolygonClick}
+          aria-label="Click on a country to explore its sign language"
+        />
       </div>
 
-      {/* Loading spinner */}
-      {isLoading && <CountryLoading countryName={countryNow || ""} />}
+      {/* Loading Overlay */}
+      {isLoading && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          role="status"
+          aria-live="polite"
+        >
+          <CountryLoading countryName={countryNow || ""} />
+        </div>
+      )}
+
+      {/* Current country announcement for screen readers */}
+      {countryNow && (
+        <div 
+          className="sr-only" 
+          role="status" 
+          aria-live="polite"
+        >
+          Selected country: {countryNow}
+        </div>
+      )}
     </main>
   );
 }

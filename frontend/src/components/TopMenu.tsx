@@ -32,7 +32,11 @@ export default function TopMenu() {
   }, []);
 
   return (
-    <nav className="text-white fixed w-full z-50 top-6">
+    <nav 
+      className="text-white fixed w-full z-50 top-6"
+      role="navigation"
+      aria-label="Main navigation"
+    >
       <div className="max-w-7xl mx-auto px-20">
         <div className="relative flex items-center h-16 justify-center">
           {/* Left section - Home */}
@@ -41,6 +45,7 @@ export default function TopMenu() {
               href="/"
               className="text-md opacity-80 hover:opacity-100 transition-opacity"
               style={{ textShadow: "0 2px 4px rgba(0, 0, 0, 0.5)" }}
+              aria-label="Go to home page"
             >
               Home
             </Link>
@@ -55,18 +60,24 @@ export default function TopMenu() {
                 textShadow:
                   "0 4px 8px rgba(0, 0, 0, 0.5), 0 2px 4px rgba(0, 0, 0, 0.5)",
               }}
+              aria-label="SignShare Network - Go to home page"
             >
               SignShare Network
             </Link>
           </div>
 
           {/* Right section - Navigation Items */}
-          <div className="absolute right-0 flex items-center gap-6 ">
+          <div 
+            className="absolute right-0 flex items-center gap-6"
+            role="navigation"
+            aria-label="User menu"
+          >
             {!user ? (
               <Link
                 href="/login"
                 className="text-md opacity-80 hover:opacity-100 transition-opacity"
                 style={{ textShadow: "0 2px 4px rgba(0, 0, 0, 0.5)" }}
+                aria-label="Log in to your account"
               >
                 Login
               </Link>
