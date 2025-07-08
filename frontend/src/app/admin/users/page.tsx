@@ -218,9 +218,12 @@ export default function UsersPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center" role="status">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div 
+            className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"
+            aria-hidden="true"
+          ></div>
           <p className="text-slate-600 font-medium">Loading users...</p>
         </div>
       </div>
@@ -230,13 +233,18 @@ export default function UsersPage() {
   if (!userRole || (userRole !== "admin" && userRole !== "moderator")) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center rounded-xl">
-        <div className="text-center bg-white rounded-2xl p-8 shadow-lg border border-red-200">
+        <div 
+          className="text-center bg-white rounded-2xl p-8 shadow-lg border border-red-200"
+          role="alert"
+          aria-live="assertive"
+        >
           <div className="p-4 bg-red-100 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
             <svg
               className="w-8 h-8 text-red-600"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -247,232 +255,158 @@ export default function UsersPage() {
             </svg>
           </div>
           <h3 className="text-xl font-bold text-red-700 mb-2">Access Denied</h3>
-          <p className="text-red-600">
-            You don't have permission to view this page
-          </p>
+          <p className="text-red-600">You do not have permission to access this page.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 rounded-xl">
-      <div className="container mx-auto px-6 py-12">
-        {/* Header */}
-        <div className="mb-12">
-          <div className="flex items-center gap-4 mb-3">
-            <div className="p-3 bg-blue-600 rounded-2xl shadow-lg">
-              <svg
-                className="h-8 w-8 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                />
-              </svg>
+    <div className="p-6 max-w-7xl mx-auto">
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold mb-4">User Management</h1>
+        
+        {/* Search and Filter Controls */}
+        <div 
+          className="flex flex-col md:flex-row gap-4 mb-6"
+          role="search"
+          aria-label="User search and filter controls"
+        >
+          <div className="flex-1">
+            <label htmlFor="search" className="sr-only">Search users</label>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" aria-hidden="true" />
+              <Input
+                id="search"
+                type="search"
+                placeholder="Search by email, name, or username..."
+                className="pl-10"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                aria-label="Search users"
+              />
             </div>
-            <h1 className="text-4xl font-bold text-slate-800 leading-tight">
-              User Management
-            </h1>
           </div>
-          <p className="text-slate-600 text-lg ml-16">
-            Manage users, roles, and permissions
-          </p>
-        </div>
-
-        {/* Filters and Search */}
-        <div className="bg-white rounded-xl shadow-md border border-slate-200 p-4 mb-6">
-          <div className="flex flex-col md:flex-row gap-3">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
-                <Input
-                  type="text"
-                  placeholder="Search by name, email, or username..."
-                  value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value);
-                    // Trigger search immediately for paste events
-
-                    //Remove debounce 
-                    fetchUsers();
-                  }}
-                  className="pl-10 h-9 text-sm border-slate-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg"
-                />
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant={roleFilter === "all" ? "default" : "outline"}
-                onClick={() => setRoleFilter("all")}
-                className={`h-9 px-4 rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 ${
-                  roleFilter === "all"
-                    ? "bg-blue-600 hover:bg-blue-700 text-white shadow-md"
-                    : "border-slate-300 text-slate-600 hover:bg-slate-50 hover:border-slate-400"
-                }`}
-              >
-                All Users
-              </Button>
-              <Button
-                variant={roleFilter === "user" ? "default" : "outline"}
-                onClick={() => setRoleFilter("user")}
-                className={`h-9 px-4 rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 ${
-                  roleFilter === "user"
-                    ? "bg-blue-600 hover:bg-blue-700 text-white shadow-md"
-                    : "border-slate-300 text-slate-600 hover:bg-slate-50 hover:border-slate-400"
-                }`}
-              >
-                Users
-              </Button>
-              <Button
-                variant={roleFilter === "moderator" ? "default" : "outline"}
-                onClick={() => setRoleFilter("moderator")}
-                className={`h-9 px-4 rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 ${
-                  roleFilter === "moderator"
-                    ? "bg-blue-600 hover:bg-blue-700 text-white shadow-md"
-                    : "border-slate-300 text-slate-600 hover:bg-slate-50 hover:border-slate-400"
-                }`}
-              >
-                Moderators
-              </Button>
-            </div>
+          <div>
+            <label htmlFor="role-filter" className="sr-only">Filter by role</label>
+            <select
+              id="role-filter"
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value as User["role"] | "all")}
+              className="w-full md:w-auto px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              aria-label="Filter users by role"
+            >
+              <option value="all">All Roles</option>
+              <option value="user">Users</option>
+              <option value="moderator">Moderators</option>
+              <option value="admin">Administrators</option>
+            </select>
           </div>
         </div>
 
-        {/* Users Grid */}
-        <div className="space-y-4">
-          {users.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-xl shadow-md border border-slate-200">
-              <div className="p-3 bg-slate-100 rounded-full w-12 h-12 mx-auto mb-3 flex items-center justify-center">
-                <svg
-                  className="w-6 h-6 text-slate-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-base font-semibold text-slate-600 mb-1">
-                No Users Found
-              </h3>
-              <p className="text-sm text-slate-500">
-                Try adjusting your search or filter criteria
-              </p>
-            </div>
-          ) : (
-            users.map((user) => (
-              <Card
-                key={user.id}
-                className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-slate-200 p-4"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-4">
-                      <div className="flex-1">
-                        <h3 className="font-bold text-lg text-slate-800 mb-1">
-                          {user.display_name || user.username}
-                        </h3>
-                        <p className="text-slate-600 text-sm mb-2">
-                          {user.email}
-                        </p>
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                              user.role === "admin"
-                                ? "bg-purple-100 text-purple-700 border border-purple-200"
-                                : user.role === "moderator"
-                                ? "bg-blue-100 text-blue-700 border border-blue-200"
-                                : "bg-slate-100 text-slate-700 border border-slate-200"
-                            }`}
-                          >
-                            {user.role.charAt(0).toUpperCase() +
-                              user.role.slice(1)}
-                          </span>
-                          {(user.banned || user.is_disabled) && (
-                            <span className="px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-200">
-                              {user.banned ? "Banned" : "Disabled"}
-                            </span>
-                          )}
-                          <span className="text-xs text-slate-500">
-                            Joined {formatDate(user.created_at)}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Action Buttons */}
-                  {userRole === "admin" && user.role !== "admin" && (
-                    <div className="flex gap-2 ml-4">
-                      {!user.banned ? (
-                        <Button
-                          onClick={() => handleUserAction(user.id, "ban")}
-                          className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 shadow-md hover:shadow-lg"
-                        >
-                          <UserX className="h-3 w-3 mr-1.5" />
-                          Ban
-                        </Button>
-                      ) : (
-                        <Button
-                          onClick={() => handleUserAction(user.id, "unban")}
-                          className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 shadow-md hover:shadow-lg"
-                        >
-                          <UserCheck className="h-3 w-3 mr-1.5" />
-                          Unban
-                        </Button>
-                      )}
-
-                      {user.role === "user" && (
-                        <Button
-                          onClick={() =>
-                            handleUserAction(user.id, "promote_mod")
-                          }
-                          className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 shadow-md hover:shadow-lg"
-                        >
-                          <Shield className="h-3 w-3 mr-1.5" />
-                          Make Mod
-                        </Button>
-                      )}
-
-                      {user.role === "moderator" && (
-                        <>
-                          <Button
-                            onClick={() =>
-                              handleUserAction(user.id, "promote_admin")
-                            }
-                            className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 shadow-md hover:shadow-lg"
-                          >
-                            <Shield className="h-3 w-3 mr-1.5" />
-                            Make Admin
-                          </Button>
-                          <Button
-                            onClick={() => handleUserAction(user.id, "demote")}
-                            className="bg-slate-600 hover:bg-slate-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 shadow-md hover:shadow-lg"
-                          >
-                            <Shield className="h-3 w-3 mr-1.5" />
-                            Remove Mod
-                          </Button>
-                        </>
-                      )}
-                    </div>
-                  )}
+        {/* Users List */}
+        <div 
+          className="grid gap-4"
+          role="region"
+          aria-label="Users list"
+        >
+          {users.map((user) => (
+            <Card key={user.id} className="p-4">
+              <div className="flex flex-col md:flex-row justify-between gap-4">
+                <div className="flex-1">
+                  <h3 className="font-medium">
+                    {user.display_name || user.username}
+                    {user.banned && (
+                      <span 
+                        className="ml-2 text-xs bg-red-100 text-red-700 px-2 py-1 rounded"
+                        role="status"
+                      >
+                        Banned
+                      </span>
+                    )}
+                  </h3>
+                  <p className="text-sm text-slate-500">{user.email}</p>
+                  <p className="text-sm text-slate-500">
+                    <span className="font-medium">Role:</span> {user.role}
+                  </p>
+                  <p className="text-sm text-slate-500">
+                    <span className="font-medium">Joined:</span> {formatDate(user.created_at)}
+                  </p>
                 </div>
-              </Card>
-            ))
-          )}
+
+                {/* User Actions */}
+                {userRole === "admin" && (
+                  <div 
+                    className="flex flex-wrap gap-2"
+                    role="group"
+                    aria-label={`Actions for ${user.display_name || user.username}`}
+                  >
+                    {user.banned ? (
+                      <Button
+                        onClick={() => handleUserAction(user.id, "unban")}
+                        variant="outline"
+                        size="sm"
+                        className="flex items-center gap-1"
+                        aria-label={`Unban ${user.display_name || user.username}`}
+                      >
+                        <UserCheck className="w-4 h-4" aria-hidden="true" />
+                        Unban
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={() => handleUserAction(user.id, "ban")}
+                        variant="outline"
+                        size="sm"
+                        className="flex items-center gap-1 text-red-600 hover:text-red-700"
+                        aria-label={`Ban ${user.display_name || user.username}`}
+                      >
+                        <UserX className="w-4 h-4" aria-hidden="true" />
+                        Ban
+                      </Button>
+                    )}
+
+                    {user.role === "user" && (
+                      <>
+                        <Button
+                          onClick={() => handleUserAction(user.id, "promote_mod")}
+                          variant="outline"
+                          size="sm"
+                          className="flex items-center gap-1"
+                          aria-label={`Promote ${user.display_name || user.username} to moderator`}
+                        >
+                          <Shield className="w-4 h-4" aria-hidden="true" />
+                          Make Moderator
+                        </Button>
+                        <Button
+                          onClick={() => handleUserAction(user.id, "promote_admin")}
+                          variant="outline"
+                          size="sm"
+                          className="flex items-center gap-1"
+                          aria-label={`Promote ${user.display_name || user.username} to administrator`}
+                        >
+                          <Shield className="w-4 h-4" aria-hidden="true" />
+                          Make Admin
+                        </Button>
+                      </>
+                    )}
+
+                    {(user.role === "moderator" || user.role === "admin") && (
+                      <Button
+                        onClick={() => handleUserAction(user.id, "demote")}
+                        variant="outline"
+                        size="sm"
+                        className="flex items-center gap-1"
+                        aria-label={`Demote ${user.display_name || user.username} to regular user`}
+                      >
+                        <Shield className="w-4 h-4" aria-hidden="true" />
+                        Remove Role
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </div>
+            </Card>
+          ))}
         </div>
       </div>
     </div>

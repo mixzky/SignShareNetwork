@@ -79,32 +79,39 @@ const LoginForm = () => {
         ref={formRef}
         onSubmit={handleSubmit}
         className="w-full flex flex-col gap-5"
+        aria-label="Login form"
       >
         {/* Email Field */}
-        <div className="space-y-2">
+        <div className="space-y-2" role="group" aria-labelledby="email-label">
           <label
-            htmlFor="Email"
+            id="email-label"
+            htmlFor="email"
             className="block text-sm font-medium text-slate-700 dark:text-slate-200"
           >
-            <Mail className="inline w-4 h-4 mr-2" />
+            <Mail className="inline w-4 h-4 mr-2" aria-hidden="true" />
             Email
           </label>
           <input
             type="email"
             placeholder="Enter your email address"
-            id="Email"
+            id="email"
             name="email"
+            required
+            aria-required="true"
+            aria-invalid={error ? "true" : "false"}
+            aria-describedby={error ? "login-error" : undefined}
             className="w-full px-4 py-3 rounded-lg border border-slate-300 bg-white text-slate-700 text-sm hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
           />
         </div>
 
         {/* Password Field */}
-        <div className="space-y-2">
+        <div className="space-y-2" role="group" aria-labelledby="password-label">
           <label
+            id="password-label"
             htmlFor="password"
             className="block text-sm font-medium text-slate-700 dark:text-slate-200"
           >
-            <Lock className="inline w-4 h-4 mr-2" />
+            <Lock className="inline w-4 h-4 mr-2" aria-hidden="true" />
             Password
           </label>
           <div className="relative">
@@ -113,6 +120,10 @@ const LoginForm = () => {
               placeholder="Enter your password"
               name="password"
               id="password"
+              required
+              aria-required="true"
+              aria-invalid={error ? "true" : "false"}
+              aria-describedby={error ? "login-error" : undefined}
               className="w-full px-4 py-3 pr-12 rounded-lg border border-slate-300 bg-white text-slate-700 text-sm hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
             />
             <button
@@ -120,11 +131,12 @@ const LoginForm = () => {
               onClick={togglePassword}
               className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500 hover:text-slate-700 focus:outline-none focus:text-slate-700"
               aria-label={showPassword ? "Hide password" : "Show password"}
+              aria-pressed={showPassword}
             >
               {showPassword ? (
-                <EyeOff className="w-5 h-5" />
+                <EyeOff className="w-5 h-5" aria-hidden="true" />
               ) : (
-                <Eye className="w-5 h-5" />
+                <Eye className="w-5 h-5" aria-hidden="true" />
               )}
             </button>
           </div>
@@ -137,9 +149,13 @@ const LoginForm = () => {
 
         {/* Error Message */}
         {error && (
-          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+          <div 
+            className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg"
+            role="alert"
+            id="login-error"
+          >
             <p className="text-red-700 text-sm flex items-center">
-              <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+              <span className="w-2 h-2 bg-red-500 rounded-full mr-2" aria-hidden="true"></span>
               {error}
             </p>
           </div>
