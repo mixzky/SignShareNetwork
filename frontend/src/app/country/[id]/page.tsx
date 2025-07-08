@@ -7,8 +7,6 @@ import CountryTopMenu from "@/components/CountryTopMenu";
 import LeftMenu from "@/components/LeftMenu";
 import { Database } from "@/types/database";
 
-export const dynamic = "force-dynamic";
-
 type RawVideoData =
   Database["public"]["Functions"]["get_videos_by_region"]["Returns"][0];
 
@@ -154,13 +152,47 @@ export default async function CountryPage({ params, searchParams }: any) {
 
   return (
     <main className="flex flex-col min-h-screen bg-[#F0F2F5]">
-      {/* Top Menu */}
-      <div className="fixed top-0 left-0 w-full z-50 bg-[#0a0e18] shadow-md h-24 flex items-center">
-        <CountryTopMenu />
+      {/* Screen reader announcement for page context */}
+      <div
+        role="status"
+        aria-live="assertive"
+        aria-atomic="true"
+        className="sr-only"
+      >
+        You are now viewing {regionName}. This page displays sign language
+        videos from {regionName}. Use Tab to navigate through the upload
+        section, trending tags, popular countries, and video content.
       </div>
 
+      {/* Skip to main content link */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-blue-600 focus:text-white focus:px-4 focus:py-2 focus:rounded focus:shadow-lg"
+      >
+        Skip to main content
+      </a>
+
+      {/* Top Menu */}
+      <header
+        className="fixed top-0 left-0 w-full z-50 bg-[#0a0e18] shadow-md h-24 flex items-center"
+        role="banner"
+      >
+        <CountryTopMenu />
+      </header>
+
       {/* Country Content */}
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense
+        fallback={
+          <div
+            role="status"
+            aria-live="polite"
+            className="flex justify-center items-center p-8"
+          >
+            <span className="sr-only">Loading country information...</span>
+            <div>Loading...</div>
+          </div>
+        }
+      >
         <CountryContent id={regionName} />
       </Suspense>
 
@@ -169,15 +201,58 @@ export default async function CountryPage({ params, searchParams }: any) {
         <div className="flex-1 w-full flex flex-col items-center pt-10">
           <div className="flex w-full max-w-8/12">
             {/* Left Menu */}
-            <LeftMenu id={resolvedParams.id} />
+            <aside
+              role="complementary"
+              aria-label="Navigation and trending content"
+            >
+              <LeftMenu id={resolvedParams.id} />
+            </aside>
             {/* Main Content Section */}
-            <section className="flex-1 flex flex-col items-center pl-8 ">
+            <section
+              id="main-content"
+              className="flex-1 flex flex-col items-center pl-8"
+              role="main"
+              aria-label={`Sign language videos from ${regionName}`}
+            >
               <div className="w-full">
-                {verifiedVideos.map((video: VideoWithUser) => (
-                  <div key={video.id} className="mb-6">
-                    <VideoCard video={video} />
+                <h2 className="sr-only">Videos from {regionName}</h2>
+                <div
+                  role="status"
+                  aria-live="polite"
+                  className="sr-only"
+                  aria-atomic="true"
+                >
+                  {verifiedVideos.length === 0
+                    ? `No videos found for ${regionName}${
+                        searchQuery ? ` matching "${searchQuery}"` : ""
+                      }${tag ? ` with tag "${tag}"` : ""}.`
+                    : `Displaying ${verifiedVideos.length} video${
+                        verifiedVideos.length !== 1 ? "s" : ""
+                      } from ${regionName}${
+                        searchQuery ? ` matching "${searchQuery}"` : ""
+                      }${tag ? ` with tag "${tag}"` : ""}.`}
+                </div>
+                {verifiedVideos.length === 0 ? (
+                  <div
+                    className="text-center py-8 text-gray-500"
+                    role="status"
+                    aria-label="No videos available"
+                  >
+                    <p>No videos found for this region.</p>
+                    {searchQuery && (
+                      <p className="mt-2">Try adjusting your search terms.</p>
+                    )}
+                    {tag && (
+                      <p className="mt-2">Try removing the tag filter.</p>
+                    )}
                   </div>
-                ))}
+                ) : (
+                  verifiedVideos.map((video: VideoWithUser, index: number) => (
+                    <div key={video.id} className="mb-6">
+                      <VideoCard video={video} />
+                    </div>
+                  ))
+                )}
               </div>
             </section>
           </div>

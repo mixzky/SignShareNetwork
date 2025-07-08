@@ -41,6 +41,8 @@ export default function VideoCard({ video }: VideoCardProps) {
   const [showAllTags, setShowAllTags] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const videoContainerRef = useRef<HTMLDivElement>(null);
+  const flagDialogRef = useRef<HTMLDivElement>(null);
+  const flagTextareaRef = useRef<HTMLTextAreaElement>(null);
   const router = useRouter();
   const [flagOpen, setFlagOpen] = useState(false);
   const [flagReason, setFlagReason] = useState("");
@@ -49,6 +51,38 @@ export default function VideoCard({ video }: VideoCardProps) {
   useEffect(() => {
     setVideoUrl(getPublicVideoUrl(video.video_url));
   }, [video.video_url]);
+
+  // Focus management for flag dialog
+  useEffect(() => {
+    if (flagOpen && flagTextareaRef.current) {
+      // Focus the textarea when dialog opens
+      setTimeout(() => {
+        flagTextareaRef.current?.focus();
+      }, 100);
+    }
+  }, [flagOpen]);
+
+  // Keyboard event handler for dialog
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (flagOpen && e.key === "Escape") {
+        setFlagOpen(false);
+        // Announce dialog closure
+        const announcement = document.createElement("div");
+        announcement.setAttribute("role", "status");
+        announcement.setAttribute("aria-live", "polite");
+        announcement.className = "sr-only";
+        announcement.textContent = "Flag dialog closed with Escape key.";
+        document.body.appendChild(announcement);
+        setTimeout(() => document.body.removeChild(announcement), 3000);
+      }
+    };
+
+    if (flagOpen) {
+      document.addEventListener("keydown", handleKeyDown);
+      return () => document.removeEventListener("keydown", handleKeyDown);
+    }
+  }, [flagOpen]);
 
   const togglePlay = () => {
     if (videoRef.current) {
@@ -63,6 +97,15 @@ export default function VideoCard({ video }: VideoCardProps) {
         }
       }
       setIsPlaying(!isPlaying);
+
+      // Announce state change to screen readers
+      const announcement = document.createElement("div");
+      announcement.setAttribute("role", "status");
+      announcement.setAttribute("aria-live", "polite");
+      announcement.className = "sr-only";
+      announcement.textContent = !isPlaying ? "Video playing" : "Video paused";
+      document.body.appendChild(announcement);
+      setTimeout(() => document.body.removeChild(announcement), 2000);
     }
   };
 
@@ -70,6 +113,15 @@ export default function VideoCard({ video }: VideoCardProps) {
     if (videoRef.current) {
       videoRef.current.muted = !isMuted;
       setIsMuted(!isMuted);
+
+      // Announce state change to screen readers
+      const announcement = document.createElement("div");
+      announcement.setAttribute("role", "status");
+      announcement.setAttribute("aria-live", "polite");
+      announcement.className = "sr-only";
+      announcement.textContent = !isMuted ? "Video muted" : "Video unmuted";
+      document.body.appendChild(announcement);
+      setTimeout(() => document.body.removeChild(announcement), 2000);
     }
   };
 
@@ -86,8 +138,28 @@ export default function VideoCard({ video }: VideoCardProps) {
           await document.exitFullscreen();
         }
       }
+
+      // Announce state change to screen readers
+      const announcement = document.createElement("div");
+      announcement.setAttribute("role", "status");
+      announcement.setAttribute("aria-live", "polite");
+      announcement.className = "sr-only";
+      announcement.textContent = !isFullscreen
+        ? "Entered fullscreen mode"
+        : "Exited fullscreen mode";
+      document.body.appendChild(announcement);
+      setTimeout(() => document.body.removeChild(announcement), 2000);
     } catch (error) {
       console.error("Error toggling fullscreen:", error);
+      // Announce error to screen readers
+      const announcement = document.createElement("div");
+      announcement.setAttribute("role", "alert");
+      announcement.setAttribute("aria-live", "assertive");
+      announcement.className = "sr-only";
+      announcement.textContent =
+        "Fullscreen mode is not available in this browser.";
+      document.body.appendChild(announcement);
+      setTimeout(() => document.body.removeChild(announcement), 3000);
     }
   };
 
@@ -108,6 +180,15 @@ export default function VideoCard({ video }: VideoCardProps) {
 
   const handleFlag = async () => {
     setFlagLoading(true);
+
+    // Announce start of flag submission
+    const startAnnouncement = document.createElement("div");
+    startAnnouncement.setAttribute("role", "status");
+    startAnnouncement.setAttribute("aria-live", "polite");
+    startAnnouncement.className = "sr-only";
+    startAnnouncement.textContent = "Submitting flag report...";
+    document.body.appendChild(startAnnouncement);
+
     try {
       const supabase = getSupabaseClient();
       // Get current user
@@ -115,40 +196,84 @@ export default function VideoCard({ video }: VideoCardProps) {
         data: { user },
         error: userError,
       } = await supabase.auth.getUser();
+
       if (userError || !user) {
         toast.error("You must be logged in to flag a video.");
+        // Announce error to screen readers
+        const errorAnnouncement = document.createElement("div");
+        errorAnnouncement.setAttribute("role", "alert");
+        errorAnnouncement.setAttribute("aria-live", "assertive");
+        errorAnnouncement.className = "sr-only";
+        errorAnnouncement.textContent =
+          "Error: You must be logged in to flag a video.";
+        document.body.appendChild(errorAnnouncement);
+        setTimeout(() => document.body.removeChild(errorAnnouncement), 3000);
         setFlagLoading(false);
         return;
       }
+
       // Insert flag
       const { error } = await supabase.from("flags").insert({
         video_id: video.id,
         flagged_by: user.id,
         reason: flagReason,
       });
+
       if (error) {
         toast.error("Failed to flag video: " + error.message);
+        // Announce error to screen readers
+        const errorAnnouncement = document.createElement("div");
+        errorAnnouncement.setAttribute("role", "alert");
+        errorAnnouncement.setAttribute("aria-live", "assertive");
+        errorAnnouncement.className = "sr-only";
+        errorAnnouncement.textContent = `Error flagging video: ${error.message}`;
+        document.body.appendChild(errorAnnouncement);
+        setTimeout(() => document.body.removeChild(errorAnnouncement), 3000);
       } else {
         toast.success("Video flagged for review.");
         setFlagOpen(false);
         setFlagReason("");
+        // Announce success to screen readers
+        const successAnnouncement = document.createElement("div");
+        successAnnouncement.setAttribute("role", "status");
+        successAnnouncement.setAttribute("aria-live", "polite");
+        successAnnouncement.className = "sr-only";
+        successAnnouncement.textContent =
+          "Video flagged for review successfully. Dialog closed.";
+        document.body.appendChild(successAnnouncement);
+        setTimeout(() => document.body.removeChild(successAnnouncement), 3000);
       }
     } catch (e) {
       toast.error("Unexpected error flagging video.");
+      // Announce error to screen readers
+      const errorAnnouncement = document.createElement("div");
+      errorAnnouncement.setAttribute("role", "alert");
+      errorAnnouncement.setAttribute("aria-live", "assertive");
+      errorAnnouncement.className = "sr-only";
+      errorAnnouncement.textContent =
+        "Unexpected error occurred while flagging video.";
+      document.body.appendChild(errorAnnouncement);
+      setTimeout(() => document.body.removeChild(errorAnnouncement), 3000);
     } finally {
       setFlagLoading(false);
+      // Clean up start announcement
+      document.body.removeChild(startAnnouncement);
     }
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-      {" "}
+    <article
+      className="bg-white rounded-xl shadow-sm overflow-hidden"
+      role="article"
+      aria-labelledby={`video-title-${video.id}`}
+      aria-describedby={`video-description-${video.id}`}
+    >
       {/* User Info Section */}
-      <div className="p-4">
+      <header className="p-4">
         <div className="flex items-start gap-3">
           <img
             src={video.user.avatar_url || "/default-avatar.png"}
-            alt={`${video.user.display_name}'s avatar`}
+            alt={`${video.user.display_name}'s profile picture`}
             className="w-10 h-10 rounded-full object-cover flex-shrink-0"
           />
           <div className="flex-grow min-w-0">
@@ -157,138 +282,422 @@ export default function VideoCard({ video }: VideoCardProps) {
                 {video.user.display_name}
               </span>
               {video.user.role === "moderator" && (
-                <CheckCircle2 className="w-4 h-4 text-blue-500" />
+                <>
+                  <CheckCircle2
+                    className="w-4 h-4 text-blue-500"
+                    aria-hidden="true"
+                  />
+                  <span className="sr-only">Verified moderator</span>
+                </>
               )}
-            </div>{" "}
+            </div>
             <div className="flex items-center justify-between mt-1">
-              <div className="flex flex-wrap gap-1">
+              <div
+                className="flex flex-wrap gap-1"
+                role="list"
+                aria-label="Video tags"
+              >
                 {(showAllTags ? tags : tags.slice(0, 5)).map((tag, index) => (
-                  <span
+                  <button
                     key={index}
-                    onClick={() =>
-                      router.push(`/country/${video.region}?tag=${tag}`)
-                    }
-                    className="bg-[#fff3cd] text-[#b48a4a] px-2 py-0.5 rounded-full text-xs font-semibold tracking-wide shadow-sm cursor-pointer hover:scale-105 hover:shadow-md transition-transform duration-150"
+                    onClick={() => {
+                      router.push(`/country/${video.region}?tag=${tag}`);
+                      // Announce navigation to screen readers
+                      const announcement = document.createElement("div");
+                      announcement.setAttribute("role", "status");
+                      announcement.setAttribute("aria-live", "polite");
+                      announcement.className = "sr-only";
+                      announcement.textContent = `Filtering videos by tag: ${tag}`;
+                      document.body.appendChild(announcement);
+                      setTimeout(
+                        () => document.body.removeChild(announcement),
+                        3000
+                      );
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        router.push(`/country/${video.region}?tag=${tag}`);
+                      }
+                    }}
+                    className="bg-[#fff3cd] text-[#b48a4a] px-2 py-0.5 rounded-full text-xs font-semibold tracking-wide shadow-sm cursor-pointer hover:scale-105 hover:shadow-md focus:scale-105 focus:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition-transform duration-150"
+                    role="listitem"
+                    aria-label={`Filter by tag: ${tag}`}
+                    tabIndex={0}
                   >
                     {tag}
-                  </span>
+                  </button>
                 ))}
                 {tags.length > 5 && !showAllTags && (
-                  <span
-                    onClick={() => setShowAllTags(true)}
-                    className="bg-[#fff3cd] text-[#b48a4a] px-2 py-0.5 rounded-full text-xs font-semibold tracking-wide shadow-sm cursor-pointer hover:scale-105 hover:shadow-md transition-transform duration-150"
+                  <button
+                    onClick={() => {
+                      setShowAllTags(true);
+                      // Announce to screen readers
+                      const announcement = document.createElement("div");
+                      announcement.setAttribute("role", "status");
+                      announcement.setAttribute("aria-live", "polite");
+                      announcement.className = "sr-only";
+                      announcement.textContent = `Showing all ${tags.length} tags`;
+                      document.body.appendChild(announcement);
+                      setTimeout(
+                        () => document.body.removeChild(announcement),
+                        3000
+                      );
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setShowAllTags(true);
+                      }
+                    }}
+                    className="bg-[#fff3cd] text-[#b48a4a] px-2 py-0.5 rounded-full text-xs font-semibold tracking-wide shadow-sm cursor-pointer hover:scale-105 hover:shadow-md focus:scale-105 focus:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition-transform duration-150"
+                    aria-label={`Show ${tags.length - 5} more tags`}
+                    tabIndex={0}
                   >
                     +{tags.length - 5} more
-                  </span>
+                  </button>
                 )}
                 {showAllTags && tags.length > 5 && (
-                  <span
-                    onClick={() => setShowAllTags(false)}
-                    className="bg-[#fff3cd] text-[#b48a4a] px-2 py-0.5 rounded-full text-xs font-semibold tracking-wide shadow-sm cursor-pointer hover:scale-105 hover:shadow-md transition-transform duration-150"
+                  <button
+                    onClick={() => {
+                      setShowAllTags(false);
+                      // Announce to screen readers
+                      const announcement = document.createElement("div");
+                      announcement.setAttribute("role", "status");
+                      announcement.setAttribute("aria-live", "polite");
+                      announcement.className = "sr-only";
+                      announcement.textContent = "Showing fewer tags";
+                      document.body.appendChild(announcement);
+                      setTimeout(
+                        () => document.body.removeChild(announcement),
+                        3000
+                      );
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setShowAllTags(false);
+                      }
+                    }}
+                    className="bg-[#fff3cd] text-[#b48a4a] px-2 py-0.5 rounded-full text-xs font-semibold tracking-wide shadow-sm cursor-pointer hover:scale-105 hover:shadow-md focus:scale-105 focus:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition-transform duration-150"
+                    aria-label="Show fewer tags"
+                    tabIndex={0}
                   >
                     show less
-                  </span>
+                  </button>
                 )}
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </header>
       {/* Title and Description */}
       <div className="px-4 pb-4">
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">
+        <h2
+          id={`video-title-${video.id}`}
+          className="text-xl font-semibold text-gray-900 mb-2"
+        >
           {video.title}
         </h2>
         {video.description && (
-          <p className="text-gray-600 text-sm whitespace-pre-wrap">
+          <p
+            id={`video-description-${video.id}`}
+            className="text-gray-600 text-sm whitespace-pre-wrap"
+          >
             {video.description}
           </p>
         )}
       </div>
       {/* Video Section */}
-      <div ref={videoContainerRef} className="relative aspect-video bg-black">
-        {videoUrl && (
+      <div
+        ref={videoContainerRef}
+        className="relative aspect-video bg-black"
+        role="region"
+        aria-label={`Video player for: ${video.title}`}
+        aria-describedby={`video-instructions-${video.id}`}
+      >
+        <div id={`video-instructions-${video.id}`} className="sr-only">
+          Click video to play or pause. Use the control buttons for mute and
+          fullscreen.
+        </div>
+
+        {videoUrl ? (
           <video
             ref={videoRef}
-            className="absolute top-0 left-0 w-full h-full object-cover cursor-pointer"
+            className="absolute top-0 left-0 w-full h-full object-cover cursor-pointer focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-offset-2"
             src={videoUrl}
             muted={isMuted}
             loop
             playsInline
             onClick={togglePlay}
+            onKeyDown={(e) => {
+              switch (e.key) {
+                case "Enter":
+                case " ":
+                  e.preventDefault();
+                  togglePlay();
+                  break;
+                case "m":
+                case "M":
+                  e.preventDefault();
+                  toggleMute();
+                  break;
+                case "f":
+                case "F":
+                  e.preventDefault();
+                  toggleFullscreen();
+                  break;
+                case "Escape":
+                  if (isFullscreen) {
+                    e.preventDefault();
+                    toggleFullscreen();
+                  }
+                  break;
+              }
+            }}
+            tabIndex={0}
+            aria-label={`${video.title} - ${
+              isPlaying ? "Playing" : "Paused"
+            }. ${isMuted ? "Muted" : "Unmuted"}`}
+            aria-describedby={`video-controls-${video.id}`}
+            onLoadStart={() => {
+              // Announce when video starts loading
+              const announcement = document.createElement("div");
+              announcement.setAttribute("role", "status");
+              announcement.setAttribute("aria-live", "polite");
+              announcement.className = "sr-only";
+              announcement.textContent = `Loading video: ${video.title}`;
+              document.body.appendChild(announcement);
+              setTimeout(() => document.body.removeChild(announcement), 3000);
+            }}
+            onCanPlay={() => {
+              // Announce when video is ready
+              const announcement = document.createElement("div");
+              announcement.setAttribute("role", "status");
+              announcement.setAttribute("aria-live", "polite");
+              announcement.className = "sr-only";
+              announcement.textContent = `Video ready to play: ${video.title}`;
+              document.body.appendChild(announcement);
+              setTimeout(() => document.body.removeChild(announcement), 3000);
+            }}
+            onError={() => {
+              // Announce video errors
+              const announcement = document.createElement("div");
+              announcement.setAttribute("role", "alert");
+              announcement.setAttribute("aria-live", "assertive");
+              announcement.className = "sr-only";
+              announcement.textContent = `Error loading video: ${video.title}. Please try refreshing the page.`;
+              document.body.appendChild(announcement);
+              setTimeout(() => document.body.removeChild(announcement), 5000);
+            }}
           />
+        ) : (
+          <div
+            className="absolute inset-0 flex items-center justify-center bg-gray-200"
+            role="status"
+            aria-label="Video loading"
+          >
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+            <span className="sr-only">Loading video content...</span>
+          </div>
         )}
-        <div className="absolute bottom-4 right-4 flex gap-2">
+
+        <div
+          id={`video-controls-${video.id}`}
+          className="absolute bottom-4 right-4 flex gap-2"
+          role="group"
+          aria-label="Video playback controls"
+        >
           <Button
             variant="secondary"
             size="icon"
-            className="bg-black/50 hover:bg-black/70 text-white rounded-full"
+            className="bg-black/50 hover:bg-black/70 focus:bg-black/70 text-white rounded-full focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black/50"
             onClick={toggleMute}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                toggleMute();
+              }
+            }}
+            aria-label={isMuted ? "Unmute video" : "Mute video"}
+            aria-pressed={!isMuted}
           >
             {isMuted ? (
-              <VolumeX className="w-4 h-4" />
+              <VolumeX className="w-4 h-4" aria-hidden="true" />
             ) : (
-              <Volume2 className="w-4 h-4" />
+              <Volume2 className="w-4 h-4" aria-hidden="true" />
             )}
           </Button>
+
           <Button
             variant="secondary"
             size="icon"
-            className="bg-black/50 hover:bg-black/70 text-white rounded-full"
+            className="bg-black/50 hover:bg-black/70 focus:bg-black/70 text-white rounded-full focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black/50"
             onClick={toggleFullscreen}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                toggleFullscreen();
+              }
+            }}
+            aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+            aria-pressed={isFullscreen}
           >
-            <Maximize2 className="w-4 h-4" />
+            <Maximize2 className="w-4 h-4" aria-hidden="true" />
           </Button>
+        </div>
+
+        {/* Screen reader announcements for video state changes */}
+        <div role="status" aria-live="polite" className="sr-only">
+          {isPlaying && "Video playing"}
+          {!isPlaying && "Video paused"}
+          {isMuted && "Video muted"}
+          {!isMuted && "Video unmuted"}
         </div>
       </div>
       {/* Reviews Section */}
       <Review videoId={video.id} />
       {/* Flag Button and Dialog */}
-      <div className="flex justify-end p-4">
-        <Button variant="outline" size="sm" onClick={() => setFlagOpen(true)}>
-          <Flag className="w-4 h-4 mr-1 text-red-500" />
+      <footer className="flex justify-end p-4">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setFlagOpen(true)}
+          className="focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+          aria-label={`Report this video: ${video.title}`}
+        >
+          <Flag className="w-4 h-4 mr-1 text-red-500" aria-hidden="true" />
           Flag
         </Button>
-      </div>
+      </footer>
       {flagOpen && (
         <Dialog open={flagOpen} onOpenChange={setFlagOpen}>
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-            <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-md w-full relative">
-              <h2 className="text-lg font-bold mb-2 flex items-center gap-2">
-                <Flag className="w-5 h-5 text-red-500" />
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="flag-dialog-title"
+            aria-describedby="flag-dialog-description"
+            onClick={(e) => {
+              // Close dialog when clicking backdrop
+              if (e.target === e.currentTarget) {
+                setFlagOpen(false);
+                // Announce dialog closure
+                const announcement = document.createElement("div");
+                announcement.setAttribute("role", "status");
+                announcement.setAttribute("aria-live", "polite");
+                announcement.className = "sr-only";
+                announcement.textContent = "Flag dialog closed.";
+                document.body.appendChild(announcement);
+                setTimeout(() => document.body.removeChild(announcement), 3000);
+              }
+            }}
+          >
+            <div
+              ref={flagDialogRef}
+              className="bg-white rounded-2xl shadow-2xl p-6 max-w-md w-full relative focus:outline-none"
+              tabIndex={-1}
+            >
+              <div role="status" aria-live="assertive" className="sr-only">
+                Flag video dialog opened.
+              </div>
+
+              <h2
+                id="flag-dialog-title"
+                className="text-lg font-bold mb-2 flex items-center gap-2"
+              >
+                <Flag className="w-5 h-5 text-red-500" aria-hidden="true" />
                 Flag this video
               </h2>
-              <p className="mb-4 text-gray-600">
-                Why are you flagging this video?
+              <p id="flag-dialog-description" className="mb-4 text-gray-600">
+                Why are you flagging this video? Please provide a detailed
+                reason.
               </p>
               <Textarea
+                ref={flagTextareaRef}
                 value={flagReason}
                 onChange={(e) => setFlagReason(e.target.value)}
                 placeholder="Describe the reason for flagging (required)"
-                className="mb-4"
+                className="mb-4 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                 rows={4}
                 disabled={flagLoading}
+                aria-label="Reason for flagging this video"
+                aria-describedby="flag-help"
+                aria-invalid={!flagReason.trim() ? "true" : "false"}
+                aria-required="true"
+                onKeyDown={(e) => {
+                  // Handle keyboard navigation within dialog
+                  if (e.key === "Tab") {
+                    // Allow natural tab navigation within dialog
+                  } else if (e.key === "Escape") {
+                    e.preventDefault();
+                    setFlagOpen(false);
+                  }
+                }}
               />
+              <p id="flag-help" className="text-sm text-gray-500 mb-4">
+                Examples: Inappropriate content, spam, harassment, copyright
+                violation, etc.
+              </p>
               <div className="flex gap-2 justify-end">
                 <Button
                   variant="ghost"
-                  onClick={() => setFlagOpen(false)}
+                  onClick={() => {
+                    setFlagOpen(false);
+                    setFlagReason("");
+                    // Announce to screen readers
+                    const announcement = document.createElement("div");
+                    announcement.setAttribute("role", "status");
+                    announcement.setAttribute("aria-live", "polite");
+                    announcement.className = "sr-only";
+                    announcement.textContent =
+                      "Flag dialog canceled and closed.";
+                    document.body.appendChild(announcement);
+                    setTimeout(
+                      () => document.body.removeChild(announcement),
+                      3000
+                    );
+                  }}
                   disabled={flagLoading}
+                  className="focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                  aria-label="Cancel flagging and close dialog"
                 >
                   Cancel
                 </Button>
                 <Button
                   onClick={handleFlag}
                   disabled={flagLoading || !flagReason.trim()}
-                  className="bg-red-500 hover:bg-red-600 text-white"
+                  className="bg-red-500 hover:bg-red-600 focus:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                  aria-label={
+                    flagLoading
+                      ? "Submitting flag report, please wait"
+                      : `Submit flag report${
+                          !flagReason.trim()
+                            ? " (disabled: reason required)"
+                            : ""
+                        }`
+                  }
+                  aria-describedby={
+                    !flagReason.trim() ? "submit-disabled-help" : undefined
+                  }
                 >
                   {flagLoading ? "Flagging..." : "Submit Flag"}
                 </Button>
+                {!flagReason.trim() && (
+                  <span id="submit-disabled-help" className="sr-only">
+                    Submit button is disabled because a reason is required
+                  </span>
+                )}
+              </div>
+
+              {/* Live region for flag submission status */}
+              <div role="status" aria-live="polite" className="sr-only">
+                {flagLoading && "Submitting flag report, please wait..."}
               </div>
             </div>
           </div>
         </Dialog>
       )}
-    </div>
+    </article>
   );
 }
