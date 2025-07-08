@@ -106,15 +106,20 @@ const SignUpForm = () => {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto ">
-      <form onSubmit={handleSubmit} className="w-full flex flex-col gap-5">
+    <div className="w-full max-w-md mx-auto">
+      <form 
+        onSubmit={handleSubmit} 
+        className="w-full flex flex-col gap-5"
+        aria-label="Sign up form"
+      >
         {/* Username Field */}
-        <div className="space-y-2">
+        <div className="space-y-2" role="group" aria-labelledby="username-label">
           <label
+            id="username-label"
             htmlFor="username"
             className="block text-sm font-medium text-slate-700 dark:text-slate-200"
           >
-            <User className="inline w-4 h-4 mr-2" />
+            <User className="inline w-4 h-4 mr-2" aria-hidden="true" />
             Username
           </label>
           <div className="relative">
@@ -126,6 +131,10 @@ const SignUpForm = () => {
               value={formData.username}
               onChange={handleInputChange}
               onBlur={handleInputBlur}
+              required
+              aria-required="true"
+              aria-invalid={!!fieldErrors.username}
+              aria-describedby={fieldErrors.username ? "username-error" : undefined}
               className={`w-full px-4 py-3 rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm ${
                 fieldErrors.username
                   ? "border-red-300 bg-red-50 text-red-700 focus:border-red-500 focus:ring-red-200"
@@ -134,20 +143,25 @@ const SignUpForm = () => {
             />
           </div>
           {fieldErrors.username && (
-            <p className="text-red-600 text-xs mt-1 flex items-center">
-              <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+            <p 
+              className="text-red-600 text-xs mt-1 flex items-center"
+              role="alert"
+              id="username-error"
+            >
+              <span className="w-2 h-2 bg-red-500 rounded-full mr-2" aria-hidden="true"></span>
               {fieldErrors.username}
             </p>
           )}
         </div>
 
         {/* Email Field */}
-        <div className="space-y-2">
+        <div className="space-y-2" role="group" aria-labelledby="email-label">
           <label
+            id="email-label"
             htmlFor="email"
             className="block text-sm font-medium text-slate-700 dark:text-slate-200"
           >
-            <Mail className="inline w-4 h-4 mr-2" />
+            <Mail className="inline w-4 h-4 mr-2" aria-hidden="true" />
             Email
           </label>
           <div className="relative">
@@ -159,6 +173,10 @@ const SignUpForm = () => {
               value={formData.email}
               onChange={handleInputChange}
               onBlur={handleInputBlur}
+              required
+              aria-required="true"
+              aria-invalid={!!fieldErrors.email}
+              aria-describedby={fieldErrors.email ? "email-error" : undefined}
               className={`w-full px-4 py-3 rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm ${
                 fieldErrors.email
                   ? "border-red-300 bg-red-50 text-red-700 focus:border-red-500 focus:ring-red-200"
@@ -167,20 +185,25 @@ const SignUpForm = () => {
             />
           </div>
           {fieldErrors.email && (
-            <p className="text-red-600 text-xs mt-1 flex items-center">
-              <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+            <p 
+              className="text-red-600 text-xs mt-1 flex items-center"
+              role="alert"
+              id="email-error"
+            >
+              <span className="w-2 h-2 bg-red-500 rounded-full mr-2" aria-hidden="true"></span>
               {fieldErrors.email}
             </p>
           )}
         </div>
 
         {/* Password Field */}
-        <div className="space-y-2">
+        <div className="space-y-2" role="group" aria-labelledby="password-label">
           <label
+            id="password-label"
             htmlFor="password"
             className="block text-sm font-medium text-slate-700 dark:text-slate-200"
           >
-            <Lock className="inline w-4 h-4 mr-2" />
+            <Lock className="inline w-4 h-4 mr-2" aria-hidden="true" />
             Password
           </label>
           <div className="relative">
@@ -192,6 +215,10 @@ const SignUpForm = () => {
               value={formData.password}
               onChange={handleInputChange}
               onBlur={handleInputBlur}
+              required
+              aria-required="true"
+              aria-invalid={!!fieldErrors.password}
+              aria-describedby={`${fieldErrors.password ? "password-error" : ""} password-requirements`}
               className={`w-full px-4 py-3 pr-12 rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm ${
                 fieldErrors.password
                   ? "border-red-300 bg-red-50 text-red-700 focus:border-red-500 focus:ring-red-200"
@@ -203,21 +230,30 @@ const SignUpForm = () => {
               onClick={togglePassword}
               className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500 hover:text-slate-700 focus:outline-none focus:text-slate-700"
               aria-label={showPassword ? "Hide password" : "Show password"}
+              aria-pressed={showPassword}
             >
               {showPassword ? (
-                <EyeOff className="w-5 h-5" />
+                <EyeOff className="w-5 h-5" aria-hidden="true" />
               ) : (
-                <Eye className="w-5 h-5" />
+                <Eye className="w-5 h-5" aria-hidden="true" />
               )}
             </button>
           </div>
           {fieldErrors.password && (
-            <p className="text-red-600 text-xs mt-1 flex items-center">
-              <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+            <p 
+              className="text-red-600 text-xs mt-1 flex items-center"
+              role="alert"
+              id="password-error"
+            >
+              <span className="w-2 h-2 bg-red-500 rounded-full mr-2" aria-hidden="true"></span>
               {fieldErrors.password}
             </p>
           )}
-          <div className="text-xs text-slate-500 mt-1">
+          <div 
+            className="text-xs text-slate-500 mt-1"
+            id="password-requirements"
+            role="note"
+          >
             Password must contain at least 8 characters with uppercase,
             lowercase, and numbers.
           </div>
@@ -230,9 +266,13 @@ const SignUpForm = () => {
 
         {/* General Error Message */}
         {error && (
-          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+          <div 
+            className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg"
+            role="alert"
+            id="signup-error"
+          >
             <p className="text-red-700 text-sm flex items-center">
-              <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+              <span className="w-2 h-2 bg-red-500 rounded-full mr-2" aria-hidden="true"></span>
               {error}
             </p>
           </div>

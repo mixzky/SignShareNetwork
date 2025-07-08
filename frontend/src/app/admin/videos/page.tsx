@@ -265,14 +265,15 @@ export default function VideosPage() {
     <div className="min-h-screen bg-slate-50">
       <div className="container mx-auto px-4 py-6">
         {/* Header Section */}
-        <div className="mb-6">
+        <div className="mb-6" role="banner">
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-blue-600 rounded-xl shadow-sm">
+            <div className="p-2 bg-blue-600 rounded-xl shadow-sm" aria-hidden="true">
               <svg
                 className="w-5 h-5 text-white"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"
@@ -286,22 +287,27 @@ export default function VideosPage() {
               Video Management
             </h1>
           </div>
-          <p className="text-slate-600 text-sm ml-10">
+          <p className="text-slate-600 text-sm ml-10" id="page-description">
             Review and manage video submissions
           </p>
         </div>
 
         {/* Filters and Search */}
-        <div className="bg-white rounded-xl p-4 mb-6 shadow-sm border border-slate-200">
+        <div 
+          className="bg-white rounded-xl p-4 mb-6 shadow-sm border border-slate-200"
+          role="search"
+          aria-label="Video search and filters"
+        >
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="flex-1">
-              <label className="block text-xs font-medium text-slate-700 mb-1">
+              <label htmlFor="search-videos" className="block text-xs font-medium text-slate-700 mb-1">
                 Search Videos
               </label>
               <div className="relative group">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4 group-focus-within:text-blue-500 transition-colors" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4 group-focus-within:text-blue-500 transition-colors" aria-hidden="true" />
                 <Input
-                  type="text"
+                  id="search-videos"
+                  type="search"
                   placeholder="Search by title, description, uploader, or region..."
                   value={searchQuery}
                   onChange={(e) => {
@@ -311,14 +317,15 @@ export default function VideosPage() {
                     return () => clearTimeout(timeoutId);
                   }}
                   className="pl-10 h-9 border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
+                  aria-label="Search videos"
                 />
               </div>
             </div>
-            <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">
+            <div role="group" aria-label="Filter videos by status">
+              <label id="status-filter-label" className="block text-xs font-medium text-slate-700 mb-1">
                 Filter by Status
               </label>
-              <div className="grid grid-cols-2 lg:flex lg:flex-wrap gap-2">
+              <div className="grid grid-cols-2 lg:flex lg:flex-wrap gap-2" aria-labelledby="status-filter-label">
                 <Button
                   variant={statusFilter === "all" ? "default" : "outline"}
                   onClick={() => setStatusFilter("all")}
@@ -371,10 +378,14 @@ export default function VideosPage() {
         </div>
 
         {/* Videos Grid */}
-        <div className="space-y-3">
+        <div className="space-y-3" role="region" aria-label="Video list">
           {videos.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-xl border-2 border-dashed border-slate-300 shadow-sm">
-              <div className="p-3 bg-slate-100 rounded-full w-12 h-12 mx-auto mb-3 flex items-center justify-center">
+            <div 
+              className="text-center py-12 bg-white rounded-xl border-2 border-dashed border-slate-300 shadow-sm"
+              role="status"
+              aria-label="No videos found"
+            >
+              <div className="p-3 bg-slate-100 rounded-full w-12 h-12 mx-auto mb-3 flex items-center justify-center" aria-hidden="true">
                 <svg
                   className="w-6 h-6 text-slate-400"
                   fill="none"
@@ -401,6 +412,8 @@ export default function VideosPage() {
               <Card
                 key={video.id}
                 className="bg-white border border-slate-200 shadow-sm hover:shadow-md transition-all duration-200 rounded-xl overflow-hidden"
+                role="article"
+                aria-labelledby={`video-title-${video.id}`}
               >
                 <CardContent className="p-4">
                   <div className="flex flex-col lg:flex-row gap-4">
@@ -412,9 +425,14 @@ export default function VideosPage() {
                           className="w-full h-full object-cover"
                           controls
                           preload="metadata"
+                          aria-label={`Preview of video: ${video.title}`}
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center">
+                        <div 
+                          className="w-full h-full flex items-center justify-center"
+                          role="img"
+                          aria-label="Video preview not available"
+                        >
                           <svg
                             className="w-6 h-6 text-slate-400"
                             fill="none"
@@ -436,7 +454,10 @@ export default function VideosPage() {
                     <div className="flex-1 space-y-3">
                       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
                         <div className="flex-1">
-                          <h3 className="font-bold text-base text-slate-800 mb-1 leading-tight">
+                          <h3 
+                            id={`video-title-${video.id}`}
+                            className="font-bold text-base text-slate-800 mb-1 leading-tight"
+                          >
                             {video.title}
                           </h3>
                           <p className="text-slate-600 text-sm leading-relaxed line-clamp-2">
@@ -447,14 +468,22 @@ export default function VideosPage() {
                           className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap self-start ${getStatusColor(
                             video.status
                           )}`}
+                          role="status"
                         >
                           {video.status.charAt(0).toUpperCase() +
                             video.status.slice(1)}
                         </span>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                        <div className="bg-blue-50 p-2 rounded-lg border border-blue-100">
+                      <div 
+                        className="grid grid-cols-1 sm:grid-cols-3 gap-2"
+                        role="list"
+                        aria-label="Video details"
+                      >
+                        <div 
+                          className="bg-blue-50 p-2 rounded-lg border border-blue-100"
+                          role="listitem"
+                        >
                           <p className="text-xs font-medium text-blue-600 mb-1">
                             Uploader
                           </p>
@@ -462,7 +491,10 @@ export default function VideosPage() {
                             {video.user.display_name}
                           </p>
                         </div>
-                        <div className="bg-emerald-50 p-2 rounded-lg border border-emerald-100">
+                        <div 
+                          className="bg-emerald-50 p-2 rounded-lg border border-emerald-100"
+                          role="listitem"
+                        >
                           <p className="text-xs font-medium text-emerald-600 mb-1">
                             Region
                           </p>
@@ -470,24 +502,34 @@ export default function VideosPage() {
                             {video.region}
                           </p>
                         </div>
-                        <div className="bg-purple-50 p-2 rounded-lg border border-purple-100">
+                        <div 
+                          className="bg-purple-50 p-2 rounded-lg border border-purple-100"
+                          role="listitem"
+                        >
                           <p className="text-xs font-medium text-purple-600 mb-1">
                             Uploaded
                           </p>
                           <p className="font-semibold text-slate-800 text-xs">
-                            {formatDate(video.created_at)}
+                            <time dateTime={video.created_at}>
+                              {formatDate(video.created_at)}
+                            </time>
                           </p>
                         </div>
                       </div>
 
                       {video.flags && video.flags.length > 0 && (
-                        <div className="bg-red-50 p-3 rounded-lg border border-red-200">
+                        <div 
+                          className="bg-red-50 p-3 rounded-lg border border-red-200"
+                          role="region"
+                          aria-label={`${video.flags.length} Flag${video.flags.length > 1 ? 's' : ''}`}
+                        >
                           <div className="flex items-center gap-2 mb-2">
                             <svg
                               className="w-4 h-4 text-red-500"
                               fill="none"
                               stroke="currentColor"
                               viewBox="0 0 24 24"
+                              aria-hidden="true"
                             >
                               <path
                                 strokeLinecap="round"
@@ -501,13 +543,14 @@ export default function VideosPage() {
                               {video.flags.length > 1 ? "s" : ""} Reported
                             </p>
                           </div>
-                          <ul className="space-y-1">
+                          <ul className="space-y-1" role="list">
                             {video.flags.map((flag, index) => (
                               <li
                                 key={index}
                                 className="flex items-start gap-2"
+                                role="listitem"
                               >
-                                <span className="w-1 h-1 bg-red-400 rounded-full mt-1.5 flex-shrink-0"></span>
+                                <span className="w-1 h-1 bg-red-400 rounded-full mt-1.5 flex-shrink-0" aria-hidden="true"></span>
                                 <span className="text-red-700 text-xs">
                                   {flag.reason}
                                 </span>
@@ -519,18 +562,22 @@ export default function VideosPage() {
 
                       {/* Action Buttons */}
                       {video.status === "processing" && (
-                        <div className="flex flex-col sm:flex-row gap-2 pt-2 border-t border-slate-200">
+                        <div 
+                          className="flex flex-col sm:flex-row gap-2 pt-2 border-t border-slate-200"
+                          role="group"
+                          aria-label="Video actions"
+                        >
                           <Button
-                            onClick={() =>
-                              handleVideoAction(video.id, "approve")
-                            }
+                            onClick={() => handleVideoAction(video.id, "approve")}
                             className="flex-1 h-8 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg shadow-sm transition-all duration-200 text-xs cursor-pointer"
+                            aria-label={`Approve video: ${video.title}`}
                           >
                             <svg
                               className="w-3 h-3 mr-1"
                               fill="none"
                               stroke="currentColor"
                               viewBox="0 0 24 24"
+                              aria-hidden="true"
                             >
                               <path
                                 strokeLinecap="round"
@@ -542,16 +589,16 @@ export default function VideosPage() {
                             Approve
                           </Button>
                           <Button
-                            onClick={() =>
-                              handleVideoAction(video.id, "reject")
-                            }
+                            onClick={() => handleVideoAction(video.id, "reject")}
                             className="flex-1 h-8 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg shadow-sm transition-all duration-200 text-xs cursor-pointer"
+                            aria-label={`Reject video: ${video.title}`}
                           >
                             <svg
                               className="w-3 h-3 mr-1"
                               fill="none"
                               stroke="currentColor"
                               viewBox="0 0 24 24"
+                              aria-hidden="true"
                             >
                               <path
                                 strokeLinecap="round"

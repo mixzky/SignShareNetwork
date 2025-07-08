@@ -426,7 +426,11 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50">
+      <div 
+        className="min-h-screen bg-slate-50"
+        role="status"
+        aria-label="Loading dashboard"
+      >
         <div className="container mx-auto px-4 py-6">
           <div className="animate-pulse">
             <div className="h-8 bg-slate-200 rounded-lg w-1/3 mb-6 shadow-sm"></div>
@@ -470,15 +474,19 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-slate-50 rounded-xl">
       <div className="container mx-auto px-4 py-8">
         {/* Header Section */}
-        <div className="mb-8">
+        <header className="mb-8">
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-blue-600 rounded-xl shadow-md">
+            <div 
+              className="p-2 bg-blue-600 rounded-xl shadow-md"
+              aria-hidden="true"
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-6 w-6 text-white"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"
@@ -495,20 +503,28 @@ export default function AdminDashboard() {
           <p className="text-slate-600 text-base ml-11">
             Manage video submissions and user accounts
           </p>
-        </div>
+        </header>
 
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           {/* Video Verification Panel */}
-          <Card className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-slate-200">
+          <Card 
+            className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-slate-200"
+            role="region"
+            aria-labelledby="video-verification-title"
+          >
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="p-1.5 bg-blue-100 rounded-lg">
+                  <div 
+                    className="p-1.5 bg-blue-100 rounded-lg"
+                    aria-hidden="true"
+                  >
                     <svg
                       className="w-4 h-4 text-blue-600"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
+                      aria-hidden="true"
                     >
                       <path
                         strokeLinecap="round"
@@ -518,24 +534,39 @@ export default function AdminDashboard() {
                       />
                     </svg>
                   </div>
-                  <span className="text-lg font-bold text-slate-800">
+                  <span 
+                    id="video-verification-title"
+                    className="text-lg font-bold text-slate-800"
+                  >
                     Video Verification
                   </span>
                 </div>
-                <span className="bg-blue-100 text-blue-700 rounded-full px-2 py-1 text-xs font-semibold">
+                <span 
+                  className="bg-blue-100 text-blue-700 rounded-full px-2 py-1 text-xs font-semibold"
+                  role="status"
+                  aria-label={`${videos.length} videos pending verification`}
+                >
                   {videos.length}
                 </span>
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
               {videos.length === 0 ? (
-                <div className="text-center py-8 bg-slate-50 rounded-lg border-2 border-dashed border-slate-300">
-                  <div className="p-2 bg-slate-200 rounded-full w-12 h-12 mx-auto mb-3 flex items-center justify-center">
+                <div 
+                  className="text-center py-8 bg-slate-50 rounded-lg border-2 border-dashed border-slate-300"
+                  role="status"
+                  aria-label="No pending videos"
+                >
+                  <div 
+                    className="p-2 bg-slate-200 rounded-full w-12 h-12 mx-auto mb-3 flex items-center justify-center"
+                    aria-hidden="true"
+                  >
                     <svg
                       className="w-6 h-6 text-slate-400"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
+                      aria-hidden="true"
                     >
                       <path
                         strokeLinecap="round"
@@ -553,22 +584,34 @@ export default function AdminDashboard() {
                   </p>
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div 
+                  className="space-y-4"
+                  role="feed"
+                  aria-label="Pending videos list"
+                >
                   {videos.map((video) => (
                     <div
                       key={video.id}
                       className="bg-slate-50 border border-slate-200 rounded-xl p-4 hover:bg-white hover:shadow-sm transition-all duration-200"
+                      role="article"
+                      aria-labelledby={`video-title-${video.id}`}
                     >
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex-1">
-                          <h3 className="font-bold text-base text-slate-800 mb-1 leading-tight">
+                          <h3 
+                            id={`video-title-${video.id}`}
+                            className="font-bold text-base text-slate-800 mb-1 leading-tight"
+                          >
                             {video.title}
                           </h3>
                           <p className="text-slate-600 text-xs leading-relaxed line-clamp-2">
                             {video.description}
                           </p>
                         </div>
-                        <span className="bg-amber-100 text-amber-700 px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap ml-2">
+                        <span 
+                          className="bg-amber-100 text-amber-700 px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap ml-2"
+                          role="status"
+                        >
                           Pending
                         </span>
                       </div>
@@ -579,6 +622,8 @@ export default function AdminDashboard() {
                           if (el) videoContainerRefs.current[video.id] = el;
                         }}
                         className="relative aspect-video bg-slate-900 rounded-lg overflow-hidden mb-3 ring-1 ring-slate-300"
+                        role="region"
+                        aria-label={`Video player for ${video.title}`}
                       >
                         {videoStates[video.id]?.url && (
                           <video
@@ -591,19 +636,25 @@ export default function AdminDashboard() {
                             loop
                             playsInline
                             onClick={() => togglePlay(video.id)}
+                            aria-label={`Video content: ${video.title}`}
                           />
                         )}
-                        <div className="absolute bottom-2 right-2 flex gap-1">
+                        <div 
+                          className="absolute bottom-2 right-2 flex gap-1"
+                          role="group"
+                          aria-label="Video controls"
+                        >
                           <Button
                             variant="secondary"
                             size="icon"
                             className="bg-slate-900/80 hover:bg-blue-600 text-white rounded-md shadow-md cursor-pointer backdrop-blur-sm border-0 h-8 w-8"
                             onClick={() => toggleMute(video.id)}
+                            aria-label={videoStates[video.id]?.isMuted ? "Unmute video" : "Mute video"}
                           >
                             {videoStates[video.id]?.isMuted ? (
-                              <VolumeX className="w-3 h-3" />
+                              <VolumeX className="w-3 h-3" aria-hidden="true" />
                             ) : (
-                              <Volume2 className="w-3 h-3" />
+                              <Volume2 className="w-3 h-3" aria-hidden="true" />
                             )}
                           </Button>
                           <Button
@@ -611,32 +662,45 @@ export default function AdminDashboard() {
                             size="icon"
                             className="bg-slate-900/80 hover:bg-slate-700 text-white rounded-md shadow-md cursor-pointer backdrop-blur-sm border-0 h-8 w-8"
                             onClick={() => toggleFullscreen(video.id)}
+                            aria-label={videoStates[video.id]?.isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
                           >
-                            <Maximize2 className="w-3 h-3" />
+                            <Maximize2 className="w-3 h-3" aria-hidden="true" />
                           </Button>
                         </div>
                       </div>
 
-                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 mb-3">
+                      <div 
+                        className="bg-blue-50 border border-blue-200 rounded-lg p-2 mb-3"
+                        role="region"
+                        aria-label="Upload information"
+                      >
                         <div className="flex items-center gap-2">
-                          <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                          <div className="w-1.5 h-1.5 bg-blue-500 rounded-full" aria-hidden="true"></div>
                           <span className="text-xs text-blue-700 font-medium">
                             {video.user.display_name} •{" "}
-                            {new Date(video.created_at).toLocaleDateString()}
+                            <time dateTime={video.created_at}>
+                              {new Date(video.created_at).toLocaleDateString()}
+                            </time>
                           </span>
                         </div>
                       </div>
 
-                      <div className="flex gap-2">
+                      <div 
+                        className="flex gap-2"
+                        role="group"
+                        aria-label="Video actions"
+                      >
                         <Button
                           onClick={() => handleVideoAction(video.id, "approve")}
                           className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg py-2 cursor-pointer shadow-sm hover:shadow-md transition-all duration-200 text-sm"
+                          aria-label={`Approve video: ${video.title}`}
                         >
                           <svg
                             className="w-3 h-3 mr-1.5"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
+                            aria-hidden="true"
                           >
                             <path
                               strokeLinecap="round"
@@ -650,12 +714,14 @@ export default function AdminDashboard() {
                         <Button
                           onClick={() => handleVideoAction(video.id, "reject")}
                           className="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg py-2 cursor-pointer shadow-sm hover:shadow-md transition-all duration-200 text-sm"
+                          aria-label={`Reject video: ${video.title}`}
                         >
                           <svg
                             className="w-3 h-3 mr-1.5"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
+                            aria-hidden="true"
                           >
                             <path
                               strokeLinecap="round"
@@ -676,16 +742,24 @@ export default function AdminDashboard() {
 
           {/* User Management Panel (Admin Only) */}
           {userRole === "admin" && (
-            <Card className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-slate-200">
+            <Card 
+              className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-slate-200"
+              role="region"
+              aria-labelledby="user-management-title"
+            >
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="p-1.5 bg-purple-100 rounded-lg">
+                    <div 
+                      className="p-1.5 bg-purple-100 rounded-lg"
+                      aria-hidden="true"
+                    >
                       <svg
                         className="w-4 h-4 text-purple-600"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
+                        aria-hidden="true"
                       >
                         <path
                           strokeLinecap="round"
@@ -695,26 +769,42 @@ export default function AdminDashboard() {
                         />
                       </svg>
                     </div>
-                    <span className="text-lg font-bold text-slate-800">
+                    <span 
+                      id="user-management-title"
+                      className="text-lg font-bold text-slate-800"
+                    >
                       User Management
                     </span>
                   </div>
-                  <span className="bg-purple-100 text-purple-700 rounded-full px-2 py-1 text-xs font-semibold">
+                  <span 
+                    className="bg-purple-100 text-purple-700 rounded-full px-2 py-1 text-xs font-semibold"
+                    role="status"
+                    aria-label={`${users.length} total users`}
+                  >
                     {users.length}
                   </span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-0">
-                <div className="space-y-3">
+                <div 
+                  className="space-y-3"
+                  role="feed"
+                  aria-label="User list"
+                >
                   {users.map((user) => (
                     <div
                       key={user.id}
                       className="bg-slate-50 border border-slate-200 rounded-xl p-4 hover:bg-white hover:shadow-sm transition-all duration-200"
+                      role="article"
+                      aria-labelledby={`user-name-${user.id}`}
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-bold text-base text-slate-800">
+                            <h3 
+                              id={`user-name-${user.id}`}
+                              className="font-bold text-base text-slate-800"
+                            >
                               {user.display_name}
                             </h3>
                             <div className="flex gap-1">
@@ -726,11 +816,15 @@ export default function AdminDashboard() {
                                     ? "bg-blue-100 text-blue-700"
                                     : "bg-slate-100 text-slate-700"
                                 }`}
+                                role="status"
                               >
                                 {user.role.toUpperCase()}
                               </span>
                               {user.banned && (
-                                <span className="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-700 font-medium">
+                                <span 
+                                  className="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-700 font-medium"
+                                  role="status"
+                                >
                                   BANNED
                                 </span>
                               )}
@@ -741,14 +835,16 @@ export default function AdminDashboard() {
                           </p>
                           <p className="text-xs text-slate-500">
                             Joined{" "}
-                            {new Date(user.created_at).toLocaleDateString(
-                              "en-US",
-                              {
-                                month: "short",
-                                day: "numeric",
-                                year: "2-digit",
-                              }
-                            )}
+                            <time dateTime={user.created_at}>
+                              {new Date(user.created_at).toLocaleDateString(
+                                "en-US",
+                                {
+                                  month: "short",
+                                  day: "numeric",
+                                  year: "2-digit",
+                                }
+                              )}
+                            </time>
                           </p>
                         </div>
                         {user.role !== "admin" && (
@@ -759,6 +855,7 @@ export default function AdminDashboard() {
                                 ? "bg-emerald-600 hover:bg-emerald-700 text-white"
                                 : "bg-red-600 hover:bg-red-700 text-white"
                             }`}
+                            aria-label={user.banned ? `Unban ${user.display_name}` : `Ban ${user.display_name}`}
                           >
                             {user.banned ? (
                               <>
@@ -767,6 +864,7 @@ export default function AdminDashboard() {
                                   fill="none"
                                   stroke="currentColor"
                                   viewBox="0 0 24 24"
+                                  aria-hidden="true"
                                 >
                                   <path
                                     strokeLinecap="round"
@@ -784,6 +882,7 @@ export default function AdminDashboard() {
                                   fill="none"
                                   stroke="currentColor"
                                   viewBox="0 0 24 24"
+                                  aria-hidden="true"
                                 >
                                   <path
                                     strokeLinecap="round"
