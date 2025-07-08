@@ -73,70 +73,149 @@ export default function LeftMenu({ id }: LeftMenuProps) {
   }, []);
 
   return (
-    <aside className="hidden md:block sticky top-28 h-[calc(98vh-7rem)] w-84 bg-white rounded-xl shadow-md">
+    <aside
+      className="hidden md:block sticky top-28 h-[calc(98vh-7rem)] w-84 bg-white rounded-xl shadow-md"
+      role="complementary"
+      aria-label="Trending content and navigation"
+    >
       <div className="p-4 h-full flex flex-col">
-        {" "}
         {/* Trending Section */}
         <div>
-          <div className="font-bold text-2xl">Trending</div>
+          <h2 className="font-bold text-2xl" id="trending-heading">
+            Trending
+          </h2>
+          <div className="sr-only">
+            This section shows trending tags and popular countries for sign
+            language videos.
+          </div>
+
           {/* Tags Section */}
           {tags.length > 0 && (
-            <div className="mt-4 mb-6">
-              {" "}
-              <div className="flex flex-wrap gap-2">
+            <div
+              className="mt-4 mb-6"
+              role="region"
+              aria-labelledby="trending-tags-heading"
+            >
+              <h3 className="sr-only" id="trending-tags-heading">
+                Trending Tags
+              </h3>
+              <div
+                className="flex flex-wrap gap-2"
+                role="list"
+                aria-label="Trending tags"
+              >
                 {tags.slice(0, 5).map((tagItem, index) => (
-                  <span
+                  <button
                     key={index}
-                    onClick={() =>
-                      router.push(`/country/${id}?tag=${tagItem.tag}`)
-                    }
-                    className="bg-[#d1ecf1] text-[#0c5460] px-2 py-0.5 rounded-full text-sm font-semibold tracking-wide shadow-sm cursor-pointer hover:scale-105 hover:shadow-md transition-transform duration-150
-
-"
+                    onClick={() => {
+                      router.push(`/country/${id}?tag=${tagItem.tag}`);
+                      // Announce navigation to screen readers
+                      const announcement = document.createElement("div");
+                      announcement.setAttribute("role", "status");
+                      announcement.setAttribute("aria-live", "polite");
+                      announcement.className = "sr-only";
+                      announcement.textContent = `Filtering videos by tag: ${tagItem.tag}`;
+                      document.body.appendChild(announcement);
+                      setTimeout(
+                        () => document.body.removeChild(announcement),
+                        3000
+                      );
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        router.push(`/country/${id}?tag=${tagItem.tag}`);
+                      }
+                    }}
+                    className="bg-[#d1ecf1] text-[#0c5460] px-2 py-0.5 rounded-full text-sm font-semibold tracking-wide shadow-sm cursor-pointer hover:scale-105 hover:shadow-md focus:scale-105 focus:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition-transform duration-150"
+                    role="listitem"
+                    aria-label={`Filter by tag: ${tagItem.tag}, ${tagItem.tag_count} videos`}
+                    tabIndex={0}
                   >
                     {tagItem.tag}
-                    <span className="ml-1 text-xs text-[#31708f]">
+                    <span
+                      className="ml-1 text-xs text-[#31708f]"
+                      aria-hidden="true"
+                    >
                       ({tagItem.tag_count})
                     </span>
-                  </span>
+                  </button>
                 ))}
               </div>
             </div>
           )}
-          <div className="mt-6">
+
+          <div
+            className="mt-6"
+            role="region"
+            aria-labelledby="popular-countries-heading"
+          >
+            <h3 className="sr-only" id="popular-countries-heading">
+              Popular Countries
+            </h3>
             {loading && (
-              <span className="flex text-black text-2xl ml-4">
-                <span className="animate-bounce [animation-delay:0ms]">.</span>
-                <span className="animate-bounce [animation-delay:200ms]">
-                  .
+              <div
+                role="status"
+                aria-live="polite"
+                aria-label="Loading popular countries"
+              >
+                <span
+                  className="flex text-black text-2xl ml-4"
+                  aria-hidden="true"
+                >
+                  <span className="animate-bounce [animation-delay:0ms]">
+                    .
+                  </span>
+                  <span className="animate-bounce [animation-delay:200ms]">
+                    .
+                  </span>
+                  <span className="animate-bounce [animation-delay:400ms]">
+                    .
+                  </span>
                 </span>
-                <span className="animate-bounce [animation-delay:400ms]">
-                  .
-                </span>
-              </span>
+                <span className="sr-only">Loading popular countries...</span>
+              </div>
             )}
-            {error && <p className="text-red-500">{error}</p>}{" "}
+            {error && (
+              <p className="text-red-500" role="alert" aria-live="assertive">
+                {error}
+              </p>
+            )}
             {stats && (
-              <ul className="space-y-1 max-h-80 overflow-auto">
+              <ul
+                className="space-y-1 max-h-80 overflow-auto"
+                role="list"
+                aria-label="Popular countries by video count"
+              >
                 {stats.slice(0, 4).map((stat) => {
                   const code = stat.country.toString().padStart(3, "0");
                   const countryName = countryMap[code] ?? stat.country;
                   const alpha2 = countries.numericToAlpha2(code);
 
                   return (
-                    <li key={stat.id} className="border-b last:border-none">
+                    <li
+                      key={stat.id}
+                      className="border-b last:border-none"
+                      role="listitem"
+                    >
                       <Link
                         href={`/country/${code}`}
-                        className="flex items-center space-x-4 px-3 py-3 hover:bg-gray-100 rounded-lg"
+                        className="flex items-center space-x-4 px-3 py-3 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 rounded-lg transition-colors"
+                        aria-label={`View ${countryName} - ${stat.upload_count} videos available`}
                       >
                         {alpha2 ? (
                           <img
                             src={`https://flagcdn.com/w320/${alpha2.toLowerCase()}.png`}
-                            alt={`${countryName} flag`}
+                            alt=""
                             className="w-8 h-8 rounded-full border border-black object-cover flex-shrink-0"
+                            role="presentation"
                           />
                         ) : (
-                          <span className="w-8 h-8 flex items-center justify-center text-xl">
+                          <span
+                            className="w-8 h-8 flex items-center justify-center text-xl"
+                            role="img"
+                            aria-label="Flag not available"
+                          >
                             🏳️
                           </span>
                         )}
@@ -154,34 +233,47 @@ export default function LeftMenu({ id }: LeftMenuProps) {
                 })}
               </ul>
             )}
-          </div>{" "}
+          </div>
         </div>
+
         {/* Bottom Section: hr and links */}
         <div className="mt-auto">
-          <hr className="border-zinc-200 dark:border-zinc-700 mb-2" />
-          <div className="flex flex-col gap-2">
-            <Link
-              href="/"
-              className="flex items-center text-xl gap-2 font-semibold text-black hover:text-blue-600 hover:bg-blue-400/10 rounded-xl px-2 py-1 transition"
-            >
-              <HomeOutlinedIcon fontSize="large" />
-              Home
-            </Link>
-            <Link
-              href="/profile"
-              className="flex items-center text-xl gap-2 font-semibold text-black hover:text-blue-600 hover:bg-blue-400/10 rounded-xl px-2 py-1 transition"
-            >
-              <PersonOutlineOutlinedIcon fontSize="large" />
-              Profile
-            </Link>
-            <Link
-              href="/dashboard"
-              className="flex items-center text-xl gap-2 font-semibold text-black hover:text-blue-600 hover:bg-blue-400/10 rounded-xl px-2 py-1 transition"
-            >
-              <DashboardOutlinedIcon fontSize="large" />
-              Dashboard
-            </Link>
-          </div>
+          <hr
+            className="border-zinc-200 dark:border-zinc-700 mb-2"
+            role="separator"
+            aria-hidden="true"
+          />
+          <nav role="navigation" aria-label="Main site navigation">
+            <div className="flex flex-col gap-2">
+              <Link
+                href="/"
+                className="flex items-center text-xl gap-2 font-semibold text-black hover:text-blue-600 hover:bg-blue-400/10 focus:text-blue-600 focus:bg-blue-400/10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 rounded-xl px-2 py-1 transition"
+                aria-label="Go to homepage"
+              >
+                <HomeOutlinedIcon fontSize="large" aria-hidden="true" />
+                Home
+              </Link>
+              <Link
+                href="/profile"
+                className="flex items-center text-xl gap-2 font-semibold text-black hover:text-blue-600 hover:bg-blue-400/10 focus:text-blue-600 focus:bg-blue-400/10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 rounded-xl px-2 py-1 transition"
+                aria-label="Go to your profile page"
+              >
+                <PersonOutlineOutlinedIcon
+                  fontSize="large"
+                  aria-hidden="true"
+                />
+                Profile
+              </Link>
+              <Link
+                href="/dashboard"
+                className="flex items-center text-xl gap-2 font-semibold text-black hover:text-blue-600 hover:bg-blue-400/10 focus:text-blue-600 focus:bg-blue-400/10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 rounded-xl px-2 py-1 transition"
+                aria-label="Go to your dashboard"
+              >
+                <DashboardOutlinedIcon fontSize="large" aria-hidden="true" />
+                Dashboard
+              </Link>
+            </div>
+          </nav>
         </div>
       </div>
     </aside>
