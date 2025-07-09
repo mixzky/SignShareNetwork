@@ -77,9 +77,8 @@ cd SignShareNetwork
 \`\`\`
 
 2. Install dependencies
-\`\`\`bash
+
 npm install
-\`\`\`
 
 3. Set up environment variables
 Create a \`.env.local\` file in the project root:
@@ -90,9 +89,8 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-public-anon-key
 \`\`\`
 
 4. Start the development server
-\`\`\`bash
+
 npm run dev
-\`\`\`
 
 Visit [http://localhost:3000](http://localhost:3000) to see the application.
 
@@ -117,15 +115,8 @@ signshare/
 
 The project includes comprehensive testing:
 
-\`\`\`bash
 # Run unit tests
 npm run tests
-
-# Run tests in watch mode
-npm test:watch
-
-# Generate coverage report
-npm test:coverage
 
 \`\`\`
 
