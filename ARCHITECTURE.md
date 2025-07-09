@@ -357,45 +357,13 @@ SignShareNetwork is built as a modern web application with a microservices-inspi
 ## 🧪 Testing Architecture
 
 1. **Test Types**
-   - Unit tests (Jest)
    - Integration tests
    - E2E tests (Playwright)
-   - Performance tests
 
 2. **Test Coverage**
-   - Component testing
    - API testing
    - Database testing
    - UI testing
-
-## 📱 Responsive Design
-
-1. **Mobile First**
-   - Fluid layouts
-   - Touch interactions
-   - Performance optimization
-   - Adaptive content
-
-2. **Cross-Browser**
-   - Browser compatibility
-   - Progressive enhancement
-   - Fallback strategies
-
-## 🔄 CI/CD Pipeline
-
-1. **Development Workflow**
-   ```mermaid
-   graph LR
-     A[Development] --> B[Testing]
-     B --> C[Staging]
-     C --> D[Production]
-   ```
-
-2. **Deployment Strategy**
-   - Automated testing
-   - Continuous integration
-   - Automated deployment
-   - Rollback capability
 
 ## 📊 Monitoring and Logging
 
