@@ -118,7 +118,6 @@ The project includes comprehensive testing:
 # Run unit tests
 npm run tests
 
-\`\`\`
 
 ## 🔐 Security
 
