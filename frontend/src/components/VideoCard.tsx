@@ -1,7 +1,14 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { CheckCircle2, Flag, Volume2, VolumeX, Maximize2 } from "lucide-react";
+import {
+  CheckCircle2,
+  Flag,
+  Volume2,
+  VolumeX,
+  Maximize2,
+  Languages,
+} from "lucide-react";
 import { Button } from "./ui/button";
 import { Database } from "@/types/database";
 import { useRouter } from "next/navigation";
@@ -39,6 +46,10 @@ export default function VideoCard({ video }: VideoCardProps) {
   const [videoUrl, setVideoUrl] = useState<string>("");
   const [tags, setTags] = useState<string[]>(video.tags || []);
   const [showAllTags, setShowAllTags] = useState(false);
+  const [translatedTitle, setTranslatedTitle] = useState<string>("");
+  const [translatedDesc, setTranslatedDesc] = useState<string>("");
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [isTranslated, setIsTranslated] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const videoContainerRef = useRef<HTMLDivElement>(null);
   const flagDialogRef = useRef<HTMLDivElement>(null);
@@ -261,6 +272,103 @@ export default function VideoCard({ video }: VideoCardProps) {
     }
   };
 
+  const handleTranslate = async () => {
+    // If already translated, toggle back to original
+    if (isTranslated) {
+      setIsTranslated(false);
+      // Announce to screen readers
+      const announcement = document.createElement("div");
+      announcement.setAttribute("role", "status");
+      announcement.setAttribute("aria-live", "polite");
+      announcement.className = "sr-only";
+      announcement.textContent = "Showing original content";
+      document.body.appendChild(announcement);
+      setTimeout(() => document.body.removeChild(announcement), 3000);
+      return;
+    }
+
+    // If we already have translations, just show them
+    if (translatedTitle && translatedDesc) {
+      setIsTranslated(true);
+      // Announce to screen readers
+      const announcement = document.createElement("div");
+      announcement.setAttribute("role", "status");
+      announcement.setAttribute("aria-live", "polite");
+      announcement.className = "sr-only";
+      announcement.textContent = "Showing translated content";
+      document.body.appendChild(announcement);
+      setTimeout(() => document.body.removeChild(announcement), 3000);
+      return;
+    }
+
+    setIsTranslating(true);
+
+    // Announce start of translation
+    const startAnnouncement = document.createElement("div");
+    startAnnouncement.setAttribute("role", "status");
+    startAnnouncement.setAttribute("aria-live", "polite");
+    startAnnouncement.className = "sr-only";
+    startAnnouncement.textContent = "Translating video content...";
+    document.body.appendChild(startAnnouncement);
+
+    try {
+      const response = await fetch(
+        "https://mixlnwza007.app.n8n.cloud/webhook/49a535bd-6f79-46fc-9501-571f1d4a9309",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            id: video.id,
+            method: "click",
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Translation failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.translated_title && data.translated_desc) {
+        setTranslatedTitle(data.translated_title);
+        setTranslatedDesc(data.translated_desc);
+        setIsTranslated(true);
+        toast.success("Content translated successfully!");
+
+        // Announce success to screen readers
+        const successAnnouncement = document.createElement("div");
+        successAnnouncement.setAttribute("role", "status");
+        successAnnouncement.setAttribute("aria-live", "polite");
+        successAnnouncement.className = "sr-only";
+        successAnnouncement.textContent =
+          "Video content translated successfully.";
+        document.body.appendChild(successAnnouncement);
+        setTimeout(() => document.body.removeChild(successAnnouncement), 3000);
+      } else {
+        throw new Error("Translation response missing required fields");
+      }
+    } catch (error) {
+      console.error("Translation error:", error);
+      toast.error("Failed to translate content. Please try again.");
+
+      // Announce error to screen readers
+      const errorAnnouncement = document.createElement("div");
+      errorAnnouncement.setAttribute("role", "alert");
+      errorAnnouncement.setAttribute("aria-live", "assertive");
+      errorAnnouncement.className = "sr-only";
+      errorAnnouncement.textContent = "Translation failed. Please try again.";
+      document.body.appendChild(errorAnnouncement);
+      setTimeout(() => document.body.removeChild(errorAnnouncement), 3000);
+    } finally {
+      setIsTranslating(false);
+      // Clean up start announcement
+      document.body.removeChild(startAnnouncement);
+    }
+  };
+
   return (
     <article
       className="bg-white rounded-xl shadow-sm overflow-hidden"
@@ -397,16 +505,36 @@ export default function VideoCard({ video }: VideoCardProps) {
           id={`video-title-${video.id}`}
           className="text-xl font-semibold text-gray-900 mb-2"
         >
-          {video.title}
+          {isTranslated ? translatedTitle : video.title}
         </h2>
-        {video.description && (
+        {(video.description || translatedDesc) && (
           <p
             id={`video-description-${video.id}`}
-            className="text-gray-600 text-sm whitespace-pre-wrap"
+            className="text-gray-600 text-sm whitespace-pre-wrap mb-3"
           >
-            {video.description}
+            {isTranslated ? translatedDesc : video.description}
           </p>
         )}
+        {/* Translate Button */}
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleTranslate}
+            disabled={isTranslating}
+            className="focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 cursor-pointer"
+            aria-label={
+              isTranslated ? "Show original content" : "Translate content"
+            }
+          >
+            <Languages className="w-4 h-4 mr-1" aria-hidden="true" />
+            {isTranslating
+              ? "Translating..."
+              : isTranslated
+              ? "Show Original"
+              : "Translate"}
+          </Button>
+        </div>
       </div>
       {/* Video Section */}
       <div

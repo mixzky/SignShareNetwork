@@ -127,7 +127,7 @@ export default function LeftMenu({ id }: LeftMenuProps) {
                         router.push(`/country/${id}?tag=${tagItem.tag}`);
                       }
                     }}
-                    className="bg-[#d1ecf1] text-[#0c5460] px-2 py-0.5 rounded-full text-sm font-semibold tracking-wide shadow-sm cursor-pointer hover:scale-105 hover:shadow-md focus:scale-105 focus:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition-transform duration-150"
+                    className="bg-[#d1ecf1] text-[#0c5460] px-2 py-0.5 rounded-full text-sm font-semibold tracking-wide shadow-sm cursor-pointer hover:scale-105 hover:shadow-md focus:scale-105 focus:shadow-md focus:outline-none transition-transform duration-150"
                     role="listitem"
                     aria-label={`Filter by tag: ${tagItem.tag}, ${tagItem.tag_count} videos`}
                     tabIndex={0}
@@ -200,7 +200,7 @@ export default function LeftMenu({ id }: LeftMenuProps) {
                     >
                       <Link
                         href={`/country/${code}`}
-                        className="flex items-center space-x-4 px-3 py-3 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 rounded-lg transition-colors"
+                        className="flex items-center space-x-4 px-3 py-3 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none  rounded-lg transition-colors"
                         aria-label={`View ${countryName} - ${stat.upload_count} videos available`}
                       >
                         {alpha2 ? (
