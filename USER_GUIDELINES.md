@@ -6,18 +6,18 @@
 
 ## 📋 Quick Navigation
 
-| Section                                          | Description                     |
-| ------------------------------------------------ | ------------------------------- |
-| [🔐 Account Setup](#account-setup)               | Create and manage your account  |
-| [👤 Profile Management](#profile-management)     | Customize your profile settings |
-| [📤 Uploading Videos](#uploading-videos)         | Share your sign language videos |
-| [🎬 Video Management](#video-management)         | Organize and edit your content  |
-| [📊 Dashboard](#dashboard)                       | Monitor your video performance  |
-| [⭐ Video Reviews](#video-reviews)               | Rate and comment on videos      |
-| [🔍 Search and Discovery](#search-and-discovery) | Find content that interests you |
-| [👥 Community Guidelines](#community-guidelines) | Platform rules and standards    |
-| [🔧 Troubleshooting](#troubleshooting)           | Solve common issues             |
-| [📞 Contact Support](#contact-support)           | Get help when you need it       |
+| Section                                           | Description                     |
+| ------------------------------------------------- | ------------------------------- |
+| [🔐 Account Setup](#account-setup)                | Create and manage your account  |
+| [👤 Profile Management](#profile-management)      | Customize your profile settings |
+| [📤 Uploading Videos](#uploading-videos)          | Share your sign language videos |
+| [🎬 Video Management](#video-management)          | Organize and edit your content  |
+| [📊 Dashboard](#dashboard)                        | Monitor your video performance  |
+| [🔍 Search and Discovery](#search-and-discovery)  | Find content that interests you |
+| [⭐ Video Reviews](#video-reviews)                | Rate and comment on videos      |
+| [👥 Community Guidelines](#community-guidelines)  | Platform rules and standards    |
+| [🔒 Data Policy & Privacy](#data-policy--privacy) | How we handle your information  |
+| [ Contact Support](#contact-support)              | Get help when you need it       |
 
 ---
 
@@ -200,6 +200,27 @@ Login → Country Page → Upload Button
 
 ---
 
+## 🔍 Search and Discovery
+
+### 🎯 Finding Content
+
+| Method                   | How to Use                            | Best For                  |
+| ------------------------ | ------------------------------------- | ------------------------- |
+| **🔍 Search Bar**        | Enter keywords for videos/topics      | Specific content          |
+| **🏷️ Browse by Tags**    | Click on tags to find related content | Exploring categories      |
+| **🌍 Interactive Globe** | Click countries on homepage           | Regional exploration      |
+| **🗺️ Country Search**    | Type country name in search bar       | Location-specific content |
+
+### 🚀 Content Discovery Features
+
+> 🌟 **Explore the global sign language community**
+
+- **📈 Trending Content:** See what's popular in the community
+- **🆕 Recent Uploads:** Check out the latest content from creators
+- **🌎 Geographic Exploration:** Use the interactive globe to discover content worldwide
+
+---
+
 ## ⭐ Video Reviews
 
 ### 🗳️ Voting on Videos
@@ -232,27 +253,6 @@ Login → Country Page → Upload Button
 - **💬 Comment Count:** View total reviews/comments on each video
 - **👤 User Profiles:** See reviewer names and profile pictures
 - **📄 Load More:** Initially shows 3 comments, click "Show more" for additional reviews
-
----
-
-## 🔍 Search and Discovery
-
-### 🎯 Finding Content
-
-| Method                   | How to Use                            | Best For                  |
-| ------------------------ | ------------------------------------- | ------------------------- |
-| **🔍 Search Bar**        | Enter keywords for videos/topics      | Specific content          |
-| **🏷️ Browse by Tags**    | Click on tags to find related content | Exploring categories      |
-| **🌍 Interactive Globe** | Click countries on homepage           | Regional exploration      |
-| **🗺️ Country Search**    | Type country name in search bar       | Location-specific content |
-
-### 🚀 Content Discovery Features
-
-> 🌟 **Explore the global sign language community**
-
-- **📈 Trending Content:** See what's popular in the community
-- **🆕 Recent Uploads:** Check out the latest content from creators
-- **🌎 Geographic Exploration:** Use the interactive globe to discover content worldwide
 
 ---
 
@@ -314,95 +314,37 @@ Login → Country Page → Upload Button
 
 ---
 
-## 🔧 Troubleshooting
+## 🔒 Data Policy & Privacy
 
-### 🔐 Login Problems
+### 📊 What We Collect
 
-#### Can't Sign In?
+> 🔍 **Simple overview of your data**
 
-> 🆘 **Follow these steps to regain access**
+We collect the information you provide (account details, videos, comments) and basic usage data to keep the platform running smoothly and securely.
 
-| Step | Action                                             |
-| ---- | -------------------------------------------------- |
-| 1️⃣   | Double-check your email and password               |
-| 2️⃣   | Use "Forgot Password" link on login page           |
-| 3️⃣   | Clear browser cache and cookies                    |
-| 4️⃣   | Try different browser or incognito mode            |
-| 5️⃣   | Check email for verification emails in spam folder |
+### 🛡️ How We Protect Your Data
 
-#### Account Locked?
+- **� Secure:** All data is encrypted and protected
+- **� Not Sold:** We never sell your personal information
+- **⚖️ Legal Only:** Data shared only when required by law
 
-- ⏰ Wait 15 minutes for automatic unlock
-- 🔄 Use password reset if needed
-- 📞 Contact support for persistent issues
+### 👤 Your Rights
 
-### 📤 Video Upload Issues
+> 🎛️ **You control your data**
 
-#### Upload Failing or Slow?
+| Action                  | How To                                          |
+| ----------------------- | ----------------------------------------------- |
+| **📥 Access Your Data** | Contact support for a copy of your information  |
+| **✏️ Update Info**      | Edit through your profile settings              |
+| **🗑️ Delete Account**   | Contact support to remove your account and data |
 
-| Solution          | Details                                 |
-| ----------------- | --------------------------------------- |
-| **🌐 Connection** | Test your internet connection speed     |
-| **📁 Format**     | Ensure format is MP4, WebM, or MOV      |
-| **📏 Size**       | Verify file size is under 50MB          |
-| **🔄 Refresh**    | Try refreshing page and uploading again |
-| **🕒 Timing**     | Upload during off-peak hours            |
+### 📋 Policy Updates
 
-#### Upload Processing Stuck?
-
-- ⏱️ Wait 5-10 minutes for processing to complete
-- ✅ Check if file meets all requirements
-- 💻 Try uploading from different device or browser
-
-### ▶️ Video Playback Problems
-
-#### Videos Won't Play?
-
-> 🎬 **Get your videos playing smoothly**
-
-1. **🌐 Browser:** Ensure latest browser version
-2. **🔌 Extensions:** Disable ad blockers temporarily
-3. **🔄 Refresh:** Reload the page and try again
-4. **⚡ Speed:** Test internet speed (minimum 5 Mbps recommended)
-5. **🎛️ Quality:** Try different quality settings
-
-### 👤 Profile Issues
-
-#### Can't Update Profile?
-
-| Check           | Requirement                           |
-| --------------- | ------------------------------------- |
-| **📝 Fields**   | All mandatory fields completed        |
-| **📧 Email**    | Email address format is correct       |
-| **👤 Username** | 3+ characters, alphanumeric only      |
-| **🖼️ Image**    | Profile pictures under 5MB (JPG, PNG) |
-
-### 💻 Technical Requirements
-
-#### 🌐 Browser Compatibility
-
-| Browser     | Minimum Version |
-| ----------- | --------------- |
-| **Chrome**  | Version 90+     |
-| **Firefox** | Version 88+     |
-| **Safari**  | Version 14+     |
-| **Edge**    | Version 90+     |
-
-#### ⚙️ Required Settings
-
-- ✅ JavaScript must be enabled
-- 🍪 Cookies required for login
-- 🚫 Disable pop-up blockers for upload features
-
-#### 📱 System Requirements
-
-- **🌐 Internet:** Stable broadband (5+ Mbps)
-- **💾 Storage:** 100MB free space
-- **🧠 RAM:** 4GB for smooth playback
+We'll email you about any important changes to this policy with 30 days advance notice.
 
 ---
 
-## 📞 Contact Support
+## Contact Support
 
 ### 🆘 Getting Help
 
@@ -420,7 +362,6 @@ Login → Country Page → Upload Button
 
 > 🤝 **We're here to help when you need us**
 
-- **📧 Email:** support@signsharenetwork.com
 - **⏱️ Response Time:** Within 24 hours for urgent issues
 - **📝 What to Include:** Username and detailed description for faster resolution
 
