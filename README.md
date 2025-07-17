@@ -71,50 +71,57 @@ A fullstack sign language video sharing platform that empowers accessible commun
 
 ### Installation
 
-1. Clone the repository
-git clone https://github.com/mixzky/SignShareNetwork.git
-cd SignShareNetwork
+1. **Clone the repository**
 
-3. Install dependencies
+   ```bash
+   git clone https://github.com/mixzky/SignShareNetwork.git
+   cd SignShareNetwork
+   ```
 
-npm install
+2. Install dependencies
+   ```bash
+   npm install
+  
 
 3. Set up environment variables
-
-To connect the application to your Supabase project, you need to create a `.env.local` file in the root of your project and add the following environment variables
-
+To connect the application to your Supabase project, create a `.env.local` file in the root directory and add the following:
+```env
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-public-anon-key
+```
 
 4. Start the development server
+ ```bash
+   npm run dev
+```
 
-npm run dev
-
-Visit http://localhost:3000 to see the application.
+Visit [http://localhost:3000](http://localhost:3000) to see the application.
 
 ## 📁 Project Structure
 
+```text
 signshare/
 ├── frontend/
 │   ├── src/
 │   │   ├── app/           # Next.js pages and routes
 │   │   ├── components/    # React components
-│   │   ├── lib/          # Utility functions and helpers
-│   │   ├── types/        # TypeScript type definitions
-│   │   └── utils/        # Shared utilities
-│   ├── public/           # Static assets
-│   └── tests/           # E2E and integration tests
+│   │   ├── lib/           # Utility functions
+│   │   ├── types/         # TypeScript definitions
+│   │   └── utils/         # Shared utilities
+│   ├── public/            # Static assets
+│   └── tests/             # E2E and integration tests
 └── supabase/
-    └── functions/       # Supabase Edge Functions (optional if you want store edge function in the local)
-\`\`\`
+    └── functions/         # Supabase Edge Functions (optional)
+```
 
 ## 🧪 Testing
 
 The project includes comprehensive testing:
 
-# Run unit tests
+### Run unit tests
+```bash
 npm run tests
-
+```
 
 ## 🔐 Security
 
