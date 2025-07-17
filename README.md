@@ -1,4 +1,5 @@
 # SignShareNetwork
+<img width="1775" height="937" alt="signsharepreview" src="https://github.com/user-attachments/assets/322d40f7-f6fb-456b-a8e9-92855591f776" />
 
 A fullstack sign language video sharing platform that empowers accessible communication through user-contributed sign clips, AI-powered tagging, and community collaboration.
 
@@ -71,32 +72,28 @@ A fullstack sign language video sharing platform that empowers accessible commun
 ### Installation
 
 1. Clone the repository
-\`\`\`bash
 git clone https://github.com/mixzky/SignShareNetwork.git
 cd SignShareNetwork
-\`\`\`
 
-2. Install dependencies
+3. Install dependencies
 
 npm install
 
 3. Set up environment variables
-Create a \`.env.local\` file in the project root:
 
-\`\`\`env
+To connect the application to your Supabase project, you need to create a `.env.local` file in the root of your project and add the following environment variables
+
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-public-anon-key
-\`\`\`
 
 4. Start the development server
 
 npm run dev
 
-Visit [http://localhost:3000](http://localhost:3000) to see the application.
+Visit http://localhost:3000 to see the application.
 
 ## 📁 Project Structure
 
-\`\`\`
 signshare/
 ├── frontend/
 │   ├── src/
