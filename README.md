@@ -1,4 +1,5 @@
 # SignShareNetwork
+<img width="1775" height="937" alt="signsharepreview" src="https://github.com/user-attachments/assets/322d40f7-f6fb-456b-a8e9-92855591f776" />
 
 A fullstack sign language video sharing platform that empowers accessible communication through user-contributed sign clips, AI-powered tagging, and community collaboration.
 
