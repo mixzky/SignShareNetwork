@@ -81,7 +81,6 @@ A fullstack sign language video sharing platform that empowers accessible commun
 2. Install dependencies
    ```bash
    npm install
-  
 
 3. Set up environment variables
 To connect the application to your Supabase project, create a `.env.local` file in the root directory and add the following:
@@ -89,7 +88,12 @@ To connect the application to your Supabase project, create a `.env.local` file 
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-public-anon-key
 ```
+**Important Notes:**
 
+- You can find your Supabase Project URL and `anon` key under **Settings > API** in your Supabase project.
+- The `NEXT_PUBLIC_` prefix exposes variables to the browser (as required by Next.js).
+- **Do NOT commit your `.env.local` file to version control** — it contains sensitive data. This file is typically included in `.gitignore` by default in most Next.js projects.
+  
 4. Start the development server
  ```bash
    npm run dev
