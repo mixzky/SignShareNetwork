@@ -19,7 +19,7 @@ import {
   uploadAvatar,
   deleteAvatar,
 } from "@/lib/supabase";
-import { Pencil } from "lucide-react";
+import { Pencil, Wand2 } from "lucide-react";
 
 const profileSchema = z.object({
   display_name: z.string().min(2, "Display name must be at least 2 characters"),
@@ -34,6 +34,8 @@ export default function EditProfilePage() {
   const [uploading, setUploading] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | undefined>(undefined);
   const [userId, setUserId] = useState<string | null>(null);
+  const [generatingAvatar, setGeneratingAvatar] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState("");
 
   const {
     register,
@@ -121,14 +123,58 @@ export default function EditProfilePage() {
     }
   };
 
+  const generateAiAvatar = async () => {
+    if (!aiPrompt.trim()) {
+      toast.error("Please enter a prompt for your avatar");
+      return;
+    }
+
+    try {
+      setGeneratingAvatar(true);
+      const response = await fetch(
+        "https://njzzkhcoecjmnyuizobo.supabase.co/functions/v1/testtest",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            prompt: aiPrompt.trim(),
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to generate avatar");
+      }
+
+      const data = await response.json();
+      console.log("Generated avatar data:", data);
+      if (data.imageUrl) {
+        setAvatarUrl(data.imageUrl);
+        setAiPrompt("");
+        toast.success(
+          "AI avatar generated and applied! Don't forget to save your changes."
+        );
+      } else {
+        throw new Error("No image URL received");
+      }
+    } catch (error) {
+      console.error("Error generating AI avatar:", error);
+      toast.error("Failed to generate AI avatar");
+    } finally {
+      setGeneratingAvatar(false);
+    }
+  };
+
   if (loading) {
     return (
-      <div 
+      <div
         className="flex items-center justify-center min-h-screen"
         role="status"
         aria-label="Loading profile editor"
       >
-        <div 
+        <div
           className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"
           aria-hidden="true"
         />
@@ -137,18 +183,18 @@ export default function EditProfilePage() {
   }
 
   return (
-    <div 
+    <div
       className="min-h-screen bg-[#F0F2F5] relative overflow-hidden"
       role="main"
     >
       {/* TopMenu fixed */}
-      <div 
+      <div
         className="fixed top-0 left-0 w-full z-50 bg-[#0a0e18] h-24 flex items-center"
         role="banner"
       >
         <TopMenu />
       </div>
-      <div 
+      <div
         className="w-full flex justify-center items-center bg-[#ffffff] h-16 mt-24 shadow z-40 relative"
         role="heading"
         aria-level={1}
@@ -165,13 +211,13 @@ export default function EditProfilePage() {
             <CardTitle>Edit Profile</CardTitle>
           </CardHeader>
           <CardContent>
-            <form 
-              onSubmit={handleSubmit(onSubmit)} 
+            <form
+              onSubmit={handleSubmit(onSubmit)}
               className="space-y-6"
               aria-label="Edit profile form"
             >
               <div className="space-y-4">
-                <div 
+                <div
                   className="flex items-center gap-4"
                   role="group"
                   aria-labelledby="avatar-label"
@@ -184,17 +230,24 @@ export default function EditProfilePage() {
                         className="w-full h-full rounded-full object-cover"
                       />
                     ) : (
-                      <div 
+                      <div
                         className="w-full h-full rounded-full bg-gray-200 flex items-center justify-center"
                         role="img"
                         aria-label="Profile picture placeholder"
                       >
-                        <span className="text-2xl text-gray-500" aria-hidden="true">?</span>
+                        <span
+                          className="text-2xl text-gray-500"
+                          aria-hidden="true"
+                        >
+                          ?
+                        </span>
                       </div>
                     )}
                   </div>
-                  <div>
-                    <Label id="avatar-label" htmlFor="avatar">Profile Picture</Label>
+                  <div className="flex-1">
+                    <Label id="avatar-label" htmlFor="avatar">
+                      Profile Picture
+                    </Label>
                     <Input
                       id="avatar"
                       type="file"
@@ -205,8 +258,8 @@ export default function EditProfilePage() {
                       aria-describedby="avatar-status"
                     />
                     {uploading && (
-                      <p 
-                        id="avatar-status" 
+                      <p
+                        id="avatar-status"
                         className="text-sm text-gray-500 mt-1"
                         role="status"
                         aria-live="polite"
@@ -217,18 +270,55 @@ export default function EditProfilePage() {
                   </div>
                 </div>
 
+                <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
+                  <h3 className="text-sm font-medium text-gray-700">
+                    Generate AI Avatar
+                  </h3>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Describe your avatar (e.g., 'cartoon cat wearing glasses')"
+                      value={aiPrompt}
+                      onChange={(e) => setAiPrompt(e.target.value)}
+                      disabled={generatingAvatar}
+                      className="flex-1"
+                    />
+                    <Button
+                      type="button"
+                      onClick={generateAiAvatar}
+                      disabled={generatingAvatar || !aiPrompt.trim()}
+                      className="flex items-center gap-2"
+                    >
+                      {generatingAvatar ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          Generating...
+                        </>
+                      ) : (
+                        <>
+                          <Wand2 className="w-4 h-4" />
+                          Generate
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+
                 <div role="group" aria-labelledby="name-label">
-                  <Label id="name-label" htmlFor="display_name">Display Name</Label>
+                  <Label id="name-label" htmlFor="display_name">
+                    Display Name
+                  </Label>
                   <Input
                     id="display_name"
                     {...register("display_name")}
                     className="mt-1"
-                    aria-describedby={errors.display_name ? "name-error" : undefined}
+                    aria-describedby={
+                      errors.display_name ? "name-error" : undefined
+                    }
                     aria-invalid={errors.display_name ? "true" : "false"}
                   />
                   {errors.display_name && (
-                    <p 
-                      id="name-error" 
+                    <p
+                      id="name-error"
                       className="text-sm text-red-500 mt-1"
                       role="alert"
                     >
@@ -238,7 +328,9 @@ export default function EditProfilePage() {
                 </div>
 
                 <div role="group" aria-labelledby="bio-label">
-                  <Label id="bio-label" htmlFor="bio">Bio</Label>
+                  <Label id="bio-label" htmlFor="bio">
+                    Bio
+                  </Label>
                   <Textarea
                     id="bio"
                     {...register("bio")}
@@ -248,8 +340,8 @@ export default function EditProfilePage() {
                     aria-invalid={errors.bio ? "true" : "false"}
                   />
                   {errors.bio && (
-                    <p 
-                      id="bio-error" 
+                    <p
+                      id="bio-error"
                       className="text-sm text-red-500 mt-1"
                       role="alert"
                     >
@@ -259,7 +351,7 @@ export default function EditProfilePage() {
                 </div>
               </div>
 
-              <div 
+              <div
                 className="flex justify-end gap-4"
                 role="group"
                 aria-label="Form actions"
@@ -277,7 +369,9 @@ export default function EditProfilePage() {
                   type="submit"
                   disabled={isSubmitting}
                   className="cursor-pointer"
-                  aria-label={isSubmitting ? "Saving changes..." : "Save profile changes"}
+                  aria-label={
+                    isSubmitting ? "Saving changes..." : "Save profile changes"
+                  }
                 >
                   {isSubmitting ? "Saving..." : "Save Changes"}
                 </Button>
@@ -288,11 +382,11 @@ export default function EditProfilePage() {
       </div>
 
       {/* Animated blobs - decorative elements */}
-      <div 
+      <div
         className="absolute top-[-60px] left-[-60px] w-72 h-72 bg-blue-200 rounded-full opacity-30 animate-pulse"
         aria-hidden="true"
       ></div>
-      <div 
+      <div
         className="absolute bottom-[-80px] right-[-80px] w-96 h-96 bg-pink-200 rounded-full opacity-20 animate-pulse"
         aria-hidden="true"
       ></div>

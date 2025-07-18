@@ -3,7 +3,7 @@ import TopMenu from "@/components/TopMenu";
 import UserFeed from "@/components/UserFeed";
 import UserStats from "@/components/UserStats";
 import UserVideoList from "@/components/UserVideoList";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 
 // Screen reader only CSS
@@ -33,6 +33,32 @@ const srOnlyStyles = `
 `;
 
 export default function DashboardPage() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadingProgress, setLoadingProgress] = useState(0);
+
+  // Simulate loading progress
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2000); // 2 seconds loading time
+
+    // Animate loading bar
+    const progressInterval = setInterval(() => {
+      setLoadingProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(progressInterval);
+          return 100;
+        }
+        return prev + Math.random() * 15; // Random increment for realistic feel
+      });
+    }, 100);
+
+    return () => {
+      clearTimeout(timer);
+      clearInterval(progressInterval);
+    };
+  }, []);
+
   // Add keyboard event handler for better navigation
   const handleKeyDown = (event: React.KeyboardEvent) => {
     // Alt + M to go to main content
@@ -85,6 +111,23 @@ export default function DashboardPage() {
           </span>
         </h1>
       </div>
+
+      {/* Loading Bar */}
+      {isLoading && (
+        <div className="w-full bg-gray-200 h-1 relative overflow-hidden z-30">
+          <div
+            className="h-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-300 ease-out"
+            style={{ width: `${Math.min(loadingProgress, 100)}%` }}
+            role="progressbar"
+            aria-valuenow={Math.min(loadingProgress, 100)}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label="Dashboard loading progress"
+          />
+          {/* Animated shimmer effect */}
+          <div className="absolute top-0 left-0 h-full w-full bg-gradient-to-r from-transparent via-white/30 to-transparent animate-pulse" />
+        </div>
+      )}
 
       <div
         id="main-content"

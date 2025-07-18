@@ -527,12 +527,17 @@ export default function VideoCard({ video }: VideoCardProps) {
               isTranslated ? "Show original content" : "Translate content"
             }
           >
-            <Languages className="w-4 h-4 mr-1" aria-hidden="true" />
-            {isTranslating
-              ? "Translating..."
-              : isTranslated
-              ? "Show Original"
-              : "Translate"}
+            {isTranslating ? (
+              <>
+                <div className="w-4 h-4 border-2 border-gray-400 border-t-blue-500 rounded-full animate-spin mr-1" />
+                Translating...
+              </>
+            ) : (
+              <>
+                <Languages className="w-4 h-4 mr-1" aria-hidden="true" />
+                {isTranslated ? "Show Original" : "Translate"}
+              </>
+            )}
           </Button>
         </div>
       </div>
