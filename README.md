@@ -46,6 +46,7 @@
 - 🔍 Natural language search intent parsing
 - 📊 Embedding video
 - 💡 Smart content recommendations
+- 🖼️ Picture profile generation using Imagen 4
 
 </td>
 <td>

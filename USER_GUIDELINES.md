@@ -77,6 +77,36 @@
 | **Bio/Description** | Share your background and interests | Mention your sign language experience     |
 | **Profile Picture** | Your visual identity                | Clear photo, 400x400px recommended        |
 
+### 🎨 Profile Picture Options
+
+#### 📷 Upload Your Own Picture
+
+- Click "**Choose File**" to upload from your device
+- Supports JPG, PNG, and WebP formats
+- Recommended size: 400x400px for best quality
+
+#### 🤖 AI-Generated Avatar
+
+> ✨ **Create a unique avatar with AI technology**
+
+1. **Enter Description:** Type what you want your avatar to look like
+
+   - Example: "cartoon cat wearing glasses"
+   - Example: "professional person with friendly smile"
+   - Example: "robot with blue eyes"
+
+2. **Generate:** Click the "**Generate**" button with magic wand icon
+3. **Processing:** Wait a few seconds for AI to create your avatar
+4. **Auto-Apply:** Generated avatar is automatically set as your profile picture
+5. **Save Changes:** Remember to click "**Save Changes**" to keep your new avatar
+
+> 💡 **Tips for Better AI Avatars:**
+>
+> - Be specific but simple in your description
+> - Include style (cartoon, realistic, artistic)
+> - Mention colors, accessories, or expressions
+> - Keep descriptions under 50 words for best results
+
 ---
 
 ## 📤 Uploading Videos
@@ -218,6 +248,33 @@ Login → Country Page → Upload Button
 - **📈 Trending Content:** See what's popular in the community
 - **🆕 Recent Uploads:** Check out the latest content from creators
 - **🌎 Geographic Exploration:** Use the interactive globe to discover content worldwide
+
+### 🌐 Translation Features
+
+#### 📝 Video Title & Description Translation
+
+> 🔄 **Break down language barriers with instant translation**
+
+**How to Use Translation:**
+
+1. **Find the Translate Button:** Look for the 🌐 "Translate" button below video descriptions
+2. **Click to Translate:** Button will show spinning animation while processing
+3. **View Translation:** Title and description automatically translate to English
+4. **Switch Back:** Click "Show Original" to return to the original language
+
+**Translation Features:**
+
+- ⚡ **Instant Results:** Translations appear in seconds
+- 🔄 **Toggle Anytime:** Switch between original and translated content
+- 💾 **Cached Results:** Once translated, switching is immediate
+- 🌍 **Multiple Languages:** Supports translation from various languages to English
+
+> 💡 **Translation Tips:**
+>
+> - Translations help you understand content from other regions
+> - Original content is always preserved
+> - Use translations to discover global sign language variations
+> - Perfect for learning from international creators
 
 ---
 
