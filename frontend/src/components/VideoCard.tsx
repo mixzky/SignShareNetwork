@@ -696,7 +696,7 @@ export default function VideoCard({ video }: VideoCardProps) {
           variant="outline"
           size="sm"
           onClick={() => setFlagOpen(true)}
-          className="focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+          className="focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 cursor-pointer"
           aria-label={`Report this video: ${video.title}`}
         >
           <Flag className="w-4 h-4 mr-1 text-red-500" aria-hidden="true" />
@@ -751,7 +751,7 @@ export default function VideoCard({ video }: VideoCardProps) {
                 value={flagReason}
                 onChange={(e) => setFlagReason(e.target.value)}
                 placeholder="Describe the reason for flagging (required)"
-                className="mb-4 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                className="mb-4 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 "
                 rows={4}
                 disabled={flagLoading}
                 aria-label="Reason for flagging this video"
@@ -792,7 +792,7 @@ export default function VideoCard({ video }: VideoCardProps) {
                     );
                   }}
                   disabled={flagLoading}
-                  className="focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                  className="focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 cursor-pointer"
                   aria-label="Cancel flagging and close dialog"
                 >
                   Cancel
@@ -800,7 +800,7 @@ export default function VideoCard({ video }: VideoCardProps) {
                 <Button
                   onClick={handleFlag}
                   disabled={flagLoading || !flagReason.trim()}
-                  className="bg-red-500 hover:bg-red-600 focus:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                  className="bg-red-500 hover:bg-red-600 focus:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 cursor-pointer"
                   aria-label={
                     flagLoading
                       ? "Submitting flag report, please wait"
